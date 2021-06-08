@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,20 +37,48 @@ await Host.CreateDefaultBuilder(args)
                 nameof(TicketService),
                 client =>
                 {
-                    client.BaseAddress = new Uri(zendeskOptions.ApiBaseUri);
+                    client.BaseAddress = 
+                        zendeskOptions.ApiBaseUri.EndsWith("/") 
+                            ? new Uri(zendeskOptions.ApiBaseUri) 
+                            : new Uri(zendeskOptions.ApiBaseUri + "/");
+
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
-                    //client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiConfiguration.ApiKey);
-                    //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                    //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+
+                    if (zendeskOptions.AuthenticationMethod == AuthenticationScheme.BasicWithUserPassword)
+                    {
+                        //Basic auth with user/password - email_address:password and this must be base64-encoded
+                        var userAuthenticationString = $"{zendeskOptions.User}:{zendeskOptions.Password}";
+                        var encodedAuthenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes(userAuthenticationString));
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Basic", encodedAuthenticationString);
+                    }
+                    else if (zendeskOptions.AuthenticationMethod == AuthenticationScheme.BasicWithApiToken)
+                    {
+                        //Basic auth with token - email_address/token:api_token and this must be base64-encoded
+                        var tokenAuthenticationString = $"{zendeskOptions.User}/token:{zendeskOptions.Password}";
+                        var encodedAuthenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes(tokenAuthenticationString));
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Basic", encodedAuthenticationString);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Invalid Zendesk authentication scheme");
+                    }
+
+                    if (zendeskOptions.CompressApiResponse)
+                    {
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                    }
                 }
             )
             .ConfigurePrimaryHttpMessageHandler(_ =>
             {
                 var handler = new HttpClientHandler();
 
-                if (handler.SupportsAutomaticDecompression)
+                if (zendeskOptions.CompressApiResponse && handler.SupportsAutomaticDecompression)
                 {
-                    //handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                    handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                 }
                 return handler;
             });

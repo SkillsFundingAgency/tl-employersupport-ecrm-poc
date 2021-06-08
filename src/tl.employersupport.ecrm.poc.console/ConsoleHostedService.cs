@@ -38,7 +38,7 @@ namespace tl.employersupport.ecrm.poc.console
                     {
                         _logger.LogInformation("Getting ticket...");
 
-                        var ticketId = args.GetIntFromArgument("ticketId", 1);
+                        var ticketId = args.GetIntFromArgument("ticketId", ":");
                         var ticket = await _ticketService.GetTicket(ticketId);
 
                         if (ticket is not null)

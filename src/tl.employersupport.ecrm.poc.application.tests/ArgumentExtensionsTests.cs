@@ -18,6 +18,14 @@ namespace tl.employersupport.ecrm.poc.application.tests
         }
 
         [Fact]
+        public void GetStringFromArgumentWithSeparatorReturnsExpectedValue()
+        {
+            var input = new[] { "value:abc", "separatedValue:xyz" };
+            input.GetStringFromArgument("separatedValue", ":")
+                .Should().Be("xyz");
+        }
+
+        [Fact]
         public void GetIntFromArgumentReturnsExpectedValue()
         {
             var input = new[] { "value:123", "anothervalue:xyz" };
@@ -26,11 +34,19 @@ namespace tl.employersupport.ecrm.poc.application.tests
         }
 
         [Fact]
+        public void GetIntFromArgumentWithSeparatorReturnsExpectedValue()
+        {
+            var input = new[] { "nothing_here", "ticketId:4474" };
+            input.GetIntFromArgument("ticketId", ":", 1)
+                .Should().Be(4474);
+        }
+
+        [Fact]
         public void GetIntFromArgumentReturnsDefaultValue()
         {
             var input = new[] { "value:abc", "anothervalue:xyz" };
             const int defaultValue = 2;
-            input.GetIntFromArgument("notvalue:", defaultValue)
+            input.GetIntFromArgument("notvalue:", defaultResult: defaultValue)
                 .Should().Be(defaultValue);
         }
 
@@ -39,7 +55,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
         {
             var input = new[] { "value:abc", "anothervalue:xyz" };
             const string defaultValue = "default";
-            input.GetStringFromArgument("notvalue:", defaultValue)
+            input.GetStringFromArgument("notvalue:", defaultResult: defaultValue)
                 .Should().Be(defaultValue);
         }
 
@@ -49,7 +65,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
             string[] input = null;
             const string defaultValue = "default";
             // ReSharper disable once ExpressionIsAlwaysNull
-            input.GetStringFromArgument("notvalue:", defaultValue)
+            input.GetStringFromArgument("notvalue:", defaultResult: defaultValue)
                 .Should().Be(defaultValue);
         }
 

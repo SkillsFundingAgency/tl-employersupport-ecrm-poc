@@ -5,6 +5,6 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
 {
     public interface ITicketService
     {
-        Task<Ticket> GetTicket(int id);
+        Task<Ticket> GetTicket(int ticketId);
     }
 }
