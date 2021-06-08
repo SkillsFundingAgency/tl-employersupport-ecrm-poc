@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "tl.employersupport.monitor.poc.console": {
+      "commandName": "Project",
+      "commandLineArgs": "ticketId:4474",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "environmentName": "bob"
+    }
+  }
+}
