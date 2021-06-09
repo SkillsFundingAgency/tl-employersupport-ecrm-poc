@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,25 +30,56 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 throw new ArgumentNullException(nameof(zendeskConfiguration));
 
             _zendeskConfiguration = zendeskConfiguration.Value ??
-                                    throw new ArgumentNullException($"{nameof(zendeskConfiguration)}.{nameof(zendeskConfiguration.Value)}",
+                                    throw new ArgumentNullException(
+                                        $"{nameof(zendeskConfiguration)}.{nameof(zendeskConfiguration.Value)}",
                                         "zendeskConfiguration configuration value must not be null");
         }
 
-        public async Task<Ticket> GetTicket(int ticketId)
+        public async Task<Ticket> GetTicket(long ticketId)
         {
             Console.WriteLine($"Getting ticket {ticketId}");
+            
+            var ticketJson = await GetTicketJson(ticketId, Sideloads.GetTicketSideloads());
+            var ticketCommentJson = await GetTicketCommentsJson(ticketId);
+            var ticketAuditsJson = await GetTicketAuditsJson(ticketId);
 
-            _logger.LogInformation($"TicketService:: API URL = {_zendeskConfiguration.ApiBaseUri}");
-            _logger.LogInformation($"TicketService:: API Token = {_zendeskConfiguration.ApiToken}");
+            _logger.LogInformation($"Ticket json: \n{ticketJson.PrettifyJsonString()}");
+            _logger.LogInformation($"Ticket comments json: \n{ticketCommentJson.PrettifyJsonString()}");
+            _logger.LogInformation($"Ticket audits json: \n{ticketAuditsJson.PrettifyJsonString()}");
 
-            //https://developer.zendesk.com/rest_api/docs/support/tickets#show-ticket
-            //GET /api/v2/tickets/{ticket_id}
+            //Disassemble the json
+            //Add any field details
+            //Get the attachments
+            //TODO: Change prettifier to take doc as well as string, then use the following to convert all:
+            //var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+
+            var ticket = new Ticket
+            {
+                Id = ticketId
+            };
+
+            return ticket;
+        }
+
+        private async Task<string> GetTicketJson(long ticketId, string sideloads)
+        {
+            var requestQueryString = !string.IsNullOrEmpty(sideloads) ? $"?include={sideloads}" : "";
+            return await GetJson($"tickets/{ticketId}.json{requestQueryString}");
+        }
+
+        private async Task<string> GetTicketCommentsJson(long ticketId) => 
+            await GetJson($"tickets/{ticketId}/comments.json");
+
+        private async Task<string> GetTicketAuditsJson(long ticketId) => 
+            await GetJson($"tickets/{ticketId}/audits.json");
+
+        private async Task<string> GetJson(string requestUriFragment)
+        {
             var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
-            var requestUri = $"tickets/{ticketId}";
 
-            _logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUri}");
+            _logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUriFragment}");
 
-            var response = await httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUriFragment);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
@@ -55,16 +87,8 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             response.EnsureSuccessStatusCode();
 
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var prettifiedJsonResponse = jsonResponse. PrettifyJsonString();
-
-            _logger.LogInformation("Zendesk Support API succeeded. Result was:");
-            _logger.LogInformation(prettifiedJsonResponse);
-
-            return new Ticket
-            {
-                Id = ticketId
-            };
+            var json = await response.Content.ReadAsStringAsync();
+            return json;
         }
     }
 }

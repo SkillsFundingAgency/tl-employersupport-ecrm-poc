@@ -1,0 +1,163 @@
+{
+  "audits": [
+    {
+      "id": 790364969779,
+      "ticket_id": 4485,
+      "created_at": "2021-06-09T09:12:50Z",
+      "author_id": 369756029380,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41",
+          "ip_address": "82.6.186.196",
+          "location": "Oxford, ENG, United Kingdom",
+          "latitude": 51.7377,
+          "longitude": -1.2054
+        },
+        "custom": {},
+        "flags": [
+          3
+        ],
+        "flags_options": {
+          "3": {
+            "trusted": false
+          }
+        },
+        "trusted": false
+      },
+      "events": [
+        {
+          "id": 790364969799,
+          "type": "Comment",
+          "author_id": 369756029380,
+          "body": "I need information about industry placements.",
+          "html_body": "\u003Cdiv class=\u0022zd-comment\u0022 dir=\u0022auto\u0022\u003E\u003Cp dir=\u0022auto\u0022\u003EI need information about industry placements.\u003C/p\u003E\u003C/div\u003E",
+          "plain_body": "I need information about industry placements.",
+          "public": true,
+          "attachments": [
+            {
+              "url": "https://tlevelsemployertest.zendesk.com/api/v2/attachments/371525559639.json",
+              "id": 371525559639,
+              "file_name": "test_attachment.txt",
+              "content_url": "https://esfa1567428279.zendesk.com/attachments/token/eRUVY7atdA1NbyiRlLGFaQo77/?name=test_attachment.txt",
+              "mapped_content_url": "https://esfa1567428279.zendesk.com/attachments/token/eRUVY7atdA1NbyiRlLGFaQo77/?name=test_attachment.txt",
+              "content_type": "text/plain",
+              "size": 22,
+              "width": null,
+              "height": null,
+              "inline": false,
+              "deleted": false,
+              "thumbnails": []
+            }
+          ],
+          "audit_id": 790364969779
+        },
+        {
+          "id": 790364969819,
+          "type": "Create",
+          "value": "369756029380",
+          "field_name": "requester_id"
+        },
+        {
+          "id": 790364969839,
+          "type": "Create",
+          "value": "",
+          "field_name": "subject"
+        },
+        {
+          "id": 790364969859,
+          "type": "Create",
+          "value": "360001820480",
+          "field_name": "ticket_form_id"
+        },
+        {
+          "id": 790364969879,
+          "type": "Create",
+          "value": "360002505739",
+          "field_name": "brand_id"
+        },
+        {
+          "id": 790364969899,
+          "type": "Create",
+          "value": "Mike",
+          "field_name": "360019751459"
+        },
+        {
+          "id": 790364969919,
+          "type": "Create",
+          "value": "077123456789",
+          "field_name": "360020522640"
+        },
+        {
+          "id": 790364969939,
+          "type": "Create",
+          "value": [
+            "1-9__micro_",
+            "i_m_ready_to_offer_an_industry_placement",
+            "tlevels-email",
+            "tlevels_approved"
+          ],
+          "field_name": "tags"
+        },
+        {
+          "id": 790364969959,
+          "type": "Create",
+          "value": "tlevels-email",
+          "field_name": "360020644899"
+        },
+        {
+          "id": 790364969979,
+          "type": "Create",
+          "value": "Mike\u0027s Emporium",
+          "field_name": "360020522620"
+        },
+        {
+          "id": 790364969999,
+          "type": "Create",
+          "value": "1-9__micro_",
+          "field_name": "360020522560"
+        },
+        {
+          "id": 790364970019,
+          "type": "Create",
+          "value": "i_m_ready_to_offer_an_industry_placement",
+          "field_name": "360020522600"
+        },
+        {
+          "id": 790364970039,
+          "type": "Create",
+          "value": "new",
+          "field_name": "status"
+        },
+        {
+          "id": 790364970059,
+          "type": "Create",
+          "value": null,
+          "field_name": "priority"
+        },
+        {
+          "id": 790364970079,
+          "type": "Create",
+          "value": null,
+          "field_name": "type"
+        },
+        {
+          "id": 790364970099,
+          "type": "Create",
+          "value": "373080599360",
+          "field_name": "organization_id"
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    }
+  ],
+  "next_page": null,
+  "previous_page": null,
+  "count": 1
+}
