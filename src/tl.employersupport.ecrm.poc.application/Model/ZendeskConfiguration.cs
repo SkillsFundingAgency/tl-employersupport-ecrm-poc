@@ -1,4 +1,5 @@
 ﻿
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace tl.employersupport.ecrm.poc.application.Model
 {
     public class ZendeskConfiguration
@@ -8,6 +9,6 @@ namespace tl.employersupport.ecrm.poc.application.Model
         public string ApiToken { get; init; }
         public string User { get; init; }
         public string Password { get; init; }
-        public bool CompressApiResponse { get; set; }
+        public bool CompressApiResponse { get; init; }
     }
 }

@@ -55,7 +55,7 @@ await Host.CreateDefaultBuilder(args)
                     else if (zendeskOptions.AuthenticationMethod == AuthenticationScheme.BasicWithApiToken)
                     {
                         //Basic auth with token - email_address/token:api_token and this must be base64-encoded
-                        var tokenAuthenticationString = $"{zendeskOptions.User}/token:{zendeskOptions.Password}";
+                        var tokenAuthenticationString = $"{zendeskOptions.User}/token:{zendeskOptions.ApiToken}";
                         var encodedAuthenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes(tokenAuthenticationString));
                         client.DefaultRequestHeaders.Authorization =
                             new AuthenticationHeaderValue("Basic", encodedAuthenticationString);
