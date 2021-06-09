@@ -1,5 +1,11 @@
 # Employer Support Monitor POC
 
+
+## What the POC won't do
+
+- application insights logging
+
+
 ## Console app
 
 For details on how to create a console app with hosted services see https://dfederm.com/building-a-console-app-with-.net-generic-host/
@@ -15,9 +21,10 @@ Added NuGet packages and extensions for `ShouldNotAcceptNullConstructorArguments
 - `AutoFixture.Idioms`
 
 
-## What the POC won't do
+## SonarCloud Analysis
 
-- application insights logging
+Based on https://pumpingco.de/blog/how-to-run-a-sonarcloud-scan-during-docker-builds-for-dotnet-core/
+
 
 
 ## Requirements on an Azure DevOps solution
