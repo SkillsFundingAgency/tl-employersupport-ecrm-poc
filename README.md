@@ -13,6 +13,13 @@ For details on how to create a console app with hosted services see https://dfed
 To set the environment (and make sure the development app settings are picked up), in the Debug tab add an environment variable called *DOTNET_ENVIRONMENT* with value *Development*
 
 
+### Settings 
+
+Add a local file `appsettings.Development.json` (this is git ignored so won't be checked in)
+
+**TODO:** Describe settings.
+
+
 ## Unit tests
 
 Added NuGet packages and extensions for `ShouldNotAcceptNullConstructorArguments` and `ShouldNotAcceptNullOrBadConstructorArguments` 
