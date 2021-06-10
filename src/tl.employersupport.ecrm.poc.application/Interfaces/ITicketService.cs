@@ -5,6 +5,6 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
 {
     public interface ITicketService
     {
-        Task<Ticket> GetTicket(long ticketId);
+        Task<CombinedTicket> GetTicket(long ticketId);
     }
 }

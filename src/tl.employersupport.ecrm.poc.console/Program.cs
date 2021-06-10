@@ -81,7 +81,10 @@ await Host.CreateDefaultBuilder(args)
                     handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                 }
                 return handler;
-            });
+            })
+            //TODO:
+            //.AddTypedClient<ZendeskApi>()
+            ;
 
         services
             .AddHostedService<ConsoleHostedService>()

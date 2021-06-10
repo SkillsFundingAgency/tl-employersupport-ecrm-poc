@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model;
 
 namespace tl.employersupport.ecrm.poc.console
 {
@@ -44,6 +46,8 @@ namespace tl.employersupport.ecrm.poc.console
                         if (ticket is not null)
                         {
                             _logger.LogInformation($"Retrieved ticket {ticket.Id}");
+                            var ticketDetail = BuildTicketDescription(ticket);
+                            _logger.LogInformation(ticketDetail);
                         }
 
                         _exitCode = 0;
@@ -70,6 +74,24 @@ namespace tl.employersupport.ecrm.poc.console
             // Exit code may be null if the user cancelled via Ctrl+C/SIGTERM
             Environment.ExitCode = _exitCode.GetValueOrDefault(-1);
             return Task.CompletedTask;
+        }
+
+        private string BuildTicketDescription(CombinedTicket ticket)
+        {
+            var ticketDetail = new StringBuilder();
+
+            ticketDetail.AppendLine($"Id:      {ticket.Id}");
+            if (ticket.Ticket != null)
+            {
+                ticketDetail.AppendLine($"Id:      {ticket.Ticket.Description}");
+                ticketDetail.AppendLine($"Tags:");
+                foreach (var tag in ticket.Ticket.Tags)
+                {
+                    ticketDetail.AppendLine($"         {tag}");
+                }
+            }
+
+            return ticketDetail.ToString();
         }
     }
 }

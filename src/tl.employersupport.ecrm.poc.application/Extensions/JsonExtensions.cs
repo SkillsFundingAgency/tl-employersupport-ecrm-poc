@@ -14,8 +14,14 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                 return string.Empty;
             }
 
-            var doc = JsonDocument.Parse(json);
+            var jsonDocument = JsonDocument.Parse(json);
 
+            return jsonDocument.PrettifyJsonDocument();
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public static string PrettifyJsonDocument(this JsonDocument jsonDocument)
+        {
             var options = new JsonWriterOptions
             {
                 Indented = true
@@ -24,7 +30,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             using var stream = new MemoryStream();
             using (var writer = new Utf8JsonWriter(stream, options))
             {
-                doc.WriteTo(writer);
+                jsonDocument.WriteTo(writer);
             }
 
             return Encoding.UTF8.GetString(stream.ToArray());

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -35,7 +34,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                                         "zendeskConfiguration configuration value must not be null");
         }
 
-        public async Task<Ticket> GetTicket(long ticketId)
+        public async Task<CombinedTicket> GetTicket(long ticketId)
         {
             Console.WriteLine($"Getting ticket {ticketId}");
             
@@ -47,18 +46,26 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _logger.LogInformation($"Ticket comments json: \n{ticketCommentJson.PrettifyJsonString()}");
             _logger.LogInformation($"Ticket audits json: \n{ticketAuditsJson.PrettifyJsonString()}");
 
-            //Disassemble the json
-            //Add any field details
-            //Get the attachments
             //TODO: Change prettifier to take doc as well as string, then use the following to convert all:
             //var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
 
-            var ticket = new Ticket
-            {
-                Id = ticketId
-            };
+            var zendeskTicketResponse = ticketJson.DeserializeZendeskTicketResponse();
+            var zendeskTicket = ticketJson.DeserializeZendeskTicket();
+            var comments = ticketCommentJson.DeserializeZendeskComments();
+            var audits = ticketAuditsJson.DeserializeZendeskAudits();
 
-            return ticket;
+            //TODO: Get the attachments
+
+            return new CombinedTicket
+            {
+                Id = zendeskTicket.Id,
+                Ticket = zendeskTicketResponse.Ticket,
+                Users = zendeskTicketResponse.Users,
+                Groups = zendeskTicketResponse.Groups,
+                Organizations = zendeskTicketResponse.Organizations,
+                Comments = comments,
+                Audits = audits,
+            };
         }
 
         private async Task<string> GetTicketJson(long ticketId, string sideloads)

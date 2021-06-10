@@ -18,14 +18,16 @@ namespace tl.employersupport.ecrm.poc.application.tests
 {
     public class TicketServiceTests
     {
+        private const string ZendeskApiBaseUri = "https://zendesk.test.api/v2/";
+
         // ReSharper disable once NotAccessedField.Local
         private readonly ITestOutputHelper _output;
-        
+
         public TicketServiceTests(ITestOutputHelper output)
         {
             _output = output;
         }
-        
+
         [Fact]
         public void TicketService_Constructor_Succeeds_With_Valid_Parameters()
         {
@@ -63,21 +65,18 @@ namespace tl.employersupport.ecrm.poc.application.tests
             );
         }
 
-        private const string ZendeskApiBaseUri = "https://zendesk.test.api/v2/";
-        private const string ActionUriFragment = "getticket";
-
         [Fact]
         public async Task TicketService_GetTicket_Returns_Expected_Value()
         {
-            const int ticketId = 1;
-            
+            const int ticketId = 4485;
+
             var ticketWithSideloadsUriFragment = $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}";
             var ticketCommentsUriFragment = $"tickets/{ticketId}/comments.json";
             var ticketAuditsUriFragment = $"tickets/{ticketId}/audits.json";
 
             var ticketJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
-            var ticketCommentsJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
-            var ticketAuditJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var ticketCommentsJson = JsonBuilder.BuildValidTicketCommentsResponse();
+            var ticketAuditJson = JsonBuilder.BuildValidTicketAuditsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -97,11 +96,16 @@ namespace tl.employersupport.ecrm.poc.application.tests
                 .Returns(httpClient);
 
             var service = new TicketServiceBuilder().Build(httpClientFactory);
-            
+
             var ticket = await service.GetTicket(ticketId);
 
             ticket.Id.Should().Be(ticketId);
-
+            ticket.Ticket.Should().NotBeNull();
+            ticket.Audits.Should().NotBeNull();
+            ticket.Comments.Should().NotBeNull();
+            ticket.Groups.Should().NotBeNull();
+            ticket.Users.Should().NotBeNull();
+            ticket.Organizations.Should().NotBeNull();
         }
     }
-    }
+}
