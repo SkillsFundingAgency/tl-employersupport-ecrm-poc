@@ -15,9 +15,9 @@ using tl.employersupport.ecrm.poc.console;
 
 await Host.CreateDefaultBuilder(args)
     .UseContentRoot(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-    .ConfigureLogging(logging =>
+    .ConfigureLogging(_ =>
     {
-        // Add any 3rd party loggers
+        // Add any 3rd party loggers - replace _ above with logging parameter
     })
     .ConfigureServices((hostContext, services) =>
     {

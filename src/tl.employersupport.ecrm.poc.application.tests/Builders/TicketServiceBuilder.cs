@@ -25,7 +25,15 @@ namespace tl.employersupport.ecrm.poc.application.tests.Builders
                 return config;
             }).Invoke();
 
-            httpClientFactory ??= Substitute.For<IHttpClientFactory>();
+            if (httpClientFactory is null)
+            {
+                var httpClient = Substitute.For<HttpClient>();
+                
+                httpClientFactory = Substitute.For<IHttpClientFactory>();
+                httpClientFactory
+                    .CreateClient(nameof(TicketService))
+                    .Returns(httpClient);
+            }
 
             return new TicketService(httpClientFactory, logger, zendeskConfiguration);
         }

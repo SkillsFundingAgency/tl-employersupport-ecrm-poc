@@ -26,31 +26,6 @@ namespace tl.employersupport.ecrm.poc.application.tests
         }
 
         [Fact]
-        public void GetIntFromArgumentReturnsExpectedValue()
-        {
-            var input = new[] { "value:123", "anothervalue:xyz" };
-            input.GetIntFromArgument("value:", -1)
-                .Should().Be(123);
-        }
-
-        [Fact]
-        public void GetIntFromArgumentWithSeparatorReturnsExpectedValue()
-        {
-            var input = new[] { "nothing_here", "ticketId:4474" };
-            input.GetIntFromArgument("ticketId", ":", 1)
-                .Should().Be(4474);
-        }
-
-        [Fact]
-        public void GetIntFromArgumentReturnsDefaultValue()
-        {
-            var input = new[] { "value:abc", "anothervalue:xyz" };
-            const int defaultValue = 2;
-            input.GetIntFromArgument("notvalue:", defaultResult: defaultValue)
-                .Should().Be(defaultValue);
-        }
-
-        [Fact]
         public void GetStringFromArgumentReturnsDefaultValue()
         {
             var input = new[] { "value:abc", "anothervalue:xyz" };
@@ -77,6 +52,56 @@ namespace tl.employersupport.ecrm.poc.application.tests
                 .Should().BeNull();
         }
 
+        [Fact]
+        public void GetIntFromArgumentReturnsExpectedValue()
+        {
+            var input = new[] { "value:123", "anothervalue:xyz" };
+            input.GetIntFromArgument("value:", -1)
+                .Should().Be(123);
+        }
+
+        [Fact]
+        public void GetIntFromArgumentWithSeparatorReturnsExpectedValue()
+        {
+            var input = new[] { "nothing_here", "ticketId:4474" };
+            input.GetIntFromArgument("ticketId", ":", 1)
+                .Should().Be(4474);
+        }
+
+        [Fact]
+        public void GetIntFromArgumentReturnsDefaultValue()
+        {
+            var input = new[] { "value:abc", "anothervalue:xyz" };
+            const int defaultValue = 2;
+            input.GetIntFromArgument("notvalue:", defaultResult: defaultValue)
+                .Should().Be(defaultValue);
+        }
+        
+        [Fact]
+        public void GetLongFromArgumentReturnsExpectedValue()
+        {
+            var input = new[] { "value:123", "anothervalue:xyz" };
+            input.GetLongFromArgument("value:", -1)
+                .Should().Be(123L);
+        }
+
+        [Fact]
+        public void GetLongFromArgumentWithSeparatorReturnsExpectedValue()
+        {
+            var input = new[] { "nothing_here", "ticketId:4474567890" };
+            input.GetLongFromArgument("ticketId", ":", 1)
+                .Should().Be(4474567890L);
+        }
+
+        [Fact]
+        public void GetLongFromArgumentReturnsDefaultValue()
+        {
+            var input = new[] { "value:abc", "anothervalue:xyz" };
+            const int defaultValue = 2;
+            input.GetLongFromArgument("notvalue:", defaultResult: defaultValue)
+                .Should().Be(defaultValue);
+        }
+        
         [Fact]
         public void HasArgumentReturnsExpectedResult()
         {

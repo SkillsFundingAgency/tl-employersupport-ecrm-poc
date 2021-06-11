@@ -6,5 +6,7 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
     public interface ITicketService
     {
         Task<CombinedTicket> GetTicket(long ticketId);
+
+        Task AddTag(long ticketId, CombinedTicket ticket, string tag);
     }
 }

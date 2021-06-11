@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Services;
 using tl.employersupport.ecrm.poc.application.tests.Builders;
 using tl.employersupport.ecrm.poc.application.tests.Extensions;
@@ -106,6 +107,29 @@ namespace tl.employersupport.ecrm.poc.application.tests
             ticket.Groups.Should().NotBeNull();
             ticket.Users.Should().NotBeNull();
             ticket.Organizations.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task TicketService_AddTag_Works_As_Expected()
+        {
+            const int ticketId = 4485;
+            const string tag = "test_tag";
+
+            var service = new TicketServiceBuilder().Build();
+
+            var ticket = new CombinedTicket
+            {
+                Id = ticketId,
+                Ticket = new Ticket
+                {
+                    Id = ticketId,
+                    Tags = new [] { "tag1", "tag2" },
+                    //UpdatedAt = DateTimeOffset.Parse("2019-09-12T21:45:16Z")
+                    UpdatedAt = new DateTimeOffset(2019,09,12,21,45,16,TimeSpan.Zero)
+                },
+            };
+
+            await service.AddTag(ticketId, ticket, tag);
         }
     }
 }

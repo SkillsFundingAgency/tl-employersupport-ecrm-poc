@@ -56,6 +56,37 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             return defaultResult;
         }
 
+        public static long GetLongFromArgument(this string[] args, string argName, long defaultResult = default)
+        {
+            return args.GetLongFromArgument(argName, "", defaultResult);
+        }
+
+        public static long GetLongFromArgument(this string[] args, string argName, string separator, long defaultResult = default)
+        {
+            var result = defaultResult;
+
+            if (args is { Length: > 0 })
+            {
+                var s = args.FirstOrDefault(a => a.ToLower().StartsWith(argName.ToLower()));
+
+                if (s == null || s.Length <= argName.Length) return defaultResult;
+
+                var stringResult = s[argName.Length..].Trim();
+
+                if (!string.IsNullOrWhiteSpace(separator) && stringResult.StartsWith(separator))
+                {
+                    stringResult = stringResult.Remove(0, separator.Length);
+                }
+
+                if (long.TryParse(stringResult, out var extractedInt))
+                {
+                    return extractedInt;
+                }
+            }
+
+            return defaultResult;
+        }
+
         public static bool HasArgument(this string[] args, string argName, bool exactMatch = false)
         {
             if (args == null)
