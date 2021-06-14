@@ -8,6 +8,8 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Polly;
+using tl.employersupport.ecrm.poc.application.HttpHandlers;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Services;
@@ -30,7 +32,9 @@ await Host.CreateDefaultBuilder(args)
         zendeskConfiguration.Bind(zendeskOptions);
 
         services
-            .Configure<ZendeskConfiguration>(zendeskConfiguration);
+            .Configure<ZendeskConfiguration>(zendeskConfiguration)
+            .AddTransient<ZendeskApiTokenMessageHandler>()
+            ;
 
         //Add http clients before creating services
         services.AddHttpClient<ITicketService, TicketService>(
@@ -43,28 +47,6 @@ await Host.CreateDefaultBuilder(args)
                             : new Uri(zendeskOptions.ApiBaseUri + "/");
 
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-                    if (zendeskOptions.AuthenticationMethod == AuthenticationScheme.BasicWithUserPassword)
-                    {
-                        //Basic auth with user/password - email_address:password and this must be base64-encoded
-                        var userAuthenticationString = $"{zendeskOptions.User}:{zendeskOptions.Password}";
-                        var encodedAuthenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes(userAuthenticationString));
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Basic", encodedAuthenticationString);
-                    }
-                    else if (zendeskOptions.AuthenticationMethod == AuthenticationScheme.BasicWithApiToken)
-                    {
-                        //Basic auth with token - email_address/token:api_token and this must be base64-encoded
-                        var tokenAuthenticationString = $"{zendeskOptions.User}/token:{zendeskOptions.ApiToken}";
-                        var encodedAuthenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes(tokenAuthenticationString));
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Basic", encodedAuthenticationString);
-                    }
-                    else
-                    {
-                        throw new NotSupportedException("Invalid Zendesk authentication scheme");
-                    }
-
                     if (zendeskOptions.CompressApiResponse)
                     {
                         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
@@ -75,7 +57,6 @@ await Host.CreateDefaultBuilder(args)
             .ConfigurePrimaryHttpMessageHandler(_ =>
             {
                 var handler = new HttpClientHandler();
-
                 if (zendeskOptions.CompressApiResponse && handler.SupportsAutomaticDecompression)
                 {
                     handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
@@ -84,6 +65,7 @@ await Host.CreateDefaultBuilder(args)
             })
             //TODO:
             //.AddTypedClient<ZendeskApi>()
+            .AddHttpMessageHandler<ZendeskApiTokenMessageHandler>()
             ;
 
         services
