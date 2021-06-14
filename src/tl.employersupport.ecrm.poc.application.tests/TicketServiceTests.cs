@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -111,8 +112,39 @@ namespace tl.employersupport.ecrm.poc.application.tests
         }
 
         [Fact]
+        public async Task TicketService_GetTicketFields_Returns_Expected_Value()
+        {
+            //var ticketFieldJson = JsonBuilder.BuildValidTicketFieldsResponse;
+
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        new Uri(ZendeskApiBaseUri),
+                        new Dictionary<Uri, string>
+                        {
+                            //{ new Uri(new Uri(ZendeskApiBaseUri), "ticket_fields"), ticketFieldJson }
+                        });
+            httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory
+                .CreateClient(nameof(TicketService))
+                .Returns(httpClient);
+
+            var service = new TicketServiceBuilder().Build(httpClientFactory);
+
+            var result = await service.GetTicketFields();
+
+            result.Should().NotBeNullOrEmpty();
+            result.Keys.Should().Contain(12345);
+            result[12345].Should().Be("My Field");
+            //TODO: get sample data json, load it and check results
+        }
+
+        [Fact]
         public async Task TicketService_SearchTickets_Returns_Expected_Value()
         {
+            //var ticketSearchResultsJson = JsonBuilder.BuildValidTicketSearchResultsResponse;
+
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
@@ -132,6 +164,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
             var result = await service.SearchTickets();
 
             result.Should().NotBeNullOrEmpty();
+            result.Count.Should().Be(3);
         }
 
         [Fact]

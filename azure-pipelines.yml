@@ -1,7 +1,5 @@
 # Build, test and deploy the T Levels Zendesk-ECRM POC
-
 name: tl-employersupport-ecrm-poc
-
 trigger:
 - main
 
@@ -10,8 +8,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  ResourceGroupName: 'tl-zd-ecrm-poc-rg'
-  ResourceGroupLocation: 'UK South'
+  - group: tl-zd-ecrm-poc-vars
 
 stages:
 - stage: Build
@@ -88,11 +85,14 @@ stages:
     strategy:
       runOnce:
         deploy:
-          steps:
+          steps:          
           - script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
-          - script: echo "agent.builddirectory:" $(agent.builddirectory)
-          - script: echo "System.ArtifactsDirectory:" $(System.ArtifactsDirectory)
+          #- script: echo "agent.builddirectory:" $(agent.builddirectory)
+          #- script: echo "System.ArtifactsDirectory:" $(System.ArtifactsDirectory)
           - script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
+          - script: echo "Resource group:" $(ResourceGroupName)
+          - script: echo "Resource location:" $(ResourceGroupLocation)
+          
           - task: AzureResourceGroupDeployment@2
             displayName: 'Deploy ARM templates'
             inputs:

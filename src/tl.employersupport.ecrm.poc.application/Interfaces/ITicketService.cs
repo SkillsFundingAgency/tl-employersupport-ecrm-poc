@@ -10,6 +10,8 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
     {
         Task<CombinedTicket> GetTicket(long ticketId);
 
+        Task<IDictionary<long, string>> GetTicketFields();
+
         Task<SafeTags> GetTicketTags(long ticketId);
 
         Task<IList<long>> SearchTickets();

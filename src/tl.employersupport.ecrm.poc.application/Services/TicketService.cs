@@ -76,13 +76,39 @@ namespace tl.employersupport.ecrm.poc.application.Services
             };
         }
 
+        public async Task<IDictionary<long, string>> GetTicketFields()
+        {
+            var jsonDoc = await GetTicketFieldsJsonDocument();
+
+            if (jsonDoc != null)
+            {
+                var dictionary = jsonDoc.RootElement
+                    .GetProperty("ticket_fields")
+                    .EnumerateArray()
+                    .Select(x =>
+                        new
+                        {
+                            Key = x.SafeGetInt64("id"),
+                            Value = x.SafeGetString("title")
+                        })
+                    .ToDictionary(t => t.Key,
+                        t => t.Value);
+
+                return dictionary;
+                //var dict = TheTable.Select(t => new { t.Col1, t.Col2 })
+                //    .ToDictionary(t => t.Col1, t => t);
+            }
+
+            return new Dictionary<long, string>();
+        }
+
         public async Task<SafeTags> GetTicketTags(long ticketId)
         {
             var jsonDoc = await GetTicketJsonDocument(ticketId);
 
             if (jsonDoc != null)
             {
-                var ticketElement = 
+                var ticketElement =
                     jsonDoc.RootElement
                         .GetProperty("ticket");
 
@@ -119,6 +145,63 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //  ? form type
             //  ? created date
             //  ? no monitor_updated tag?
+
+            /*
+            https://support.zendesk.com/hc/en-us/articles/203663226-Zendesk-Support-search-reference#topic_ohr_wsc_3v
+             type:ticket
+            status<closed
+            brand:tlevelsemployertest
+            form:"T Levels - Employer Contact Form"
+            searchParams = (
+                query => 'type:ticket status:open',
+                sort_by => 'created_at',
+                sort_order => 'asc'
+            );
+            */
+            // /search.json
+            //Some of these search parameters will need to come from config
+            var brandName = "tlevelsemployertest";
+            //var query = $"brand:{brandName}";
+            var formName = "T Levels - Employer Contact Form";
+
+            //https://support.zendesk.com/hc/en-us/articles/203663226-Zendesk-Support-search-reference#topic_ohr_wsc_3v
+
+            var query = $"type:ticket status:open form:{formName} brand:{brandName}";
+            query = $"type:ticket status:open brand:{brandName}";
+            query = $"type:ticket status:open brand:{brandName}&sort_by=created_by&sort_order=desc";
+            query = $"type:ticket status:open brand:{brandName} order_by:created sort:desc";
+            //query = "type:ticket status:open";
+            //https://developer.zendesk.com/api-reference/ticketing/ticket-management/search/
+            //query=created>2012-07-17 type:ticket organization:"MD Photo"
+
+            var jsonDoc = await GetTicketSearchResultsJsonDocument(query);
+
+            if (jsonDoc != null)
+            {
+                //foreach (var resultElement in jsonDoc.RootElement
+                //    .GetProperty("results")
+                //    .EnumerateArray())
+                //{
+                //    var id = resultElement.SafeGetInt64("id");
+                //    ids.Add(id);
+                //}
+                //TODO: Worry about paging? Or somehow only get recent ones
+                //Other fields:
+                // subject = T Levels and industry placement support for employers - Online query
+                //ticket_form_id=360001820480
+                var count = jsonDoc.RootElement.GetProperty("count");
+                var nextPage = jsonDoc.RootElement.GetProperty("next_page");
+                _logger.LogInformation($"Search found {count} items. Next page is '{nextPage}'");
+                var ids = jsonDoc.RootElement
+                    .GetProperty("results")
+                    .EnumerateArray()
+                    .Select(x => x.SafeGetInt64("id"))
+                    .OrderBy(x => x)
+                    .ToList();
+
+                return ids;
+            }
+
             return new List<long>();
         }
 
@@ -144,7 +227,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             currentTags.Add(tag);
             var updatedAt = ticket.Ticket?.UpdatedAt;
             //TODO: Needs to throw an exception if this wasn't found
-            
+
             /*
              https://github.com/SkillsFundingAgency/das-zendesk-monitor/issues/32
              https://developer.zendesk.com/api-reference/ticketing/ticket-management/tags/#add-tags
@@ -184,7 +267,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //var response = await httpClient.PutAsync(requestUriFragment, httpContent);
 
             var response = await httpClient.PutAsJsonAsync(requestUriFragment, tagsToAdd, serializerOptions);
-            
+
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
@@ -194,6 +277,13 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             _logger.LogInformation($"Response from PUT tag: \n{jsonDoc.PrettifyJsonDocument()}");
+        }
+
+        private async Task<JsonDocument> GetTicketSearchResultsJsonDocument(string query)
+        {
+            var requestQueryString = $"?query={WebUtility.UrlEncode(query)}";
+
+            return await GetJsonDocument($"search.json{requestQueryString}");
         }
 
         private async Task<string> GetTicketJson(long ticketId, string sideloads = null)
@@ -206,6 +296,11 @@ namespace tl.employersupport.ecrm.poc.application.Services
         {
             var requestQueryString = !string.IsNullOrEmpty(sideloads) ? $"?include={sideloads}" : "";
             return await GetJsonDocument($"tickets/{ticketId}.json{requestQueryString}");
+        }
+
+        private async Task<JsonDocument> GetTicketFieldsJsonDocument()
+        {
+            return await GetJsonDocument($"ticket_fields.json");
         }
 
         private async Task<string> GetTicketCommentsJson(long ticketId) =>

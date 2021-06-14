@@ -169,7 +169,7 @@ namespace tl.employersupport.ecrm.poc.console
                     ticketList.AppendLine($"    {ticketId}");
                 }
 
-                _logger.LogInformation($"Found {tickets.Count} tickets");
+                _logger.LogInformation(ticketList.ToString());
             }
         }
 

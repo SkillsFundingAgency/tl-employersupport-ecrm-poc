@@ -2,7 +2,7 @@
   "profiles": {
     "tl.employersupport.monitor.poc.console": {
       "commandName": "Project",
-      "commandLineArgs": "--getTicket --updateTicket ticketId:4485",
+      "commandLineArgs": "--searchTickets --getTicket --updateTicket ticketId:4485 --pause",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }
