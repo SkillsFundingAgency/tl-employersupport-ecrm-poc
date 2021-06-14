@@ -7,6 +7,10 @@ namespace tl.employersupport.ecrm.poc.application.tests.Builders
     {
         private static string GetRootPath() => Assembly.GetExecutingAssembly().GetName().Name;
 
+        public static string BuildValidTicketResponse() =>
+            $"{GetRootPath()}.Data.zendesk_ticket.json"
+                .ReadManifestResourceStreamAsString();
+
         public static string BuildValidTicketWithSideloadsResponse() =>
             $"{GetRootPath()}.Data.zendesk_ticket_with_sideloads.json"
                 .ReadManifestResourceStreamAsString();
@@ -17,6 +21,10 @@ namespace tl.employersupport.ecrm.poc.application.tests.Builders
 
         public static string BuildValidTicketAuditsResponse() =>
             $"{GetRootPath()}.Data.zendesk_ticket_audits.json"
+                .ReadManifestResourceStreamAsString();
+
+        public static string BuildValidTagsResponse() =>
+            $"{GetRootPath()}.Data.zendesk_tags.json"
                 .ReadManifestResourceStreamAsString();
     }
 }

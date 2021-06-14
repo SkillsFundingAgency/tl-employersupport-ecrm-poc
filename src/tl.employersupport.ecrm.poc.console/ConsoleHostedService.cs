@@ -39,17 +39,35 @@ namespace tl.employersupport.ecrm.poc.console
                 {
                     try
                     {
+                        if (args.HasArgument("--help"))
+                        {
+                            WriteHelpText();
+                        }
+
                         var ticketId = args.GetLongFromArgument("ticketId", ":");
                         CombinedTicket ticket = null;
-                        if (args.HasArgument("--getTicket"))
+
+                        var pause = args.HasArgument("--pause");
+
+                        if (args.HasArgument("--searchTickets"))
+                        {
+                            await SearchTicketsInZendesk();
+                            if (pause) WaitForUserInput();
+                        }
+
+                        if (args.HasArgument("--getTicket") && ticketId > 0)
                         {
                             ticket = await GetTicketFromZendesk(ticketId);
                             LogTicketDetails(ticket);
+                            if (pause) WaitForUserInput();
                         }
 
-                        if (args.HasArgument("--updateTicket"))
+                        if (args.HasArgument("--updateTicket") 
+                            && ticketId > 0
+                            && ticket is not null)
                         {
                             await UpdateTicketInZendesk(ticketId, ticket);
+                            if (pause) WaitForUserInput();
                         }
 
                         _exitCode = 0;
@@ -135,16 +153,54 @@ namespace tl.employersupport.ecrm.poc.console
             _logger.LogInformation(ticketDetail.ToString());
         }
 
-        private async Task UpdateTicketInZendesk(long ticketId, CombinedTicket ticket)
+        private async Task SearchTicketsInZendesk()
         {
-            if (ticket is null)
-                return;
+            _logger.LogInformation("Searching for tickets...");
 
-            _logger.LogInformation("Adding tag...");
-            //var tag = $"monitor_update_{DateTime.UtcNow:s}";
-            var tag = $"monitor_updated_{ticket.Ticket.Tags.Count(t => t.StartsWith("monitor_updated"))}";
-            await _ticketService.AddTag(ticketId, ticket, tag);
-            _logger.LogInformation($"Added tag {tag}");
+            var tickets = await _ticketService.SearchTickets();
+
+            _logger.LogInformation($"Found {tickets.Count} tickets");
+            if (tickets.Any())
+            {
+                var ticketList = new StringBuilder();
+
+                foreach (var ticketId in tickets)
+                {
+                    ticketList.AppendLine($"    {ticketId}");
+                }
+
+                _logger.LogInformation($"Found {tickets.Count} tickets");
+            }
+        }
+
+        private async Task UpdateTicketInZendesk(long ticketId, CombinedTicket ticket)
+            {
+                if (ticket is null)
+                    return;
+
+                _logger.LogInformation("Adding tag...");
+                //var tag = $"monitor_update_{DateTime.UtcNow:s}";
+                var tag = $"monitor_updated_{ticket.Ticket.Tags.Count(t => t.StartsWith("monitor_updated"))}";
+                await _ticketService.AddTag(ticketId, ticket, tag);
+                _logger.LogInformation($"Added tag {tag}");
+            }
+
+            private static void WaitForUserInput()
+            {
+                Console.WriteLine("...");
+                Console.ReadKey();
+            }
+
+            private static void WriteHelpText()
+            {
+                Console.WriteLine("Zendesk - ECRM Demo");
+                Console.WriteLine("  --getTicket     - get a ticket from Zendesk (requires ticketId)");
+                Console.WriteLine("  --searchTickets - looks for recently created tickets");
+                Console.WriteLine("  --updateTicket  - update the ticket tags in Zendesk");
+                Console.WriteLine("  --pause         - Pauses between steps");
+                Console.WriteLine("  ticketId:n      - ticket id for steps that use it");
+                Console.WriteLine("  --help          - shows this help text");
+            }
+
         }
     }
-}

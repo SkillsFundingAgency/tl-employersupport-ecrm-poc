@@ -76,6 +76,52 @@ namespace tl.employersupport.ecrm.poc.application.Services
             };
         }
 
+        public async Task<SafeTags> GetTicketTags(long ticketId)
+        {
+            var jsonDoc = await GetTicketJsonDocument(ticketId);
+
+            if (jsonDoc != null)
+            {
+                var ticketElement = 
+                    jsonDoc.RootElement
+                        .GetProperty("ticket");
+
+                var createdAtString = ticketElement.SafeGetString("created_at");
+                var updatedAtString = ticketElement.SafeGetString("updated_at");
+                if (!DateTimeOffset.TryParse(updatedAtString, out var updatedAt))
+                {
+                    _logger.LogWarning($"Could not read updated-at date for ticket {ticketId}.");
+                }
+
+                var tags = ticketElement
+                    .GetProperty("tags")
+                    .EnumerateArray()
+                    .Select(t => t.SafeGetString())
+                    .ToList();
+                //.EnumerateArray(
+                //Extract tags only. with date
+                var safeTags = new SafeTags
+                {
+                    Tags = tags,
+                    SafeUpdate = true,
+                    UpdatedStamp = updatedAt
+                };
+
+                return safeTags;
+            }
+
+            return null;
+        }
+
+        public async Task<IList<long>> SearchTickets()
+        {
+            //Look for tickets by
+            //  ? form type
+            //  ? created date
+            //  ? no monitor_updated tag?
+            return new List<long>();
+        }
+
         public async Task AddTag(long ticketId, CombinedTicket ticket, string tag)
         {
             Console.WriteLine($"Adding tag {tag} to ticket {ticketId}");
@@ -98,9 +144,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             currentTags.Add(tag);
             var updatedAt = ticket.Ticket?.UpdatedAt;
             //TODO: Needs to throw an exception if this wasn't found
-
-
-
+            
             /*
              https://github.com/SkillsFundingAgency/das-zendesk-monitor/issues/32
              https://developer.zendesk.com/api-reference/ticketing/ticket-management/tags/#add-tags
@@ -113,13 +157,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             For updated_stamp, retrieve and specify the ticket's latest updated_at timestamp. The tag update only occurs if the updated_stamp timestamp matches the ticket's actual updated_at timestamp at the time of the request. If the timestamps don't match (in other words, if the ticket was updated since you retrieved the ticket's last updated_at timestamp), the request returns a 409 Conflict error.
              */
             //2019-09-12T21:45:16Z
-            var formattedDate = $"{updatedAt:yyyy-MM-ddTHH:mm:ssZ}";
-            var jsonAsString =
-                "{\n" +
-                    $"\"tags\": [\"{tag}\"],\n" +
-                    $"\"updated_stamp\":\"{formattedDate}\",\n" +
-                    "\"safe_update\":\"true\"\n" +
-                "}";
+            //var formattedDate = $"{updatedAt:yyyy-MM-ddTHH:mm:ssZ}";
 
             var tagsToAdd = new SafeTags
             {
@@ -135,7 +173,6 @@ namespace tl.employersupport.ecrm.poc.application.Services
             };
             var json = JsonSerializer.Serialize(tagsToAdd, serializerOptions);
 
-            //_logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUriFragment}");
             _logger.LogInformation($"Prepared json for adding ticket:\n{json}");
 
             //TODO: Add a PutJson method
@@ -159,10 +196,16 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _logger.LogInformation($"Response from PUT tag: \n{jsonDoc.PrettifyJsonDocument()}");
         }
 
-        private async Task<string> GetTicketJson(long ticketId, string sideloads)
+        private async Task<string> GetTicketJson(long ticketId, string sideloads = null)
         {
             var requestQueryString = !string.IsNullOrEmpty(sideloads) ? $"?include={sideloads}" : "";
             return await GetJson($"tickets/{ticketId}.json{requestQueryString}");
+        }
+
+        private async Task<JsonDocument> GetTicketJsonDocument(long ticketId, string sideloads = null)
+        {
+            var requestQueryString = !string.IsNullOrEmpty(sideloads) ? $"?include={sideloads}" : "";
+            return await GetJsonDocument($"tickets/{ticketId}.json{requestQueryString}");
         }
 
         private async Task<string> GetTicketCommentsJson(long ticketId) =>
@@ -172,6 +215,18 @@ namespace tl.employersupport.ecrm.poc.application.Services
         await GetJson($"tickets/{ticketId}/audits.json");
 
         private async Task<string> GetJson(string requestUriFragment)
+        {
+            var content = await GetHttp(requestUriFragment);
+            return await content.ReadAsStringAsync();
+        }
+
+        private async Task<JsonDocument> GetJsonDocument(string requestUriFragment)
+        {
+            var content = await GetHttp(requestUriFragment);
+            return await JsonDocument.ParseAsync(await content.ReadAsStreamAsync());
+        }
+
+        private async Task<HttpContent> GetHttp(string requestUriFragment)
         {
             var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
 
@@ -185,8 +240,8 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             response.EnsureSuccessStatusCode();
 
-            var json = await response.Content.ReadAsStringAsync();
-            return json;
+            return response.Content;
         }
+
     }
 }

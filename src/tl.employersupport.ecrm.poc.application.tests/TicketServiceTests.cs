@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -87,7 +88,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
                         {
                             { new Uri(new Uri(ZendeskApiBaseUri), ticketWithSideloadsUriFragment), ticketJson },
                             { new Uri(new Uri(ZendeskApiBaseUri), ticketCommentsUriFragment), ticketCommentsJson },
-                            { new Uri(new Uri(ZendeskApiBaseUri), ticketAuditsUriFragment), ticketAuditJson },
+                            { new Uri(new Uri(ZendeskApiBaseUri), ticketAuditsUriFragment), ticketAuditJson }
                         });
             httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
 
@@ -110,12 +111,94 @@ namespace tl.employersupport.ecrm.poc.application.tests
         }
 
         [Fact]
+        public async Task TicketService_SearchTickets_Returns_Expected_Value()
+        {
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        new Uri(ZendeskApiBaseUri),
+                        new Dictionary<Uri, string>
+                        {
+                            //{ new Uri(new Uri(ZendeskApiBaseUri), ticketUriFragment), ticketJson }
+                        });
+            httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory
+                .CreateClient(nameof(TicketService))
+                .Returns(httpClient);
+
+            var service = new TicketServiceBuilder().Build(httpClientFactory);
+
+            var result = await service.SearchTickets();
+
+            result.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public async Task TicketService_GetTicketTags_Returns_Expected_Value()
+        {
+            const int ticketId = 4485;
+            var ticketUriFragment = $"tickets/{ticketId}.json";
+            var ticketJson = JsonBuilder.BuildValidTicketResponse();
+            
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        new Uri(ZendeskApiBaseUri),
+                        new Dictionary<Uri, string>
+                        {
+                            { new Uri(new Uri(ZendeskApiBaseUri), ticketUriFragment), ticketJson }
+                        });
+            httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
+
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory
+                .CreateClient(nameof(TicketService))
+                .Returns(httpClient);
+
+            var service = new TicketServiceBuilder().Build(httpClientFactory);
+
+            var result = await service.GetTicketTags(ticketId);
+
+            result.Should().NotBeNull();
+
+            var updatedDate = DateTimeOffset.Parse( "2021-06-09T09:12:50Z", 
+                styles: DateTimeStyles.AdjustToUniversal);
+            result.UpdatedStamp.Should().Be(updatedDate);
+            result.SafeUpdate.Should().BeTrue();
+
+            result.Tags.Count.Should().Be(4);
+            result.Tags.Should().Contain("1-9__micro_");
+            result.Tags.Should().Contain("i_m_ready_to_offer_an_industry_placement");
+            result.Tags.Should().Contain("tlevels-email");
+            result.Tags.Should().Contain("tlevels_approved");
+        }
+
+        [Fact]
         public async Task TicketService_AddTag_Works_As_Expected()
         {
             const int ticketId = 4485;
             const string tag = "test_tag";
 
-            var service = new TicketServiceBuilder().Build();
+            var putTagsUriFragment = $"tickets/{ticketId}/tags.json";
+            var tagsJson = JsonBuilder.BuildValidTagsResponse();
+
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        new Uri(ZendeskApiBaseUri),
+                        new Dictionary<Uri, string>
+                        {
+                            { new Uri(new Uri(ZendeskApiBaseUri), putTagsUriFragment), tagsJson }
+                        });
+            httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
+
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory
+                .CreateClient(nameof(TicketService))
+                .Returns(httpClient);
+
+            var service = new TicketServiceBuilder().Build(httpClientFactory);
 
             var ticket = new CombinedTicket
             {

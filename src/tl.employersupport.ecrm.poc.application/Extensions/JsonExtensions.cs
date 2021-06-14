@@ -70,5 +70,12 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                 ? property.GetString()
                 : default;
         }
+
+        public static string SafeGetString(this JsonElement element)
+        {
+            return element.ValueKind == JsonValueKind.String
+                ? element.GetString()
+                : default;
+        }
     }
 }
