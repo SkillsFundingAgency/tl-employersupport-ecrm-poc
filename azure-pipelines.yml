@@ -7,7 +7,8 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  buildConfiguration: 'Release'
+  - name: buildConfiguration
+    value: 'Release'
   - group: tl-zd-ecrm-poc-vars
 
 stages:
