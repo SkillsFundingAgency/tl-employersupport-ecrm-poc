@@ -1,0 +1,86 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+name: tl-employersupport-ecrm-poc
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: 'Release'
+  ResourceGroupName: 'tl-zd-ecrm-poc-rg'
+  ResourceGroupLocation: 'UK South'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:    
+    - task: UseDotNet@2 
+      displayName: "Install .NET Core 3.1.x SDK"
+      enabled: false
+      inputs:
+        version: '3.1.x'
+        packageType: sdk
+
+    - task: UseDotNet@2
+      displayName: 'Install .Net SDK'
+      inputs:
+        packageType: 'sdk'
+        version: '5.0.x'
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: restore
+        projects: '**/*.csproj'
+        noCache: true
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)  --no-restore'        
+    - task: DotNetCoreCLI@2
+      displayName: Test
+      inputs:
+        command: test
+        projects: '**/*.Tests.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+    #- task
+      # TODO: Publish function app
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+        artifactName: 'wildconsultingweb'
+
+- stage: Deploy
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'tl-poc-env'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
+          - script: echo "agent.builddirectory:" $(agent.builddirectory)
+          - script: echo "System.ArtifactsDirectory:" $(System.ArtifactsDirectory)
+          - script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
+          - task: AzureResourceGroupDeployment@2
+            displayName: 'Deploy ARM templates'
+            inputs:
+              azureSubscription: 'ARM Subscription'
+              location: $(ResourceGroupLocation)
+              resourceGroupName: ${ResourceGroupName}
+              action: 'Create Or Update Resource Group'
+              csmFile: '$(Pipeline.Workspace)/azure/armTemplate.json'
+              overrideParameters: '-rgName "$(ResourceGroupName)" rgLocation ""$(ResourceGroupLocation)'
