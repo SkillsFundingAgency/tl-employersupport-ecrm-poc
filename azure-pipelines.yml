@@ -1,7 +1,4 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# Build, test and deploy the T Levels Zendesk-ECRM POC
 
 name: tl-employersupport-ecrm-poc
 
@@ -37,29 +34,50 @@ stages:
       inputs:
         packageType: 'sdk'
         version: '5.0.x'
+
     - task: DotNetCoreCLI@2
       displayName: Restore
       inputs:
         command: restore
         projects: '**/*.csproj'
         noCache: true
+
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
         projects: '**/*.csproj'
         arguments: '--configuration $(buildConfiguration)  --no-restore'        
+
     - task: DotNetCoreCLI@2
       displayName: Test
       inputs:
         command: test
-        projects: '**/*.Tests.csproj'
+        projects: '**/*.[tT]ests.csproj'
         arguments: '--configuration $(buildConfiguration)'
+
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+      inputs:
+        Contents: |
+         azure/**
+        TargetFolder: '$(build.artifactstagingdirectory)'
+        OverWrite: true
+
     #- task
       # TODO: Publish function app
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish Function App'
+      enabled: false
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: '**/*.[Ff]unctions.csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore'
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-        artifactName: 'wildconsultingweb'
+        artifactName: 'tl-emp-ecrm-proc'
 
 - stage: Deploy
   jobs:
@@ -82,5 +100,5 @@ stages:
               location: $(ResourceGroupLocation)
               resourceGroupName: ${ResourceGroupName}
               action: 'Create Or Update Resource Group'
-              csmFile: '$(Pipeline.Workspace)/azure/armTemplate.json'
+              csmFile: '$(ArtifactStagingDirectory)/azure/armTemplate.json'
               overrideParameters: '-rgName "$(ResourceGroupName)" rgLocation ""$(ResourceGroupLocation)'
