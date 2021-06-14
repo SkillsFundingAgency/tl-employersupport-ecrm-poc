@@ -66,6 +66,12 @@ await Host.CreateDefaultBuilder(args)
             //TODO:
             //.AddTypedClient<ZendeskApi>()
             .AddHttpMessageHandler<ZendeskApiTokenMessageHandler>()
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.WaitAndRetryAsync(new[] {
+                    TimeSpan.FromMilliseconds(200),
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(5)
+                }))
             ;
 
         services
