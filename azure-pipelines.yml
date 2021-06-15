@@ -99,7 +99,7 @@ stages:
             inputs:
               azureSubscription: 'ARM Subscription'
               location: $(ResourceGroupLocation)
-              resourceGroupName: ${ResourceGroupName}
+              resourceGroupName: $(ResourceGroupName)
               action: 'Create Or Update Resource Group'
               csmFile: '$(ArtifactStagingDirectory)/azure/armTemplate.json'
               overrideParameters: '-rgName "$(ResourceGroupName)" rgLocation ""$(ResourceGroupLocation)'
