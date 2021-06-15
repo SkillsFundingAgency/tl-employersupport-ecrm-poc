@@ -33,7 +33,7 @@ Added NuGet packages and extensions for `ShouldNotAcceptNullConstructorArguments
 Based on https://pumpingco.de/blog/how-to-run-a-sonarcloud-scan-during-docker-builds-for-dotnet-core/
 
 
-## Requirements for Azure DevOps
+## Requirements for Azure 
 
 - functions host
 - storage - but probably just for functions host
@@ -41,6 +41,30 @@ Based on https://pumpingco.de/blog/how-to-run-a-sonarcloud-scan-during-docker-bu
 - build/release pipeline
 - key vault for secrets?
 - logic app?
+
+The POC has a DevOps pipeline. 
+
+This requires the following service connections
+
+    `ARM Subscription` - Service connection for running ARM templates
+
+This requires the following variable group:
+
+    - **Group name** `tl-zd-ecrm-poc-vars`
+    - **Values** as below
+
+| Name                                | Sample Value |
+| ----                                | ------------ |
+| GovNotifyApiKey                     | ********     |
+| ResourceGroupLocation               | UK South     |
+| ResourceGroupName                   | tl-zd-ecrm-poc-rg |
+| SupportEmailAddress                 | ********     |
+| ZendeskApiBaseUri                   | https://tlevelsemployertest.zendesk.com/api/v2 |
+| ZendeskApiToken                     | ********     |
+| ZendeskAuthenticationMethod         | BasicWithApiToken |
+| ZendeskPassword                     | NA           |
+| ZendeskTicketCreatedEmailTemplateId | ********     |
+| ZendeskUser                         | ********     |
 
 
 ## Zendesk Contact Form

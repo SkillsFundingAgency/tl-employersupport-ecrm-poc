@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 // ReSharper disable UnusedMember.Global
@@ -34,6 +35,14 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             }
 
             return Encoding.UTF8.GetString(stream.ToArray());
+        }
+
+        public static bool SafeGetBoolean(this JsonElement element, string propertyName)
+        {
+            return element.TryGetProperty(propertyName, out var property)
+                   && (property.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                ? property.GetBoolean()
+                : default;
         }
 
         public static int SafeGetInt32(this JsonElement element, string propertyName)

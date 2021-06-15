@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.Configuration;
 
 namespace tl.employersupport.ecrm.poc.application.HttpHandlers
 {

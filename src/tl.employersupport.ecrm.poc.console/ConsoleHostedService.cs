@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
 namespace tl.employersupport.ecrm.poc.console
 {
@@ -15,16 +17,22 @@ namespace tl.employersupport.ecrm.poc.console
     {
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _appLifetime;
+        private readonly IEmailService _emailService;
         private readonly ITicketService _ticketService;
+
+        private IDictionary<long, TicketField> _ticketFields;
+
         private int? _exitCode;
 
         public ConsoleHostedService(
             ILogger<ConsoleHostedService> logger,
             IHostApplicationLifetime appLifetime,
+            IEmailService emailService,
             ITicketService ticketService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _appLifetime = appLifetime ?? throw new ArgumentNullException(nameof(appLifetime));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _ticketService = ticketService ?? throw new ArgumentNullException(nameof(ticketService));
         }
 
@@ -49,6 +57,20 @@ namespace tl.employersupport.ecrm.poc.console
 
                         var pause = args.HasArgument("--pause");
 
+                        if (args.HasArgument("--sendTicketCreatedEmail"))
+                        {
+                            await SendTicketCreatedEmail();
+                            if (pause) WaitForUserInput();
+                        }
+
+                        if (args.HasArgument("--getTicketFields"))
+                        {
+                            //save in member variable to simulate cache
+                            _ticketFields = await GetTicketFieldsFromZendesk();
+
+                            if (pause) WaitForUserInput();
+                        }
+
                         if (args.HasArgument("--searchTickets"))
                         {
                             await SearchTicketsInZendesk();
@@ -58,11 +80,18 @@ namespace tl.employersupport.ecrm.poc.console
                         if (args.HasArgument("--getTicket") && ticketId > 0)
                         {
                             ticket = await GetTicketFromZendesk(ticketId);
-                            LogTicketDetails(ticket);
+
+                            if (_ticketFields is null)
+                            {
+                                _ticketFields = await GetTicketFieldsFromZendesk();
+                            }
+
+                            LogTicketDetails(ticket, _ticketFields);
+
                             if (pause) WaitForUserInput();
                         }
 
-                        if (args.HasArgument("--updateTicket") 
+                        if (args.HasArgument("--updateTicket")
                             && ticketId > 0
                             && ticket is not null)
                         {
@@ -96,6 +125,33 @@ namespace tl.employersupport.ecrm.poc.console
             return Task.CompletedTask;
         }
 
+        private async Task SendTicketCreatedEmail()
+        {
+            var random = new Random();
+            var ticketId = random.Next();
+            var sent = await _emailService
+                .SendZendeskTicketCreatedEmail(
+                    ticketId,
+                    DateTime.UtcNow);
+            _logger.LogInformation($"Email sent - {sent}");
+        }
+
+        private async Task<IDictionary<long, TicketField>> GetTicketFieldsFromZendesk()
+        {
+            var ticketFields = await _ticketService.GetTicketFields();
+
+            var ticketFieldList = new StringBuilder();
+            ticketFieldList.AppendLine($"Fields: ({ticketFields.Count})");
+            foreach (var (key, value) in ticketFields)
+            {
+                ticketFieldList.AppendLine($"    {key}: '{value.Title}' - '{value.Type}' - active:{value.Active}");
+            }
+            ticketFieldList.AppendLine("");
+            _logger.LogInformation(ticketFieldList.ToString());
+
+            return ticketFields;
+        }
+
         private async Task<CombinedTicket> GetTicketFromZendesk(long ticketId)
         {
             _logger.LogInformation("Getting ticket...");
@@ -105,7 +161,7 @@ namespace tl.employersupport.ecrm.poc.console
             return ticket;
         }
 
-        private void LogTicketDetails(CombinedTicket ticket)
+        private void LogTicketDetails(CombinedTicket ticket, IDictionary<long, TicketField> ticketFields)
         {
             if (ticket is null)
                 return;
@@ -116,22 +172,49 @@ namespace tl.employersupport.ecrm.poc.console
             if (ticket.Ticket != null)
             {
                 ticketDetail.AppendLine($"Id:      {ticket.Ticket.Description}");
-                ticketDetail.AppendLine($"Tags:");
+                ticketDetail.AppendLine($"Tags: ({ticket.Ticket.Tags.Count()})");
                 foreach (var tag in ticket.Ticket.Tags)
                 {
                     ticketDetail.AppendLine($"         {tag}");
                 }
                 ticketDetail.AppendLine("");
 
+                if (ticketFields != null && ticketFields.Any())
+                {
+                    ticketDetail.AppendLine("Ticket fields: ({ticket.Ticket.Fields.Count()})");
+                    foreach (var field in ticket.Ticket.Fields)
+                    {
+                        ticketDetail.AppendLine(ticketFields.TryGetValue(field.Id, out var fieldInfo)
+                            ? $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]"
+                            : $"         {field.Id} - {field.Value}");
+                    }
+                    ticketDetail.AppendLine("");
+
+                    ticketDetail.AppendLine("Ticket custom fields: ({ticket.Ticket.CustomFields.Count()})");
+                    foreach (var field in ticket.Ticket.CustomFields)
+                    {
+                        ticketDetail.AppendLine(ticketFields.TryGetValue(field.Id, out var fieldInfo)
+                            ? $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]"
+                            : $"         {field.Id} - {field.Value}");
+                    }
+                    ticketDetail.AppendLine("");
+
+                }
+
                 ticketDetail.AppendLine($"Users ({ticket.Users.Count()}):");
                 foreach (var user in ticket.Users)
                 {
                     ticketDetail.AppendLine($"         {user.Email}");
-                    ticketDetail.AppendLine($"         {user.UserFields?.AddressLine1}");
-                    ticketDetail.AppendLine($"         {user.UserFields?.AddressLine2}");
-                    ticketDetail.AppendLine($"         {user.UserFields?.AddressLine3}");
-                    ticketDetail.AppendLine($"         {user.UserFields?.City}");
-                    ticketDetail.AppendLine($"         {user.UserFields?.Postcode}");
+                    if (user.UserFields?.AddressLine1 is not null)
+                        ticketDetail.AppendLine($"         {user.UserFields?.AddressLine1}");
+                    if (user.UserFields?.AddressLine2 is not null)
+                        ticketDetail.AppendLine($"         {user.UserFields?.AddressLine2}");
+                    if (user.UserFields?.AddressLine3 is not null)
+                        ticketDetail.AppendLine($"         {user.UserFields?.AddressLine3}");
+                    if (user.UserFields?.City is not null)
+                        ticketDetail.AppendLine($"         {user.UserFields?.City}");
+                    if (user.UserFields?.Postcode is not null)
+                        ticketDetail.AppendLine($"         {user.UserFields?.Postcode}");
                     ticketDetail.AppendLine("");
                 }
 
@@ -140,11 +223,16 @@ namespace tl.employersupport.ecrm.poc.console
                 {
                     ticketDetail.AppendLine($"         {organization.Id}");
                     ticketDetail.AppendLine($"         {organization.Name}");
-                    ticketDetail.AppendLine($"         {organization.OrganizationFields?.AddressLine1}");
-                    ticketDetail.AppendLine($"         {organization.OrganizationFields?.AddressLine2}");
-                    ticketDetail.AppendLine($"         {organization.OrganizationFields?.AddressLine3}");
-                    ticketDetail.AppendLine($"         {organization.OrganizationFields?.City}");
-                    ticketDetail.AppendLine($"         {organization.OrganizationFields?.Postcode}");
+                    if (organization.OrganizationFields?.AddressLine1 is not null)
+                        ticketDetail.AppendLine($"         {organization.OrganizationFields?.AddressLine1}");
+                    if (organization.OrganizationFields?.AddressLine2 is not null)
+                        ticketDetail.AppendLine($"         {organization.OrganizationFields?.AddressLine2}");
+                    if (organization.OrganizationFields?.AddressLine3 is not null)
+                        ticketDetail.AppendLine($"         {organization.OrganizationFields?.AddressLine3}");
+                    if (organization.OrganizationFields?.City is not null)
+                        ticketDetail.AppendLine($"         {organization.OrganizationFields?.City}");
+                    if (organization.OrganizationFields?.Postcode is not null)
+                        ticketDetail.AppendLine($"         {organization.OrganizationFields?.Postcode}");
                     ticketDetail.AppendLine("");
                 }
             }
@@ -157,16 +245,16 @@ namespace tl.employersupport.ecrm.poc.console
         {
             _logger.LogInformation("Searching for tickets...");
 
-            var tickets = await _ticketService.SearchTickets();
+            var ticketSearchResults = await _ticketService.SearchTickets();
 
-            _logger.LogInformation($"Found {tickets.Count} tickets");
-            if (tickets.Any())
+            _logger.LogInformation($"Found {ticketSearchResults.Count} tickets");
+            if (ticketSearchResults.Any())
             {
                 var ticketList = new StringBuilder();
-
-                foreach (var ticketId in tickets)
+                foreach (var ticket in ticketSearchResults)
                 {
-                    ticketList.AppendLine($"    {ticketId}");
+                    ticketList.AppendLine($"    {ticket.Id}");
+                    ticketList.AppendLine($"    {ticket.Subject}");
                 }
 
                 _logger.LogInformation(ticketList.ToString());
@@ -174,33 +262,34 @@ namespace tl.employersupport.ecrm.poc.console
         }
 
         private async Task UpdateTicketInZendesk(long ticketId, CombinedTicket ticket)
-            {
-                if (ticket is null)
-                    return;
+        {
+            if (ticket is null)
+                return;
 
-                _logger.LogInformation("Adding tag...");
-                //var tag = $"monitor_update_{DateTime.UtcNow:s}";
-                var tag = $"monitor_updated_{ticket.Ticket.Tags.Count(t => t.StartsWith("monitor_updated"))}";
-                await _ticketService.AddTag(ticketId, ticket, tag);
-                _logger.LogInformation($"Added tag {tag}");
-            }
+            _logger.LogInformation("Adding tag...");
+            //var tag = $"monitor_update_{DateTime.UtcNow:s}";
+            var tag = $"monitor_updated_{ticket.Ticket.Tags.Count(t => t.StartsWith("monitor_updated"))}";
+            await _ticketService.AddTag(ticketId, ticket, tag);
+            _logger.LogInformation($"Added tag {tag}");
+        }
 
-            private static void WaitForUserInput()
-            {
-                Console.WriteLine("...");
-                Console.ReadKey();
-            }
+        private static void WaitForUserInput()
+        {
+            Console.WriteLine("...");
+            Console.ReadKey();
+        }
 
-            private static void WriteHelpText()
-            {
-                Console.WriteLine("Zendesk - ECRM Demo");
-                Console.WriteLine("  --getTicket     - get a ticket from Zendesk (requires ticketId)");
-                Console.WriteLine("  --searchTickets - looks for recently created tickets");
-                Console.WriteLine("  --updateTicket  - update the ticket tags in Zendesk");
-                Console.WriteLine("  --pause         - Pauses between steps");
-                Console.WriteLine("  ticketId:n      - ticket id for steps that use it");
-                Console.WriteLine("  --help          - shows this help text");
-            }
-
+        private static void WriteHelpText()
+        {
+            Console.WriteLine("Zendesk - ECRM Demo");
+            Console.WriteLine("  ticketId:n               - ticket id for steps that use it");
+            Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
+            Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
+            Console.WriteLine("  --searchTickets          - looks for recently created tickets");
+            Console.WriteLine("  --updateTicket           - update the ticket tags in Zendesk");
+            Console.WriteLine("  --pause                  - send a test email");
+            Console.WriteLine("  --sendTicketCreatedEmail - pauses between steps");
+            Console.WriteLine("  --help                   - shows this help text");
         }
     }
+}

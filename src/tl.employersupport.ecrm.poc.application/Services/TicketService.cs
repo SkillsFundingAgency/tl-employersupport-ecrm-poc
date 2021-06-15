@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
 namespace tl.employersupport.ecrm.poc.application.Services
@@ -39,7 +37,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _zendeskConfiguration = zendeskConfiguration.Value ??
                                     throw new ArgumentNullException(
                                         $"{nameof(zendeskConfiguration)}.{nameof(zendeskConfiguration.Value)}",
-                                        "zendeskConfiguration configuration value must not be null");
+                                        "Configuration value must not be null");
         }
 
         public async Task<CombinedTicket> GetTicket(long ticketId)
@@ -76,30 +74,34 @@ namespace tl.employersupport.ecrm.poc.application.Services
             };
         }
 
-        public async Task<IDictionary<long, string>> GetTicketFields()
+        public async Task<IDictionary<long, TicketField>> GetTicketFields()
         {
             var jsonDoc = await GetTicketFieldsJsonDocument();
 
             if (jsonDoc != null)
             {
+                var count = jsonDoc.RootElement.GetProperty("count");
+                var nextPage = jsonDoc.RootElement.GetProperty("next_page");
+                _logger.LogInformation($"GetTicketFields found {count} items. Next page is '{nextPage}'");
+
                 var dictionary = jsonDoc.RootElement
                     .GetProperty("ticket_fields")
                     .EnumerateArray()
                     .Select(x =>
-                        new
+                        new TicketField
                         {
-                            Key = x.SafeGetInt64("id"),
-                            Value = x.SafeGetString("title")
+                            Id = x.SafeGetInt64("id"),
+                            Title = x.SafeGetString("title"),
+                            Type = x.SafeGetString("type"),
+                            Active = x.SafeGetBoolean("active") || x.SafeGetBoolean("collapsed_for_agents")
                         })
-                    .ToDictionary(t => t.Key,
-                        t => t.Value);
+                    .ToDictionary(t => t.Id,
+                        t => t);
 
                 return dictionary;
-                //var dict = TheTable.Select(t => new { t.Col1, t.Col2 })
-                //    .ToDictionary(t => t.Col1, t => t);
             }
 
-            return new Dictionary<long, string>();
+            return new Dictionary<long, TicketField>();
         }
 
         public async Task<SafeTags> GetTicketTags(long ticketId)
@@ -139,7 +141,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             return null;
         }
 
-        public async Task<IList<long>> SearchTickets()
+        public async Task<IList<TicketSearchResult>> SearchTickets()
         {
             //Look for tickets by
             //  ? form type
@@ -166,10 +168,11 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             //https://support.zendesk.com/hc/en-us/articles/203663226-Zendesk-Support-search-reference#topic_ohr_wsc_3v
 
-            var query = $"type:ticket status:open form:{formName} brand:{brandName}";
-            query = $"type:ticket status:open brand:{brandName}";
-            query = $"type:ticket status:open brand:{brandName}&sort_by=created_by&sort_order=desc";
-            query = $"type:ticket status:open brand:{brandName} order_by:created sort:desc";
+            var query = "";
+            //query = $"type:ticket status:open form:{formName} brand:{brandName}";
+            query = $"type:ticket status:new brand:{brandName}";
+            //query = $"type:ticket status:open brand:{brandName}&sort_by=created_by&sort_order=desc";
+            //query = $"type:ticket status:open brand:{brandName} order_by:created sort:desc";
             //query = "type:ticket status:open";
             //https://developer.zendesk.com/api-reference/ticketing/ticket-management/search/
             //query=created>2012-07-17 type:ticket organization:"MD Photo"
@@ -178,31 +181,28 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             if (jsonDoc != null)
             {
-                //foreach (var resultElement in jsonDoc.RootElement
-                //    .GetProperty("results")
-                //    .EnumerateArray())
-                //{
-                //    var id = resultElement.SafeGetInt64("id");
-                //    ids.Add(id);
-                //}
-                //TODO: Worry about paging? Or somehow only get recent ones
+                var temp =jsonDoc.PrettifyJsonDocument();
+                //TODO: Worry about paging? Or only get recent ones?
                 //Other fields:
-                // subject = T Levels and industry placement support for employers - Online query
                 //ticket_form_id=360001820480
                 var count = jsonDoc.RootElement.GetProperty("count");
                 var nextPage = jsonDoc.RootElement.GetProperty("next_page");
                 _logger.LogInformation($"Search found {count} items. Next page is '{nextPage}'");
-                var ids = jsonDoc.RootElement
+                var searchResults = jsonDoc.RootElement
                     .GetProperty("results")
                     .EnumerateArray()
-                    .Select(x => x.SafeGetInt64("id"))
-                    .OrderBy(x => x)
+                    .Select(x => new TicketSearchResult
+                        {
+                            Id = x.SafeGetInt64("id"),
+                            Subject = x.SafeGetString("subject"),
+                        })
+                    .OrderBy(x => x.Id)
                     .ToList();
 
-                return ids;
+                return searchResults;
             }
 
-            return new List<long>();
+            return new List<TicketSearchResult>();
         }
 
         public async Task AddTag(long ticketId, CombinedTicket ticket, string tag)
@@ -281,9 +281,9 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
         private async Task<JsonDocument> GetTicketSearchResultsJsonDocument(string query)
         {
-            var requestQueryString = $"?query={WebUtility.UrlEncode(query)}";
+            var requestQueryString = $"query={WebUtility.UrlEncode(query)}";
 
-            return await GetJsonDocument($"search.json{requestQueryString}");
+            return await GetJsonDocument($"search.json?{requestQueryString}");
         }
 
         private async Task<string> GetTicketJson(long ticketId, string sideloads = null)
@@ -298,16 +298,14 @@ namespace tl.employersupport.ecrm.poc.application.Services
             return await GetJsonDocument($"tickets/{ticketId}.json{requestQueryString}");
         }
 
-        private async Task<JsonDocument> GetTicketFieldsJsonDocument()
-        {
-            return await GetJsonDocument($"ticket_fields.json");
-        }
-
+        private async Task<JsonDocument> GetTicketFieldsJsonDocument() =>
+            await GetJsonDocument("ticket_fields.json");
+ 
         private async Task<string> GetTicketCommentsJson(long ticketId) =>
-        await GetJson($"tickets/{ticketId}/comments.json");
+            await GetJson($"tickets/{ticketId}/comments.json");
 
         private async Task<string> GetTicketAuditsJson(long ticketId) =>
-        await GetJson($"tickets/{ticketId}/audits.json");
+            await GetJson($"tickets/{ticketId}/audits.json");
 
         private async Task<string> GetJson(string requestUriFragment)
         {

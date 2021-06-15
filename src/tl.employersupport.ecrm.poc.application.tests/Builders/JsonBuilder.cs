@@ -26,5 +26,13 @@ namespace tl.employersupport.ecrm.poc.application.tests.Builders
         public static string BuildValidTagsResponse() =>
             $"{GetRootPath()}.Data.zendesk_tags.json"
                 .ReadManifestResourceStreamAsString();
+
+        public static string BuildValidTicketFieldsResponse =>
+            $"{GetRootPath()}.Data.zendesk_ticket_fields.json"
+                .ReadManifestResourceStreamAsString();
+
+        public static string BuildValidTicketSearchResultsResponse =>
+            $"{GetRootPath()}.Data.zendesk_ticket_search_result.json"
+                .ReadManifestResourceStreamAsString();
     }
 }

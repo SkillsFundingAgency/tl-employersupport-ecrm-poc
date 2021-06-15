@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Services;
 using tl.employersupport.ecrm.poc.application.tests.Builders;
@@ -37,7 +38,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
             var config = Substitute.For<IOptions<ZendeskConfiguration>>();
             config.Value.Returns(new ZendeskConfiguration());
 
-            var _ = new TicketServiceBuilder().Build(zendeskConfiguration: config);
+            var _ = new TicketServiceBuilder().Build(configuration: config);
             //Test passes if no exceptions thrown
         }
 
@@ -114,7 +115,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
         [Fact]
         public async Task TicketService_GetTicketFields_Returns_Expected_Value()
         {
-            //var ticketFieldJson = JsonBuilder.BuildValidTicketFieldsResponse;
+            var ticketFieldJson = JsonBuilder.BuildValidTicketFieldsResponse;
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -122,7 +123,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
                         new Uri(ZendeskApiBaseUri),
                         new Dictionary<Uri, string>
                         {
-                            //{ new Uri(new Uri(ZendeskApiBaseUri), "ticket_fields"), ticketFieldJson }
+                            { new Uri(new Uri(ZendeskApiBaseUri), "ticket_fields.json"), ticketFieldJson }
                         });
             httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -134,16 +135,22 @@ namespace tl.employersupport.ecrm.poc.application.tests
 
             var result = await service.GetTicketFields();
 
+            const long testFieldId = 34;
+            const string testFieldName = "Subject";
             result.Should().NotBeNullOrEmpty();
-            result.Keys.Should().Contain(12345);
-            result[12345].Should().Be("My Field");
-            //TODO: get sample data json, load it and check results
+            result.Keys.Should().Contain(testFieldId);
+            result[testFieldId].Title.Should().Be(testFieldName);
+            result[testFieldId].Type.Should().Be(testFieldName.ToLower());
+            result[testFieldId].Active.Should().Be(true);
         }
 
         [Fact]
         public async Task TicketService_SearchTickets_Returns_Expected_Value()
         {
-            //var ticketSearchResultsJson = JsonBuilder.BuildValidTicketSearchResultsResponse;
+            const string query = "type:ticket status:new brand:tlevelsemployertest";
+            var ticketSearchUriFragment = $"search.json?query={WebUtility.UrlEncode(query)}";
+
+            var ticketSearchResultsJson = JsonBuilder.BuildValidTicketSearchResultsResponse;
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -151,7 +158,7 @@ namespace tl.employersupport.ecrm.poc.application.tests
                         new Uri(ZendeskApiBaseUri),
                         new Dictionary<Uri, string>
                         {
-                            //{ new Uri(new Uri(ZendeskApiBaseUri), ticketUriFragment), ticketJson }
+                            { new Uri(new Uri(ZendeskApiBaseUri), ticketSearchUriFragment), ticketSearchResultsJson }
                         });
             httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -161,10 +168,11 @@ namespace tl.employersupport.ecrm.poc.application.tests
 
             var service = new TicketServiceBuilder().Build(httpClientFactory);
 
-            var result = await service.SearchTickets();
+            var results = await service.SearchTickets();
 
-            result.Should().NotBeNullOrEmpty();
-            result.Count.Should().Be(3);
+            results.Should().NotBeNullOrEmpty();
+            results.Count.Should().BeGreaterOrEqualTo(1);
+            results.Should().Contain(x => x.Id == 4485);
         }
 
         [Fact]

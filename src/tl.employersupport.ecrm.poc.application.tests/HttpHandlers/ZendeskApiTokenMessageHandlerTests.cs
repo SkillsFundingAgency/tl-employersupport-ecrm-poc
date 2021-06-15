@@ -12,6 +12,7 @@ using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using tl.employersupport.ecrm.poc.application.HttpHandlers;
 using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.tests.Extensions;
 using Xunit;
 

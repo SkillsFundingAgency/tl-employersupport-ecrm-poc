@@ -86,7 +86,7 @@ stages:
     strategy:
       runOnce:
         deploy:
-          steps:          
+          steps:
           - script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
           #- script: echo "agent.builddirectory:" $(agent.builddirectory)
           #- script: echo "System.ArtifactsDirectory:" $(System.ArtifactsDirectory)

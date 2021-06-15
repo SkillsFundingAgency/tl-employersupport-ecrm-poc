@@ -11,11 +11,15 @@
     <None Remove="Data\zendesk_ticket.json" />
     <None Remove="Data\zendesk_ticket_audits.json" />
     <None Remove="Data\zendesk_ticket_comments.json" />
+    <None Remove="Data\zendesk_ticket_fields.json" />
+    <None Remove="Data\zendesk_ticket_search_result.json" />
     <None Remove="Data\zendesk_ticket_with_sideloads.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Data\zendesk_ticket_search_result.json" />
     <EmbeddedResource Include="Data\zendesk_tags.json" />
+    <EmbeddedResource Include="Data\zendesk_ticket_fields.json" />
     <EmbeddedResource Include="Data\zendesk_ticket.json" />
     <EmbeddedResource Include="Data\zendesk_ticket_audits.json" />
     <EmbeddedResource Include="Data\zendesk_ticket_comments.json" />
