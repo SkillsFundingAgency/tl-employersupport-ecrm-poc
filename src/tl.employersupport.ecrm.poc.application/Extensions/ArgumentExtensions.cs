@@ -32,8 +32,6 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 
         public static int GetIntFromArgument(this string[] args, string argName, string separator, int defaultResult = default)
         {
-            var result = defaultResult;
-
             if (args is { Length: > 0 })
             {
                 var s = args.FirstOrDefault(a => a.ToLower().StartsWith(argName.ToLower()));
@@ -63,8 +61,6 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 
         public static long GetLongFromArgument(this string[] args, string argName, string separator, long defaultResult = default)
         {
-            var result = defaultResult;
-
             if (args is { Length: > 0 })
             {
                 var s = args.FirstOrDefault(a => a.ToLower().StartsWith(argName.ToLower()));

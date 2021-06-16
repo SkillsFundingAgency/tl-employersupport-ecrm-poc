@@ -72,7 +72,7 @@ namespace tl.employersupport.ecrm.poc.application.tests.Serialization
         }
 
         [Fact]
-        public void SerializationExtensions_Deserialize_Zendesk_Audits_First_Event_Attachements_Should_Have_Expected_Members()
+        public void SerializationExtensions_Deserialize_Zendesk_Audits_First_Event_Attachments_Should_Have_Expected_Members()
         {
             var json = JsonBuilder.BuildValidTicketAuditsResponse();
 

@@ -1,6 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
 namespace tl.employersupport.ecrm.poc.application.Model
@@ -9,12 +7,12 @@ namespace tl.employersupport.ecrm.poc.application.Model
     {
         public long Id { get; init; }
         
-        public Ticket Ticket { get; set; }
+        public Ticket Ticket { get; init; }
 
-        public IEnumerable<Audit> Audits { get; set; }
-        public IEnumerable<Comment> Comments { get; set; }
-        public IEnumerable<Group> Groups { get; set; }
-        public IEnumerable<User> Users { get; set; }
-        public IEnumerable<Organization> Organizations { get; set; }
+        public IEnumerable<Audit> Audits { get; init; }
+        public IEnumerable<Comment> Comments { get; init; }
+        public IEnumerable<Group> Groups { get; init; }
+        public IEnumerable<User> Users { get; init; }
+        public IEnumerable<Organization> Organizations { get; init; }
     }
 }

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
+﻿using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Interfaces;
-using tl.employersupport.ecrm.poc.application.Services;
 
 namespace tl.employersupport.ecrm.poc.application.functions.tests.Builders
 {

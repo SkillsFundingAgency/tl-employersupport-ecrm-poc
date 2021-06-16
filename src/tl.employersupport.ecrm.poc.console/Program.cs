@@ -92,7 +92,5 @@ await Host.CreateDefaultBuilder(args)
             .AddTransient<ITicketService, TicketService>()
             .AddTransient<IAsyncNotificationClient, NotificationClient>(
                 _ => new NotificationClient(emailOptions.GovNotifyApiKey));
-
-        ;
     })
     .RunConsoleAsync();

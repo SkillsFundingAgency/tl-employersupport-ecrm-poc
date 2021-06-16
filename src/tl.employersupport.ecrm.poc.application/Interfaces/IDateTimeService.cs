@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable UnusedMember.Global
 
 namespace tl.employersupport.ecrm.poc.application.Interfaces
 {

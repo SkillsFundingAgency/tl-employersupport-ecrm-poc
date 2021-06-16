@@ -20,6 +20,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
     {
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
+        // ReSharper disable once NotAccessedField.Local
         private readonly ZendeskConfiguration _zendeskConfiguration;
 
         public TicketService(
@@ -51,9 +52,6 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _logger.LogInformation($"Ticket json: \n{ticketJson.PrettifyJsonString()}");
             _logger.LogInformation($"Ticket comments json: \n{ticketCommentJson.PrettifyJsonString()}");
             _logger.LogInformation($"Ticket audits json: \n{ticketAuditsJson.PrettifyJsonString()}");
-
-            //TODO: Change prettifier to take doc as well as string, then use the following to convert all:
-            //var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
 
             var zendeskTicketResponse = ticketJson.DeserializeZendeskTicketResponse();
             var zendeskTicket = ticketJson.DeserializeZendeskTicket();
@@ -114,7 +112,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                     jsonDoc.RootElement
                         .GetProperty("ticket");
 
-                var createdAtString = ticketElement.SafeGetString("created_at");
+                //var createdAtString = ticketElement.SafeGetString("created_at");
                 var updatedAtString = ticketElement.SafeGetString("updated_at");
                 if (!DateTimeOffset.TryParse(updatedAtString, out var updatedAt))
                 {
@@ -164,7 +162,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //Some of these search parameters will need to come from config
             var brandName = "tlevelsemployertest";
             //var query = $"brand:{brandName}";
-            var formName = "T Levels - Employer Contact Form";
+            //var formName = "T Levels - Employer Contact Form";
 
             //https://support.zendesk.com/hc/en-us/articles/203663226-Zendesk-Support-search-reference#topic_ohr_wsc_3v
 
@@ -181,7 +179,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             if (jsonDoc != null)
             {
-                var temp =jsonDoc.PrettifyJsonDocument();
+                //var temp =jsonDoc.PrettifyJsonDocument();
                 //TODO: Worry about paging? Or only get recent ones?
                 //Other fields:
                 //ticket_form_id=360001820480

@@ -81,10 +81,7 @@ namespace tl.employersupport.ecrm.poc.console
                         {
                             ticket = await GetTicketFromZendesk(ticketId);
 
-                            if (_ticketFields is null)
-                            {
-                                _ticketFields = await GetTicketFieldsFromZendesk();
-                            }
+                            _ticketFields ??= await GetTicketFieldsFromZendesk();
 
                             LogTicketDetails(ticket, _ticketFields);
 
@@ -172,7 +169,7 @@ namespace tl.employersupport.ecrm.poc.console
             if (ticket.Ticket != null)
             {
                 ticketDetail.AppendLine($"Id:      {ticket.Ticket.Description}");
-                ticketDetail.AppendLine($"Tags: ({ticket.Ticket.Tags.Count()})");
+                ticketDetail.AppendLine($"Tags: ({ticket.Ticket.Tags.Length})");
                 foreach (var tag in ticket.Ticket.Tags)
                 {
                     ticketDetail.AppendLine($"         {tag}");

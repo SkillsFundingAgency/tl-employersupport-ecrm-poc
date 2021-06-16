@@ -24,6 +24,7 @@ namespace tl.employersupport.ecrm.poc.application.functions
         }
 
         [Function("HelloWorld")]
+        // ReSharper disable once UnusedMember.Global
         public HttpResponseData HelloWorld([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
             HttpRequestData request,
             FunctionContext executionContext)
@@ -78,6 +79,7 @@ namespace tl.employersupport.ecrm.poc.application.functions
         }
 
         [Function("RandomTimeOut")]
+        // ReSharper disable once UnusedMember.Global
         public HttpResponseData RandomTimeOut([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
             HttpRequestData request,
             FunctionContext executionContext)
