@@ -98,5 +98,5 @@ stages:
               location: $(ResourceGroupLocation)
               resourceGroupName: $(ResourceGroupName)
               action: 'Create Or Update Resource Group'
-              csmFile: '$(ArtifactStagingDirectory)/azure/armTemplate.json'
+              csmFile: '$(Build.ArtifactStagingDirectory)/azure/armTemplate.json'
               overrideParameters: '-rgName "$(ResourceGroupName)" rgLocation ""$(ResourceGroupLocation)'
