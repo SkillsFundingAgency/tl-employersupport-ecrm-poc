@@ -6,31 +6,31 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
+namespace tl.employersupport.ecrm.poc.tests.common.HttpClient
 {
     // ReSharper disable UnusedMember.Global
     public class TestHttpClientFactory
     {
-        public HttpClient CreateHttpClient(Uri uri, object response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
+        public System.Net.Http.HttpClient CreateHttpClient(Uri uri, object response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
         {
             var serializedResponse = JsonSerializer.Serialize(response);
 
             return CreateHttpClient(uri, serializedResponse, responseContentType, responseCode);
         }
 
-        public HttpClient CreateHttpClient(Uri uri, string response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
+        public System.Net.Http.HttpClient CreateHttpClient(Uri uri, string response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
         {
             var httpResponseMessage = CreateFakeResponse(response, responseContentType, responseCode);
            
             var fakeMessageHandler = new FakeHttpMessageHandler();
             fakeMessageHandler.AddFakeResponse(uri, httpResponseMessage);
 
-            var httpClient = new HttpClient(fakeMessageHandler);
+            var httpClient = new System.Net.Http.HttpClient(fakeMessageHandler);
 
             return httpClient;
         }
 
-        public HttpClient CreateHttpClientWithBaseUri(Uri baseUri, string relativeUri, string response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
+        public System.Net.Http.HttpClient CreateHttpClientWithBaseUri(Uri baseUri, string relativeUri, string response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
         {
             var httpResponseMessage = CreateFakeResponse(response, responseContentType, responseCode);
 
@@ -38,7 +38,7 @@ namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
             var fakeMessageHandler = new FakeHttpMessageHandler();
             fakeMessageHandler.AddFakeResponse(uri, httpResponseMessage);
 
-            var httpClient = new HttpClient(fakeMessageHandler)
+            var httpClient = new System.Net.Http.HttpClient(fakeMessageHandler)
             {
                 BaseAddress = baseUri
             };
@@ -46,19 +46,19 @@ namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
             return httpClient;
         }
 
-        public HttpClient CreateHttpClient(Uri uri, Stream response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
+        public System.Net.Http.HttpClient CreateHttpClient(Uri uri, Stream response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
         {
             var httpResponseMessage = CreateFakeResponse(response, responseContentType, responseCode);
 
             var fakeMessageHandler = new FakeHttpMessageHandler();
             fakeMessageHandler.AddFakeResponse(uri, httpResponseMessage);
 
-            var httpClient = new HttpClient(fakeMessageHandler);
+            var httpClient = new System.Net.Http.HttpClient(fakeMessageHandler);
 
             return httpClient;
         }
 
-        public HttpClient CreateHttpClient(Uri baseUri, string relativeUri, Stream response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
+        public System.Net.Http.HttpClient CreateHttpClient(Uri baseUri, string relativeUri, Stream response, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
         {
             var httpResponseMessage = CreateFakeResponse(response, responseContentType, responseCode);
 
@@ -66,7 +66,7 @@ namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
             var fakeMessageHandler = new FakeHttpMessageHandler();
             fakeMessageHandler.AddFakeResponse(uri, httpResponseMessage);
 
-            var httpClient = new HttpClient(fakeMessageHandler)
+            var httpClient = new System.Net.Http.HttpClient(fakeMessageHandler)
             {
                 BaseAddress = baseUri
             };
@@ -74,7 +74,7 @@ namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
             return httpClient;
         }
 
-        public HttpClient CreateHttpClient(IDictionary<Uri, HttpResponseMessage> httpResponseMessages)
+        public System.Net.Http.HttpClient CreateHttpClient(IDictionary<Uri, HttpResponseMessage> httpResponseMessages)
         {
             var fakeMessageHandler = new FakeHttpMessageHandler();
 
@@ -83,12 +83,12 @@ namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
                 fakeMessageHandler.AddFakeResponse(key, value);
             }
 
-            var httpClient = new HttpClient(fakeMessageHandler);
+            var httpClient = new System.Net.Http.HttpClient(fakeMessageHandler);
 
             return httpClient;
         }
 
-        public HttpClient CreateHttpClient(Uri baseUri, IDictionary<Uri, string> responseMessages, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
+        public System.Net.Http.HttpClient CreateHttpClient(Uri baseUri, IDictionary<Uri, string> responseMessages, string responseContentType = "application/json", HttpStatusCode responseCode = HttpStatusCode.OK)
         {
             var fakeMessageHandler = new FakeHttpMessageHandler();
             foreach (var (key, value) in responseMessages)
@@ -97,7 +97,7 @@ namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
                 fakeMessageHandler.AddFakeResponse(key, httpResponseMessage);
             }
 
-            var httpClient = new HttpClient(fakeMessageHandler)
+            var httpClient = new System.Net.Http.HttpClient(fakeMessageHandler)
             {
                 BaseAddress = baseUri
             };

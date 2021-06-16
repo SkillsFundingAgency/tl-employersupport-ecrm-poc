@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{133E2261-7F50-4BD9-9C2D-EDE28C2E1E2C}"
 	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
@@ -13,6 +15,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application", "tl.employersupport.ecrm.poc.application\tl.employersupport.ecrm.poc.application.csproj", "{EE08F7D1-E828-43ED-B8AC-93F93A6B463C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.tests", "tl.employersupport.ecrm.poc.application.tests\tl.employersupport.ecrm.poc.application.tests.csproj", "{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tl.employersupport.ecrm.poc.application.functions", "tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.application.functions.csproj", "{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tl.employersupport.ecrm.poc.application.functions.tests", "tl.employersupport.ecrm.poc.application.functions.tests\tl.employersupport.ecrm.poc.application.functions.tests.csproj", "{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tl.employersupport.ecrm.poc.tests.common", "tl.employersupport.ecrm.poc.tests.common\tl.employersupport.ecrm.poc.tests.common.csproj", "{4B27FD7C-23FD-40BB-A42B-F538821479DF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "azure", "azure", "{7E3362D9-50E4-4D9B-97A4-D4522E3B6B65}"
+	ProjectSection(SolutionItems) = preProject
+		..\azure\armTemplate.json = ..\azure\armTemplate.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,9 +45,24 @@ Global
 		{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7E3362D9-50E4-4D9B-97A4-D4522E3B6B65} = {133E2261-7F50-4BD9-9C2D-EDE28C2E1E2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5581A4C6-95F9-412F-81EB-6DE040929064}

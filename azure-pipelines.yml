@@ -22,7 +22,7 @@ stages:
     steps:    
     - task: UseDotNet@2 
       displayName: "Install .NET Core 3.1.x SDK"
-      enabled: false
+      enabled: true
       inputs:
         version: '3.1.x'
         packageType: sdk
@@ -51,31 +51,28 @@ stages:
       inputs:
         command: test
         projects: '**/*.[tT]ests.csproj'
-        arguments: '--configuration $(buildConfiguration)'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
 
-    - task: CopyFiles@2
-      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-      inputs:
-        Contents: |
-         azure/**
-        TargetFolder: '$(build.artifactstagingdirectory)'
-        OverWrite: true
-
-    #- task
-      # TODO: Publish function app
     - task: DotNetCoreCLI@2
       displayName: 'Publish Function App'
-      enabled: false
+      enabled: true
       inputs:
         command: publish
         publishWebProjects: false
         projects: '**/*.[Ff]unctions.csproj'
         arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore'
 
+    - task: CopyFiles@2
+      displayName: 'Copy Azure deployment files to: $(build.artifactstagingdirectory)'
+      inputs:
+        Contents: azure/**
+        TargetFolder: '$(build.artifactstagingdirectory)'
+        OverWrite: true
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-        artifactName: 'tl-emp-ecrm-proc'
+        artifactName: 'tl-emp-ecrm-poc'
 
 - stage: Deploy
   jobs:

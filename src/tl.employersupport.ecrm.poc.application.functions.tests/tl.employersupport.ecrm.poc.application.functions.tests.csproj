@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -7,30 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Data\zendesk_tags.json" />
-    <None Remove="Data\zendesk_ticket.json" />
-    <None Remove="Data\zendesk_ticket_audits.json" />
-    <None Remove="Data\zendesk_ticket_comments.json" />
-    <None Remove="Data\zendesk_ticket_fields.json" />
-    <None Remove="Data\zendesk_ticket_search_result.json" />
-    <None Remove="Data\zendesk_ticket_with_sideloads.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Data\zendesk_ticket_search_result.json" />
-    <EmbeddedResource Include="Data\zendesk_tags.json" />
-    <EmbeddedResource Include="Data\zendesk_ticket_fields.json" />
-    <EmbeddedResource Include="Data\zendesk_ticket.json" />
-    <EmbeddedResource Include="Data\zendesk_ticket_audits.json" />
-    <EmbeddedResource Include="Data\zendesk_ticket_comments.json" />
-    <EmbeddedResource Include="Data\zendesk_ticket_with_sideloads.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="AutoFixture.AutoNSubstitute" Version="4.17.0" />
     <PackageReference Include="AutoFixture.Idioms" Version="4.17.0" />
     <PackageReference Include="FluentAssertions" Version="6.0.0-beta0001" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="NSubstitute" Version="4.2.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -38,14 +19,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.0.3">
+    <PackageReference Include="coverlet.collector" Version="3.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\tl.employersupport.ecrm.poc.application\tl.employersupport.ecrm.poc.application.csproj" />
+    <ProjectReference Include="..\tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.application.functions.csproj" />
     <ProjectReference Include="..\tl.employersupport.ecrm.poc.tests.common\tl.employersupport.ecrm.poc.tests.common.csproj" />
   </ItemGroup>
 

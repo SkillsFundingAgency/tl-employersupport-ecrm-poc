@@ -13,8 +13,8 @@ using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Services;
 using tl.employersupport.ecrm.poc.application.tests.Builders;
-using tl.employersupport.ecrm.poc.application.tests.Extensions;
-using tl.employersupport.ecrm.poc.application.tests.TestHelpers;
+using tl.employersupport.ecrm.poc.tests.common.Extensions;
+using tl.employersupport.ecrm.poc.tests.common.HttpClient;
 using Xunit;
 using Xunit.Abstractions;
 

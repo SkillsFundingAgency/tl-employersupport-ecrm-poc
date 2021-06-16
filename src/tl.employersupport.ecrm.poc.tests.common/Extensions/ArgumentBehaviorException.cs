@@ -1,7 +1,7 @@
 ﻿using System;
 using AutoFixture.Idioms;
 
-namespace tl.employersupport.ecrm.poc.application.tests.Extensions
+namespace tl.employersupport.ecrm.poc.tests.common.Extensions
 {
     public class ArgumentBehaviorException : IBehaviorExpectation
     {

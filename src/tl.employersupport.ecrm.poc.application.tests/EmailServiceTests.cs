@@ -6,7 +6,7 @@ using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Services;
 using tl.employersupport.ecrm.poc.application.tests.Builders;
-using tl.employersupport.ecrm.poc.application.tests.Extensions;
+using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 

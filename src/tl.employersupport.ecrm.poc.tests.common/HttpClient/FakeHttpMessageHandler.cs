@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace tl.employersupport.ecrm.poc.application.tests.TestHelpers
+namespace tl.employersupport.ecrm.poc.tests.common.HttpClient
 {
     public class FakeHttpMessageHandler : DelegatingHandler
     {

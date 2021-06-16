@@ -3,7 +3,7 @@ using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using AutoFixture.Idioms;
 
-namespace tl.employersupport.ecrm.poc.application.tests.Extensions
+namespace tl.employersupport.ecrm.poc.tests.common.Extensions
 {
     public static class AutoFixtureExtensions
     {
