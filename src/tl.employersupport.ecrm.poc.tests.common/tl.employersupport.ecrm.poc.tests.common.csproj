@@ -8,6 +8,7 @@
     <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="AutoFixture.AutoNSubstitute" Version="4.17.0" />
     <PackageReference Include="AutoFixture.Idioms" Version="4.17.0" />
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
   </ItemGroup>
 
 </Project>
