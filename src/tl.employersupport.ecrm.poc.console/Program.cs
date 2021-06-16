@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Notify.Client;
 using Notify.Interfaces;
 using Polly;
+using tl.employersupport.ecrm.poc.application.ApiClients;
 using tl.employersupport.ecrm.poc.application.HttpHandlers;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
@@ -36,9 +37,9 @@ await Host.CreateDefaultBuilder(args)
         var zendeskConfiguration = hostContext.Configuration.GetSection(nameof(ZendeskConfiguration));
         zendeskConfiguration.Bind(zendeskOptions);
 
-        //services
-        //    .AddOptions<CrmConfiguration>()
-        //    .Bind(hostContext.Configuration.GetSection(nameof(CrmConfiguration)));
+        services
+            .AddOptions<MonitorConfiguration>()
+            .Bind(hostContext.Configuration.GetSection(nameof(MonitorConfiguration)));
         services
             .AddOptions<EmailConfiguration>()
             .Bind(emailConfiguration);
@@ -82,14 +83,30 @@ await Host.CreateDefaultBuilder(args)
                 policy.WaitAndRetryAsync(new[] {
                     TimeSpan.FromMilliseconds(200),
                     TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(5)
+                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromSeconds(10),
                 }))
             ;
+
+        services.AddHttpClient<IFunctionsApiClient, FunctionsApiClient>(
+                //client =>
+                //{
+                //  client.BaseAddress = 
+                //})
+            )
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.WaitAndRetryAsync(new[] {
+                    TimeSpan.FromMilliseconds(200),
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(5)
+                })
+            );
 
         services
             .AddHostedService<ConsoleHostedService>()
             .AddTransient<IEmailService, EmailService>()
             .AddTransient<ITicketService, TicketService>()
+            .AddTransient<IMonitorService, MonitorService>()
             .AddTransient<IAsyncNotificationClient, NotificationClient>(
                 _ => new NotificationClient(emailOptions.GovNotifyApiKey));
     })

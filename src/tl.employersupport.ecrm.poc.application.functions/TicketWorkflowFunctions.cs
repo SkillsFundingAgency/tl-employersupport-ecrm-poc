@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Azure.Functions.Worker;
@@ -80,33 +79,44 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
         [Function("RandomTimeOut")]
         // ReSharper disable once UnusedMember.Global
-        public HttpResponseData RandomTimeOut([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
+        public async Task<HttpResponseData> RandomTimeOut([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
             HttpRequestData request,
             FunctionContext executionContext)
         {
-            var logger = executionContext.GetLogger("HelloWorld");
-            logger.LogInformation($"{nameof(RandomTimeOut)} HTTP trigger function called.");
+            var logger = executionContext.GetLogger("RandomTimeOut");
+            try
+            {
+                logger.LogInformation($"{nameof(RandomTimeOut)} HTTP trigger function called.");
 
-            var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
+                var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
 
-            int.TryParse(queryParameters.Get("minTimeout"), out var minTimeout);
-            int.TryParse(queryParameters.Get("maxTimeout"), out var maxTimeout);
+                int.TryParse(queryParameters.Get("minTimeout"), out var minTimeout);
+                int.TryParse(queryParameters.Get("maxTimeout"), out var maxTimeout);
 
-            minTimeout = Math.Max(0, minTimeout);
-            maxTimeout = Math.Max(maxTimeout, minTimeout);
+                minTimeout = Math.Max(0, minTimeout);
+                maxTimeout = Math.Max(maxTimeout, minTimeout);
 
-            var random = new Random();
-            var timeout = random.Next(minTimeout, maxTimeout) * 1000;
+                var random = new Random();
+                var timeout = random.Next(minTimeout, maxTimeout);
 
-            logger.LogInformation($"{nameof(RandomTimeOut)} maxTimeout={minTimeout}, maxTimeout={maxTimeout} seconds.");
-            logger.LogInformation($"{nameof(RandomTimeOut)} sleeping for {timeout}ms.");
-            Thread.Sleep(timeout);
+                logger.LogInformation($"{nameof(RandomTimeOut)} maxTimeout={minTimeout}, maxTimeout={maxTimeout} seconds.");
+                logger.LogInformation($"{nameof(RandomTimeOut)} sleeping for {timeout} seconds.");
 
-            var response = request.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-            response.WriteString("Success!");
+                await Task.Delay(TimeSpan.FromSeconds(timeout));
 
-            return response;
+                var response = request.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+                await response.WriteStringAsync("Success!");
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(RandomTimeOut)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

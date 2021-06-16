@@ -16,16 +16,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.tests", "tl.employersupport.ecrm.poc.application.tests\tl.employersupport.ecrm.poc.application.tests.csproj", "{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tl.employersupport.ecrm.poc.application.functions", "tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.application.functions.csproj", "{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.functions", "tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.application.functions.csproj", "{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tl.employersupport.ecrm.poc.application.functions.tests", "tl.employersupport.ecrm.poc.application.functions.tests\tl.employersupport.ecrm.poc.application.functions.tests.csproj", "{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.functions.tests", "tl.employersupport.ecrm.poc.application.functions.tests\tl.employersupport.ecrm.poc.application.functions.tests.csproj", "{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tl.employersupport.ecrm.poc.tests.common", "tl.employersupport.ecrm.poc.tests.common\tl.employersupport.ecrm.poc.tests.common.csproj", "{4B27FD7C-23FD-40BB-A42B-F538821479DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.tests.common", "tl.employersupport.ecrm.poc.tests.common\tl.employersupport.ecrm.poc.tests.common.csproj", "{4B27FD7C-23FD-40BB-A42B-F538821479DF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "azure", "azure", "{7E3362D9-50E4-4D9B-97A4-D4522E3B6B65}"
 	ProjectSection(SolutionItems) = preProject
 		..\azure\armTemplate.json = ..\azure\armTemplate.json
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B9BAFDCD-AE00-425E-B8F8-14985E9BC409}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08} = {B9BAFDCD-AE00-425E-B8F8-14985E9BC409}
+		{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69} = {B9BAFDCD-AE00-425E-B8F8-14985E9BC409}
+		{4B27FD7C-23FD-40BB-A42B-F538821479DF} = {B9BAFDCD-AE00-425E-B8F8-14985E9BC409}
 		{7E3362D9-50E4-4D9B-97A4-D4522E3B6B65} = {133E2261-7F50-4BD9-9C2D-EDE28C2E1E2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

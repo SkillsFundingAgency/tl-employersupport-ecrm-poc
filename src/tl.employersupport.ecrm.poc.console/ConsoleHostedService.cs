@@ -17,6 +17,7 @@ namespace tl.employersupport.ecrm.poc.console
     {
         private readonly ILogger _logger;
         private readonly IHostApplicationLifetime _appLifetime;
+        private readonly IMonitorService _functionsApiService;
         private readonly IEmailService _emailService;
         private readonly ITicketService _ticketService;
 
@@ -28,11 +29,13 @@ namespace tl.employersupport.ecrm.poc.console
             ILogger<ConsoleHostedService> logger,
             IHostApplicationLifetime appLifetime,
             IEmailService emailService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            IMonitorService functionsApiService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _appLifetime = appLifetime ?? throw new ArgumentNullException(nameof(appLifetime));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _functionsApiService = functionsApiService ?? throw new ArgumentNullException(nameof(functionsApiService));
             _ticketService = ticketService ?? throw new ArgumentNullException(nameof(ticketService));
         }
 
@@ -60,6 +63,15 @@ namespace tl.employersupport.ecrm.poc.console
                         if (args.HasArgument("--sendTicketCreatedEmail"))
                         {
                             await SendTicketCreatedEmail();
+                            if (pause) WaitForUserInput();
+                        }
+
+                        if (args.HasArgument("--pollyTest"))
+                        {
+                            var minTimeout = args.GetIntFromArgument("minTimeout", ":", 0);
+                            var maxTimeout = args.GetIntFromArgument("maxTimeout", ":", 300);
+                            var clientTimeout = args.GetIntFromArgument("clientTimeout", ":", 60);
+                            await TestPollyPolicy(clientTimeout, minTimeout, maxTimeout);
                             if (pause) WaitForUserInput();
                         }
 
@@ -131,6 +143,12 @@ namespace tl.employersupport.ecrm.poc.console
                     ticketId,
                     DateTime.UtcNow);
             _logger.LogInformation($"Email sent - {sent}");
+        }
+
+        private async Task TestPollyPolicy(int clientTimeout, int minTimeout, int maxTimeout)
+        {
+            await _functionsApiService
+                .CallTestTimeout(clientTimeout, minTimeout, maxTimeout);
         }
 
         private async Task<IDictionary<long, TicketField>> GetTicketFieldsFromZendesk()
@@ -279,14 +297,18 @@ namespace tl.employersupport.ecrm.poc.console
         private static void WriteHelpText()
         {
             Console.WriteLine("Zendesk - ECRM Demo");
-            Console.WriteLine("  ticketId:n               - ticket id for steps that use it");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
             Console.WriteLine("  --searchTickets          - looks for recently created tickets");
             Console.WriteLine("  --updateTicket           - update the ticket tags in Zendesk");
-            Console.WriteLine("  --pause                  - send a test email");
-            Console.WriteLine("  --sendTicketCreatedEmail - pauses between steps");
+            Console.WriteLine("  --sendTicketCreatedEmail - send a test email");
+            Console.WriteLine("  --pollyTest              - test the Polly timeout policy");
+            Console.WriteLine("  --pause                  - pauses between steps");
             Console.WriteLine("  --help                   - shows this help text");
+            Console.WriteLine("  ticketId:n               - ticket id for steps that use it");
+            Console.WriteLine("  clientTimeout:n          - the time to HTTP client timeout in seconds; used by --pollyTest");
+            Console.WriteLine("  minTimeout:n             - minimum function timeout in seconds; used by --pollyTest");
+            Console.WriteLine("  maxTimeout:n             - maximum function timeout in seconds; used by --pollyTest");
         }
     }
 }
