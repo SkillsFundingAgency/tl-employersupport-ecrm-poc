@@ -99,4 +99,4 @@ stages:
               resourceGroupName: $(ResourceGroupName)
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
-              overrideParameters: '-rgName "$(ResourceGroupName)" rgLocation ""$(ResourceGroupLocation)'
+              overrideParameters: '-rgName "$(ResourceGroupName)" -rgLocation "$(ResourceGroupLocation)"'
