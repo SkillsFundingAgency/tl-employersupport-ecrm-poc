@@ -58,10 +58,13 @@ namespace tl.employersupport.ecrm.poc.application.functions
                 var ticketId = 0L;
 
                 var body = await request.ReadAsStringAsync();
-                if (!string.IsNullOrWhiteSpace(body))
+                if (string.IsNullOrWhiteSpace(body))
                 {
-                    logger.LogInformation($"Body was read successfully:\n{body.PrettifyJsonString()}");
-
+                    logger.LogInformation("Body was empty");
+                }
+                else
+                {
+                    logger.LogInformation($"Body was read successfully: {body}");
                     try
                     {
                         //Attempt to deserialize
@@ -72,7 +75,11 @@ namespace tl.employersupport.ecrm.poc.application.functions
                                 {
                                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                                 });
+
                         ticketId = notification?.Id ?? 0;
+                        logger.LogInformation($"After deserialization ticket id is {ticketId}");
+                        logger.LogInformation($"After deserialization notification is null = {(notification is null)}");
+                        logger.LogInformation($"After deserialization notification is'{notification}'");
                     }
                     catch (Exception ex)
                     {
@@ -95,7 +102,7 @@ namespace tl.employersupport.ecrm.poc.application.functions
                 }
 
                 await _emailService.SendZendeskTicketCreatedEmail(ticketId, _dateTimeService.UtcNow);
-                
+
                 return request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception e)

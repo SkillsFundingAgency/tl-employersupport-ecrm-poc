@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
 
 namespace tl.employersupport.ecrm.poc.tests.common.Extensions
 {
