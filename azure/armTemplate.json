@@ -12,7 +12,14 @@
         "description": "Location for all resources."
       }
     },
-    "appName": {
+    "appInsightsLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for Application Insights"
+      }
+    },
+    "fnAppName": {
       "type": "string",
       "defaultValue": "[concat('fnapp', uniqueString(resourceGroup().id))]",
       "metadata": {
@@ -31,12 +38,6 @@
         "description": "Storage Account type"
       }
     },
-    "appInsightsLocation": {
-      "type": "string",
-      "metadata": {
-        "description": "Location for Application Insights"
-      }
-    },
     "runtime": {
       "type": "string",
       "defaultValue": "dotnet-isolated",
@@ -52,9 +53,9 @@
     }
   },
   "variables": {
-    "functionAppName": "[parameters('appName')]",
-    "hostingPlanName": "[parameters('appName')]",
-    "applicationInsightsName": "[parameters('appName')]",
+    "functionAppName": "[parameters('fnAppName')]",
+    "hostingPlanName": "[parameters('fnAppName')]",
+    "applicationInsightsName": "[parameters('fnAppName')]",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
     "functionWorkerRuntime": "[parameters('runtime')]"
   },
