@@ -1,11 +1,13 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.functions.tests.Builders;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 
@@ -39,7 +41,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.tests
         }
 
         [Fact]
-        public async Task TicketWorkflowFunctions_ManualImport_Returns_Expected_Result()
+        public async Task TicketWorkflowFunctions_SendTicketCreatedNotification_Via_Get_Returns_Expected_Result()
         {
             const long ticketId = 4485;
             var createdTime = DateTime.Parse("10:10:57");
@@ -67,15 +69,90 @@ namespace tl.employersupport.ecrm.poc.application.functions.tests
             
             result.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var body = await result.Body.ReadAsString();
-            body.Should().Be("Done!");
-
-            await emailService
-                .Received(1)
-                .SendZendeskTicketCreatedEmail(Arg.Any<long>(), Arg.Any<DateTime>());
             await emailService
                 .Received(1)
                 .SendZendeskTicketCreatedEmail(ticketId, createdTime);
+        }
+
+        [Fact]
+        public async Task TicketWorkflowFunctions_SendTicketCreatedNotification_Via_Post_Returns_Expected_Result()
+        {
+            const long ticketId = 4485;
+            var createdTime = DateTime.Parse("10:10:57");
+
+            var emailService = Substitute.For<IEmailService>();
+            emailService
+                .SendZendeskTicketCreatedEmail(ticketId, createdTime)
+                .Returns(true);
+
+            var dateTimeService = Substitute.For<IDateTimeService>();
+            dateTimeService
+                .UtcNow
+                .Returns(createdTime);
+
+            var notification = new NotifyTicket
+            {
+                Id = ticketId
+            };
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var json = JsonSerializer.Serialize(notification,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Post,
+                    $"https://test.com/SendTicketCreatedNotification",
+                    json);
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(emailService, dateTimeService);
+
+            var result = await functions.SendTicketCreatedNotification(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            await emailService
+                .Received(1)
+                .SendZendeskTicketCreatedEmail(ticketId, createdTime);
+        }
+
+        [Fact]
+        public async Task TicketWorkflowFunctions_SendTicketCreatedNotification_With_No_data_Via_Get_Returns_Bad_Request_Result()
+        {
+            const long ticketId = 4485;
+            var createdTime = DateTime.Parse("10:10:57");
+
+            var emailService = Substitute.For<IEmailService>();
+            emailService
+                .SendZendeskTicketCreatedEmail(ticketId, createdTime)
+                .Returns(true);
+
+            var dateTimeService = Substitute.For<IDateTimeService>();
+            dateTimeService
+                .UtcNow
+                .Returns(createdTime);
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Post,
+                    $"https://test.com/SendTicketCreatedNotification");
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(emailService, dateTimeService);
+
+            var result = await functions.SendTicketCreatedNotification(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            await emailService
+                .DidNotReceive()
+                .SendZendeskTicketCreatedEmail(Arg.Any<long>(), Arg.Any<DateTime>());
         }
     }
 }

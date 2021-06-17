@@ -1,11 +1,14 @@
 using System;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
 namespace tl.employersupport.ecrm.poc.application.functions
 {
@@ -24,7 +27,8 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
         [Function("HelloWorld")]
         // ReSharper disable once UnusedMember.Global
-        public HttpResponseData HelloWorld([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
+        public HttpResponseData HelloWorld(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post")]
             HttpRequestData request,
             FunctionContext executionContext)
         {
@@ -40,7 +44,8 @@ namespace tl.employersupport.ecrm.poc.application.functions
         }
 
         [Function("SendTicketCreatedNotification")]
-        public async Task<HttpResponseData> SendTicketCreatedNotification([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
+        public async Task<HttpResponseData> SendTicketCreatedNotification(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post")]
             HttpRequestData request,
             FunctionContext executionContext)
         {
@@ -48,25 +53,50 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
             try
             {
-                logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called.");
+                logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called via {request.Method}.");
 
-                //var body = request.ReadAsStringAsync();
-                var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
+                var ticketId = 0L;
 
-                var response = request.CreateResponse(HttpStatusCode.OK);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-                if (long.TryParse(queryParameters.Get("ticketId"), out var ticketId))
+                var body = await request.ReadAsStringAsync();
+                if (!string.IsNullOrWhiteSpace(body))
                 {
-                    var sent = await _emailService.SendZendeskTicketCreatedEmail(ticketId, _dateTimeService.UtcNow);
-                    await response.WriteStringAsync($"{(sent ? "Done!" : "Failed :(")}");
-                }
-                else
-                {
-                    await response.WriteStringAsync("Ticket Id not found in request.");
+                    logger.LogInformation($"Body was read successfully:\n{body.PrettifyJsonString()}");
+
+                    try
+                    {
+                        //Attempt to deserialize
+                        var notification = JsonSerializer
+                            .Deserialize<NotifyTicket>(
+                                body,
+                                new JsonSerializerOptions
+                                {
+                                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                                });
+                        ticketId = notification?.Id ?? 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("Failed to deserialize request body {ex}", ex);
+                    }
                 }
 
-                return response;
+                if (ticketId == 0)
+                {
+                    var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
+                    if (!long.TryParse(queryParameters.Get("ticketId"), out ticketId))
+                    {
+                        logger.LogError("Failed to read ticket id from query string");
+                    }
+                }
+
+                if (ticketId <= 0)
+                {
+                    return request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                await _emailService.SendZendeskTicketCreatedEmail(ticketId, _dateTimeService.UtcNow);
+                
+                return request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception e)
             {
@@ -79,7 +109,8 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
         [Function("RandomTimeOut")]
         // ReSharper disable once UnusedMember.Global
-        public async Task<HttpResponseData> RandomTimeOut([HttpTrigger(AuthorizationLevel.Function, "get", "post")]
+        public async Task<HttpResponseData> RandomTimeOut(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post")]
             HttpRequestData request,
             FunctionContext executionContext)
         {

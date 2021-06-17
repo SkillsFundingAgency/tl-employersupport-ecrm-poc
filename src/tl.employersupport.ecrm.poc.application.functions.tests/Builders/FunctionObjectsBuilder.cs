@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Net.Http;
+using System.Text;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -27,23 +29,34 @@ namespace tl.employersupport.ecrm.poc.application.functions.tests.Builders
         public static HttpRequestData BuildHttpRequestData(
             HttpMethod method,
             string url = null,
+            string body = null,
             FunctionContext functionContext = null)
         {
             return BuildHttpRequestData(
                 method,
                 url is not null ? new Uri(url) : null,
+                body,
                 functionContext);
         }
 
         public static HttpRequestData BuildHttpRequestData(
             HttpMethod method,
             Uri url = null,
+            string body = null,
             FunctionContext functionContext = null)
         {
             functionContext ??= BuildFunctionContext();
 
             var request = Substitute.For<HttpRequestData>(functionContext);
             request.Method.Returns(method.ToString());
+
+            if (body != null)
+            {
+                var requestBody = new MemoryStream(Encoding.ASCII.GetBytes(body));
+                requestBody.Flush();
+                requestBody.Position = 0;
+                request.Body.Returns(requestBody);
+            }
             request.Url.Returns(url);
 
             var responseData = BuildHttpResponseData(functionContext);
