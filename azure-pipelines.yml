@@ -107,8 +107,8 @@ stages:
             ##    https://marketplace.visualstudio.com/items?itemName=RasmusWatjen.ARMOutputParserExtension
             displayName: 'Parse ARM Deployment Outputs into variables'
             enabled: false
-              inputs:
-                armOutput: '$(DeploymentOutputs)'
+            inputs:
+              armOutput: '$(DeploymentOutputs)'
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
