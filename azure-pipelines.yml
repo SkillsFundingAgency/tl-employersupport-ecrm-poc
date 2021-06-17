@@ -95,10 +95,10 @@ stages:
             inputs:
               azureSubscription: 'ARM Subscription'
               location: $(ResourceGroupLocation)
-              resourceGroupName: "$(ResourceIdentifier)-rg"
+              resourceGroupName: '$(ResourceIdentifier)-rg'
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
-              overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" "-resourceEnvironmentName "$(ResourceEnvironmentName)"'
+              overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" -resourceEnvironmentName "$(ResourceEnvironmentName)"'
               deploymentOutputs: DeploymentOutputs
 
           - task: RasmusWatjen.ARMOutputParserExtension.ARMOutputConverter.ARMOutputParserExtension@1
