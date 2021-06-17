@@ -3,9 +3,6 @@ name: tl-employersupport-ecrm-poc
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-latest
-
 variables:
   - name: buildConfiguration
     value: 'Release'
@@ -79,7 +76,7 @@ stages:
   jobs:
   - deployment: Deploy
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: 'windows-latest'
     environment: 'tl-poc-env'
     strategy:
       runOnce:
