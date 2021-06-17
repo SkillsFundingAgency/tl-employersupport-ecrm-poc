@@ -164,6 +164,15 @@ namespace tl.employersupport.ecrm.poc.console
             ticketFieldList.AppendLine("");
             _logger.LogInformation(ticketFieldList.ToString());
 
+            ticketFieldList.Clear();
+            ticketFieldList.AppendLine($"T Level Fields: ({ticketFields.Count})");
+            foreach (var (key, value) in ticketFields.Where(t => t.Value.Title.StartsWith("T Level")))
+            {
+                ticketFieldList.AppendLine($"    {key}: '{value.Title}' - '{value.Type}' - active:{value.Active}");
+            }
+            ticketFieldList.AppendLine("");
+            _logger.LogInformation(ticketFieldList.ToString());
+
             return ticketFields;
         }
 
@@ -197,23 +206,36 @@ namespace tl.employersupport.ecrm.poc.console
                 if (ticketFields != null && ticketFields.Any())
                 {
                     ticketDetail.AppendLine("Ticket fields: ({ticket.Ticket.Fields.Count()})");
-                    foreach (var field in ticket.Ticket.Fields)
-                    {
-                        ticketDetail.AppendLine(ticketFields.TryGetValue(field.Id, out var fieldInfo)
-                            ? $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]"
-                            : $"         {field.Id} - {field.Value}");
-                    }
-                    ticketDetail.AppendLine("");
+
+                    //foreach (var (key, value) in ticketFields)
+                    //foreach (var field in ticket.Ticket.Fields)
+                    //{
+                    //    var fieldFound = ticketFields.TryGetValue(field.Id, out var fieldInfo);
+                    //    if (fieldFound && fieldInfo.Title.StartsWith("T Level"))
+                    //    {
+                    //        ticketDetail.AppendLine(
+                    //            $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]");
+                    //    }
+                    //        //ticketDetail.AppendLine(fieldFound
+                    //        //? $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]"
+                    //        //: $"         {field.Id} - {field.Value}");
+                    //}
+                    //ticketDetail.AppendLine("");
 
                     ticketDetail.AppendLine("Ticket custom fields: ({ticket.Ticket.CustomFields.Count()})");
                     foreach (var field in ticket.Ticket.CustomFields)
                     {
-                        ticketDetail.AppendLine(ticketFields.TryGetValue(field.Id, out var fieldInfo)
-                            ? $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]"
-                            : $"         {field.Id} - {field.Value}");
+                        var fieldFound = ticketFields.TryGetValue(field.Id, out var fieldInfo);
+                        if (fieldFound && fieldInfo.Title.StartsWith("T Level"))
+                        {
+                            ticketDetail.AppendLine(
+                                $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]");
+                        }
+                        //ticketDetail.AppendLine(ticketFields.TryGetValue(field.Id, out var fieldInfo)
+                        //    ? $"         {fieldInfo.Title} - '{field.Value}' [{fieldInfo.Type} - {fieldInfo.Active}]"
+                        //    : $"         {field.Id} - {field.Value}");
                     }
                     ticketDetail.AppendLine("");
-
                 }
 
                 ticketDetail.AppendLine($"Users ({ticket.Users.Count()}):");
