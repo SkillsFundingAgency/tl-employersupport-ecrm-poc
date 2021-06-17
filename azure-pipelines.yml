@@ -106,9 +106,14 @@ stages:
           - script: echo "FunctionAppName:" $(DeploymentOutputs.functionAppName.value)
             displayName: 'Function app name'
 
-          -script:
+          #-script:
+          #  echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
+
+          - bash: |
             echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
 
+          - script: echo "Trying"
+            displayName: 'Test'
           - script: echo "FunctionAppName:" $(FUNAPPNAME)
             displayName: 'Function app name fixed'
 
