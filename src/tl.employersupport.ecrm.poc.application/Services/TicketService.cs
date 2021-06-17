@@ -49,9 +49,9 @@ namespace tl.employersupport.ecrm.poc.application.Services
             var ticketCommentJson = await GetTicketCommentsJson(ticketId);
             var ticketAuditsJson = await GetTicketAuditsJson(ticketId);
 
-            _logger.LogInformation($"Ticket json: \n{ticketJson.PrettifyJsonString()}");
-            _logger.LogInformation($"Ticket comments json: \n{ticketCommentJson.PrettifyJsonString()}");
-            _logger.LogInformation($"Ticket audits json: \n{ticketAuditsJson.PrettifyJsonString()}");
+            _logger.LogDebug($"Ticket json: \n{ticketJson.PrettifyJsonString()}");
+            _logger.LogDebug($"Ticket comments json: \n{ticketCommentJson.PrettifyJsonString()}");
+            _logger.LogDebug($"Ticket audits json: \n{ticketAuditsJson.PrettifyJsonString()}");
 
             var zendeskTicketResponse = ticketJson.DeserializeZendeskTicketResponse();
             var zendeskTicket = ticketJson.DeserializeZendeskTicket();
@@ -209,13 +209,13 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             if (ticket is null)
             {
-                _logger.LogInformation("No ticket provided.");
+                _logger.LogWarning("No ticket provided.");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(tag))
             {
-                _logger.LogInformation("No tag provided.");
+                _logger.LogWarning("No tag provided.");
                 return;
             }
 
@@ -254,7 +254,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             };
             var json = JsonSerializer.Serialize(tagsToAdd, serializerOptions);
 
-            _logger.LogInformation($"Prepared json for adding ticket:\n{json}");
+            _logger.LogDebug($"Prepared json for adding ticket:\n{json}");
 
             //TODO: Add a PutJson method
             var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
