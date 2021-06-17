@@ -89,6 +89,8 @@ stages:
           #- script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
           #- script: echo "Resource group:" $(ResourceGroupName)
           #- script: echo "Resource location:" $(ResourceGroupLocation)
+          - script: echo "Resource identifier:" $(ResourceIdentifier)
+          - script: echo "Resource environment:" $(ResourceEnvironmentName)
 
           - task: AzureResourceGroupDeployment@2
             displayName: 'Deploy ARM templates'

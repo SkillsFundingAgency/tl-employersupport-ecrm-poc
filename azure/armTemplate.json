@@ -55,8 +55,7 @@
     }
   },
   "variables": {
-    "resourceNamePrefix": "[toLower(concat(parameters('resourceIdentifier') , parameters('resourceEnvironmentName'), '-', parameters('serviceName')))]",
-    "ResourceGroup": "[concat(variables('resourceNamePrefix'), '-rg')]",
+    "resourceNamePrefix": "[toLower(concat(parameters('resourceIdentifier') , parameters('resourceEnvironmentName')))]",
     "storageAccountName": "[concat(variables('resourceNamePrefix'), '-str')]",
     "functionAppName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "hostingPlanName": "[concat(variables('resourceNamePrefix'), '-func')]",
