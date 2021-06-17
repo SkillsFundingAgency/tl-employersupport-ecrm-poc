@@ -105,13 +105,21 @@ stages:
             displayName: 'Pipeline Workspace'
           - script: echo "FunctionAppName:" $(DeploymentOutputs.functionAppName.value)
             displayName: 'Function app name'
-            
+
+          -script:
+            echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
+          - bash: |
+            echo "$(FUNAPPNAME)"
+          - script: echo "FunctionAppName:" $(FUNAPPNAME)
+            displayName: 'Function app name fixed'
+
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
             inputs:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
-              WebAppName: tlzdecrmpocdev-func
-              #           $(DeploymentOutputs.functionAppName.value)
+              #WebAppName: tlzdecrmpocdev-func
+              #WebAppName: $(DeploymentOutputs.functionAppName.value)
+              WebAppName: $(FUNAPPNAME)
               packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.application.functions.zip'
               
