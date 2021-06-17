@@ -9,6 +9,7 @@ pool:
 variables:
   - name: buildConfiguration
     value: 'Release'
+  - group: tl-zd-ecrm-poc-deployment
   - group: tl-zd-ecrm-poc-vars
 
 stages:
@@ -99,4 +100,21 @@ stages:
               resourceGroupName: $(ResourceGroupName)
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
-              overrideParameters: '-rgName "$(ResourceGroupName)" -rgLocation "$(ResourceGroupLocation)"'
+              overrideParameters: '-rgName "$(ResourceGroupName)" -location "$(ResourceGroupLocation)"'
+              deploymentOutputs: DeploymentOutputs
+
+          - task: RasmusWatjen.ARMOutputParserExtension.ARMOutputConverter.ARMOutputParserExtension@1
+            ##    https://marketplace.visualstudio.com/items?itemName=RasmusWatjen.ARMOutputParserExtension
+            displayName: 'Parse ARM Deployment Outputs into variables'
+            enabled: false
+              inputs:
+                armOutput: '$(DeploymentOutputs)'
+
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Deploy Function App'
+            enabled: false
+            inputs:
+              azureSubscription: 'ARM Subscription'
+              appType: functionApp
+              WebAppName: '$(FunctionAppName)'
+              packageForLinux: '$(System.DefaultWorkingDirectory)/tl-marketing-and-communication/drop/publish/sfa.Tl.Marketing.Communication.Functions.zip'

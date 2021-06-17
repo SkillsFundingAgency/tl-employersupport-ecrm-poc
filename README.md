@@ -32,6 +32,23 @@ Added NuGet packages and extensions for `ShouldNotAcceptNullConstructorArguments
 
 TODO: describe the functions here
 
+### Running functions from the command line
+
+Navigate to the function project folder, e.g. 
+```
+cd C:\dev\esfa\tl-employersupport-ecrm-poc\src\tl.employersupport.ecrm.poc.application.functions
+```
+
+If function tools are not installed, run
+```
+npm i -g azure-functions-core-tools@3 --unsafe-perm true
+```
+
+Then run the functions using
+```
+func host start --verbose
+```
+
 
 ## SonarCloud Analysis
 
@@ -51,24 +68,31 @@ Based on https://pumpingco.de/blog/how-to-run-a-sonarcloud-scan-during-docker-bu
 
 The POC has a DevOps pipeline. 
 
-This requires the following variable group:
+This requires the following variable groups:
 
-    - **Group name** `tl-zd-ecrm-poc-vars`
+    - **Group name** `tl-zd-ecrm-poc-deployment`
     - **Values** as below
 
-| Name                                | Sample Value |
-| ----                                | ------------ |
-| GovNotifyApiKey                     | ********     |
-| ResourceGroupLocation               | UK South     |
-| ResourceGroupName                   | tl-zd-ecrm-poc-rg |
-| SupportEmailAddress                 | ********     |
-| ZendeskApiBaseUri                   | https://tlevelsemployertest.zendesk.com/api/v2 |
-| ZendeskApiToken                     | ********     |
-| ZendeskAuthenticationMethod         | BasicWithApiToken |
-| ZendeskPassword                     | NA           |
-| ZendeskTicketCreatedEmailTemplateId | ********     |
-| ZendeskUser                         | ********     |
+        | Name                                | Sample Value |
+        | ----                                | ------------ |
+        | ResourceGroupLocation               | UK South     |
+        | ResourceGroupName                   | tl-zd-ecrm-poc-rg |
 
+    - **Group name** `tl-zd-ecrm-poc-arm`
+    - **Values** as below
+
+        | Name                                | Sample Value |
+        | ----                                | ------------ |
+        | GovNotifyApiKey                     | ********     |
+        | SupportEmailAddress                 | ********     |
+        | CrmApiBaseUri                       | https://dev.api.crm.org.uk/directory/apiname/ |
+        | CrmApiKey                           | ********     |
+        | ZendeskApiBaseUri                   | https://tlevelsemployertest.zendesk.com/api/v2 |
+        | ZendeskApiToken                     | ********     |
+        | ZendeskAuthenticationMethod         | BasicWithApiToken |
+        | ZendeskPassword                     | NA           |
+        | ZendeskTicketCreatedEmailTemplateId | ********     |
+        | ZendeskUser                         | ********     |
 
 ### Connecting to Azure for the ARM subscription
 
@@ -76,25 +100,37 @@ This requires the following service connections
 
     `ARM Subscription` - Service connection for running ARM templates
 
-The Azure deployment pipeline requires an Azure Container Registry, but
-because in the first attempts it wasn't in the same the same 
-Azure AD as the build pipeline, the following steps were needed:
+Set up guide - https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal
 
-(taken from https://stackoverflow.com/questions/55833711/azure-devops-add-azure-container-registry-in-build-pipeline-from-different-acco)
+To set this up, go to the Azure portal and create a new app registration called (for example) `tl-zd-ecrm-app` and choose "multitenant" - this probably needs access to all clients.
+Go to the Certificates and secrets tab for the new app registration 
+and create a new secret. Copy the value as you cannot retrieve it later. 
+Also copy the application id AND tenant id from the overview tab.
 
- - Create an app registration in the Azure AD where the ACR exists.
- - Give it a name like myregistry-app
- - Go to the myregistry-app Certificates and secrets page and create a new secret. Copy the value as you cannot retrieve it later.
- - Also copy the myregistry-app application id. You can find it on the overview screen.
- - Now go to the ACR Access Control (IAM) screen for your container registry.
- - Add a role assignment and assign the myregistry-app identity the Contributor role.
- - Back in your build pipeline create a Docker task and click on the New button under the Container Registry section.
- - In the popup dialog Add a Docker Registry service connection choose the Others radio button.
- - Put in the URL to your ACR which you can find on the container registry overview page.
- - Use the application id for myregistry-app as the Docker ID.
- - Use the myregistry-app secret for the password.
+*(Optional step - may work without this)* On the API Permissions tab add a permission - choose Azure DevOps then select Delegated Permissions - user_impersonation.
 
+To get the subscription details, either check in the portal or run
+```
+az account show
+```
 
+Assign a role to the app registration within the subscription.
+ - go to Subscriptions in the Azure portal
+ - select the subscription
+ - select Access control (IAM).
+ - set the role to Contributer, assign access to service principal and select the new app registration
+ - save
+
+Go to the Project Settings in the Azure DevOps project and create a service connection.
+ - select Azure resource management
+ - type is service principal (manual) 
+ - name should be "ARM Subscription" to match the name used in the pipeline yaml
+ - Choose "Subscription" as the scope (if this is one of the options)
+ - Subscription id should be your Azure subscription id
+ - Subscription name should be your Azure subscription name, e.g. "Visual Studio Professional Subscription"
+ - Principal Id is the application id of the app registration
+ - Service principal key is the value from the secret created above 
+ - tenant id is the tenant id from the app registration 
 
 ## Zendesk Contact Form
 
@@ -125,71 +161,3 @@ This is only implemented for Zendesk calls so far.
 
 
 
-## Adding a .NET 5.0 functions project
-
-If the project was created as .NET Core 3.1, it needs to be updated.
-(Not needed if the project was created as .NET 5.0)
-
-##### Change project:
-
-```
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
-    <OutputType>Exe</OutputType>
-    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
-  </PropertyGroup>
-```
-
-##### Remove nuget package:
-```
-Microsoft.NET.Sdk.Functions
-```
-
-##### Add nuget packages:
-```
-Microsoft.Azure.Functions.Worker
-Microsoft.Azure.Functions.Worker.Sdk OutputItemType="Analyzer" 
-Microsoft.Azure.WebJobs.Extensions.Storage
-System.Net.NameResolution
-
-optional?
-Microsoft.Azure.WebJobs.Extensions
-Microsoft.Azure.WebJobs.Extensions.Http
-
-?
-Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator
-
-```
-
-Add an `OutputItemType="Analyzer"` attribute to `Microsoft.Azure.Functions.Worker.Sdk`
-
-##### Add Program.cs
-All the project startup will be done here.
-
-##### Remove Startup.cs
-This is no longer needed.
-
-
-
-Update local.settings.json runtime version:
-```
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-```
-
-### Running functions from the command line
-
-Navigate to the function project folder, e.g. 
-```
-cd C:\dev\repos\BlobStorageV12FunctionApp\BlobStorageV12FunctionApp\
-```
-
-If function tools are not installed, run
-```
-npm i -g azure-functions-core-tools@3 --unsafe-perm true
-```
-
-Then run the functions using
-```
-func host start --verbose
-```
