@@ -76,22 +76,12 @@ stages:
   jobs:
   - deployment: Deploy
     pool:
-      vmImage: 'windows-latest'
+      vmImage: 'ubuntu-latest'
     environment: 'tl-poc-env'
     strategy:
       runOnce:
         deploy:
           steps:
-          #- script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
-          #- script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
-          #- script: echo "Resource group:" $(ResourceGroupName)
-          - script: echo "Resource location:" $(ResourceLocation)
-          - script: echo "Resource identifier:" $(ResourceIdentifier)
-          - script: echo "Resource environment:" $(ResourceEnvironmentName)
-
-          - script: echo "GovNotifyApiKey:" $(GovNotifyApiKey)
-          - script: echo "SupportEmailAddress:" $(SupportEmailAddress)
-          - script: echo "ZendeskTicketCreatedEmailTemplateId:" $(ZendeskTicketCreatedEmailTemplateId)
 
           - task: AzureResourceGroupDeployment@2
             displayName: 'Deploy ARM templates'
@@ -107,17 +97,23 @@ stages:
           - task: RasmusWatjen.ARMOutputParserExtension.ARMOutputConverter.ARMOutputParserExtension@1
             ##    https://marketplace.visualstudio.com/items?itemName=RasmusWatjen.ARMOutputParserExtension
             displayName: 'Parse ARM Deployment Outputs into variables'
-            enabled: true
+            enabled: false
             inputs:
               armOutput: '$(DeploymentOutputs)'
 
-          - script: echo "FunctionAppName:" $(FunctionAppName)
-
+          - script: echo "FunctionAppName:" $(DeploymentOutputs.functionAppName.value)
+            displayName: 'Function app name'
+          - script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
+            displayName: 'Pipeline Workspace'
+          - script: echo "System.DefaultWorkingDirectory:" $(System.DefaultWorkingDirectory)
+            displayName: 'DefaultWorkingDirectory'
+            
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
-            enabled: false
             inputs:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
-              WebAppName: '$(FunctionAppName)'
-              packageForLinux: '$(System.DefaultWorkingDirectory)/tl-marketing-and-communication/drop/publish/sfa.Tl.Marketing.Communication.Functions.zip'
+              WebAppName: '$(DeploymentOutputs.functionAppName.value)'
+              packageForLinux: '$(Pipeline.Workspace)/**/tl-marketing-and-communication/drop/publish/tl.employersupport.ecrm.poc.application.functions.zip'
+              #D:\a\1/tl-emp-ecrm-poc/publish/tl.employersupport.ecrm.poc.application.functions.zip
+              
