@@ -108,8 +108,7 @@ stages:
 
           -script:
             echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
-          - bash: |
-            echo "$(FUNAPPNAME)"
+
           - script: echo "FunctionAppName:" $(FUNAPPNAME)
             displayName: 'Function app name fixed'
 
