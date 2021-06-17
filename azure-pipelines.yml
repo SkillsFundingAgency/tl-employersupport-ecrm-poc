@@ -101,12 +101,10 @@ stages:
             inputs:
               armOutput: '$(DeploymentOutputs)'
 
-          - script: echo "FunctionAppName:" $(DeploymentOutputs.functionAppName.value)
-            displayName: 'Function app name'
           - script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
             displayName: 'Pipeline Workspace'
-          - script: echo "System.DefaultWorkingDirectory:" $(System.DefaultWorkingDirectory)
-            displayName: 'DefaultWorkingDirectory'
+          - script: echo "FunctionAppName:" $(DeploymentOutputs.functionAppName.value)
+            displayName: 'Function app name'
             
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
@@ -114,6 +112,5 @@ stages:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
               WebAppName: '$(DeploymentOutputs.functionAppName.value)'
-              packageForLinux: '$(Pipeline.Workspace)/**/tl-marketing-and-communication/drop/publish/tl.employersupport.ecrm.poc.application.functions.zip'
-              #D:\a\1/tl-emp-ecrm-poc/publish/tl.employersupport.ecrm.poc.application.functions.zip
+              packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.application.functions.zip'
               

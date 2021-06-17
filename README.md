@@ -68,8 +68,6 @@ Based on https://pumpingco.de/blog/how-to-run-a-sonarcloud-scan-during-docker-bu
 
 The POC has a DevOps pipeline. 
 
-The pipeline uses an extension for parsing ARM outputs. This will need to be installed from https://marketplace.visualstudio.com/items?itemName=RasmusWatjen.ARMOutputParserExtension
-
 This requires the following variable groups:
 
     - **Group name** `tl-zd-ecrm-poc-deployment`
