@@ -111,6 +111,7 @@ stages:
             inputs:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
-              WebAppName: $(DeploymentOutputs.functionAppName.value)
+              WebAppName: tlzdecrmpocdev-func
+              #           $(DeploymentOutputs.functionAppName.value)
               packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.application.functions.zip'
               
