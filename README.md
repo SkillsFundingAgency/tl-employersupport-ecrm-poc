@@ -72,13 +72,13 @@ This requires the following variable groups:
 
     - **Group name** `tl-zd-ecrm-poc-deployment`
     - **Values** as below
+        - note no hyphens in resource identifier, to avoid invalid resource group name
 
-        | Name                                | Sample Value      |
-        | ----                                | ------------      |
-        | ResourceGroupLocation               | UK South          |
-        | ResourceGroupName                   | tl-zd-ecrm-poc-rg |
-        | ResourceIdentifier                  | tl-zd-ecrm-poc    |
-        | ResourceEnvironmentName             | dev               |
+        | Name                                | Sample Value   |
+        | ----                                | ------------   |
+        | ResourceLocation                    | UK South       |
+        | ResourceIdentifier                  | tlzdecrmpoc    |
+        | ResourceEnvironmentName             | dev            |
 
     - **Group name** `tl-zd-ecrm-poc-arm`
     - **Values** as below

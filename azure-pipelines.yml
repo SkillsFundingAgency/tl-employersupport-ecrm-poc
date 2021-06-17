@@ -88,7 +88,7 @@ stages:
           #- script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
           #- script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
           #- script: echo "Resource group:" $(ResourceGroupName)
-          #- script: echo "Resource location:" $(ResourceGroupLocation)
+          - script: echo "Resource location:" $(ResourceLocation)
           - script: echo "Resource identifier:" $(ResourceIdentifier)
           - script: echo "Resource environment:" $(ResourceEnvironmentName)
 
@@ -96,7 +96,7 @@ stages:
             displayName: 'Deploy ARM templates'
             inputs:
               azureSubscription: 'ARM Subscription'
-              location: $(ResourceGroupLocation)
+              location: $(ResourceLocation)
               resourceGroupName: '$(ResourceIdentifier)-rg'
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
