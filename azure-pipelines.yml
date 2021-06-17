@@ -111,6 +111,6 @@ stages:
             inputs:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
-              WebAppName: '$(DeploymentOutputs.functionAppName.value | xargs echo)'
+              WebAppName: $(DeploymentOutputs.functionAppName.value)
               packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.application.functions.zip'
               
