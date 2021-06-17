@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "azure", "azure", "{7E3362D9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B9BAFDCD-AE00-425E-B8F8-14985E9BC409}"
 EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "tl.employersupport.ecrm.poc.application.logic", "tl.employersupport.ecrm.poc.application.logic\tl.employersupport.ecrm.poc.application.logic.deployproj", "{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B27FD7C-23FD-40BB-A42B-F538821479DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
