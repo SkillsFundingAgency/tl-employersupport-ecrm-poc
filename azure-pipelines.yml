@@ -92,6 +92,10 @@ stages:
           - script: echo "Resource identifier:" $(ResourceIdentifier)
           - script: echo "Resource environment:" $(ResourceEnvironmentName)
 
+          - script: echo "GovNotifyApiKey:" $(GovNotifyApiKey)
+          - script: echo "SupportEmailAddress:" $(SupportEmailAddress)
+          - script: echo "ZendeskTicketCreatedEmailTemplateId:" $(ZendeskTicketCreatedEmailTemplateId)
+
           - task: AzureResourceGroupDeployment@2
             displayName: 'Deploy ARM templates'
             inputs:
@@ -100,15 +104,17 @@ stages:
               resourceGroupName: '$(ResourceIdentifier)-rg'
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
-              overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" -resourceEnvironmentName "$(ResourceEnvironmentName)"'
+              overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" -resourceEnvironmentName "$(ResourceEnvironmentName)" -govNotifyApiKey "$(GovNotifyApiKey)" -supportEmailAddress "$(SupportEmailAddress)" -zendeskTicketCreatedEmailTemplateId "$(ZendeskTicketCreatedEmailTemplateId)"'
               deploymentOutputs: DeploymentOutputs
 
           - task: RasmusWatjen.ARMOutputParserExtension.ARMOutputConverter.ARMOutputParserExtension@1
             ##    https://marketplace.visualstudio.com/items?itemName=RasmusWatjen.ARMOutputParserExtension
             displayName: 'Parse ARM Deployment Outputs into variables'
-            enabled: false
+            enabled: true
             inputs:
               armOutput: '$(DeploymentOutputs)'
+
+          - script: echo "FunctionAppName:" $(FunctionAppName)
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
