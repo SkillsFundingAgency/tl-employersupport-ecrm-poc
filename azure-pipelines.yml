@@ -85,22 +85,20 @@ stages:
       runOnce:
         deploy:
           steps:
-          - script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
-          #- script: echo "agent.builddirectory:" $(agent.builddirectory)
-          #- script: echo "System.ArtifactsDirectory:" $(System.ArtifactsDirectory)
-          - script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
-          - script: echo "Resource group:" $(ResourceGroupName)
-          - script: echo "Resource location:" $(ResourceGroupLocation)
-          
+          #- script: echo "ArtifactStagingDirectory:" $(Build.ArtifactStagingDirectory)
+          #- script: echo "Pipeline.Workspace:" $(Pipeline.Workspace)
+          #- script: echo "Resource group:" $(ResourceGroupName)
+          #- script: echo "Resource location:" $(ResourceGroupLocation)
+
           - task: AzureResourceGroupDeployment@2
             displayName: 'Deploy ARM templates'
             inputs:
               azureSubscription: 'ARM Subscription'
               location: $(ResourceGroupLocation)
-              resourceGroupName: $(ResourceGroupName)
+              resourceGroupName: "$(ResourceIdentifier)-rg"
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
-              overrideParameters: '-rgName "$(ResourceGroupName)" -location "$(ResourceGroupLocation)"'
+              overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" "-resourceEnvironmentName "$(ResourceEnvironmentName)"'
               deploymentOutputs: DeploymentOutputs
 
           - task: RasmusWatjen.ARMOutputParserExtension.ARMOutputConverter.ARMOutputParserExtension@1
