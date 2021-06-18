@@ -94,31 +94,16 @@ stages:
               overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" -resourceEnvironmentName "$(ResourceEnvironmentName)" -govNotifyApiKey "$(GovNotifyApiKey)" -supportEmailAddress "$(SupportEmailAddress)" -zendeskTicketCreatedEmailTemplateId "$(ZendeskTicketCreatedEmailTemplateId)"'
               deploymentOutputs: DeploymentOutputs
           
-          - script: echo "FunctionAppName:" $(DeploymentOutputs.functionAppName.value)
-            displayName: 'Function app name'
-          
-          #-script:
-          #  echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
-
-          #- bash: echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
           - bash: | 
-              FOO="$(DeploymentOutputs.functionAppName.value)"
-              echo "##vso[task.setvariable variable=functionAppName]$FOO"
-
-          # Using the $() syntax during "compile time", the pipeline expands the variable
-          - bash: |
-              echo "$(functionAppName)"
-
-          - script: echo "FunctionAppName:" $(functionAppName)
-            displayName: 'Function app name updated'
+              FunctionAppNameValue="$(DeploymentOutputs.functionAppName.value)"
+              echo "##vso[task.setvariable variable=functionAppName]$FunctionAppNameValue"
+            displayName: 'Copy ARM output variables'
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
             inputs:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
-              #WebAppName: tlzdecrmpocdev-func
-              #WebAppName: $(DeploymentOutputs.functionAppName.value)
               WebAppName: $(functionAppName)
               packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.application.functions.zip'
               
