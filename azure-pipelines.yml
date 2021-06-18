@@ -112,11 +112,17 @@ stages:
           #- bash: echo "##vso[task.setvariable variable=FUNAPPNAME]$(DeploymentOutputs.functionAppName.value)"
           - bash: | 
               FOO="$(DeploymentOutputs.functionAppName.value)"
-              echo "##vso[task.setvariable variable=FOO]FOO"
+              echo "##vso[task.setvariable variable=FOO]$FOO"
+
+          - bash: | 
+              FOO2="$(DeploymentOutputs.functionAppName.value)"
+              echo "##vso[task.setvariable variable=FOO2]($FOO2)"
 
           # Using the $() syntax during "compile time", the pipeline expands the variable
           - bash: |
               echo "$(FOO)"
+          - bash: |
+              echo "$(FOO2)"
 
           #- script: echo "FunctionAppName:" $(FUNAPPNAME)
           #  displayName: 'Function app name fixed'
