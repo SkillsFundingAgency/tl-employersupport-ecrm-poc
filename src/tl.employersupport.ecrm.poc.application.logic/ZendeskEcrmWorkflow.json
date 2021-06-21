@@ -102,7 +102,7 @@
               "type": "Http",
               "inputs": {
                 "method": "GET",
-                "uri": ""
+                "uri": "https://todo-get-ecrm-api.gov.uk"
               },
               "runAfter": {
                 "Send_ticket_created_emal": [
@@ -237,7 +237,7 @@
               "outputs": {
                 "statusCode": "OK",
                 "headers": {},
-                "result": {
+                "body": {
                   "accountId": "881121dc-fb3c-4609-bac9-456bd957c3f8"
                 }
               }
