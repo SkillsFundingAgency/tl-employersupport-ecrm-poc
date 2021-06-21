@@ -79,7 +79,7 @@
                 "statusCode": 200
               },
               "runAfter": {
-                "SendTicketCreatedNotification": [
+                "ModifyZendeskTicketTags": [
                   "Succeeded"
                 ]
               }
@@ -123,7 +123,7 @@
                   {
                     "name": "EmployerId",
                     "type": "string",
-                    "value": "@{concat('crm_id_',body('Parse_JSON')?['accountid'])}"
+                    "value": "@body('Parse_JSON')?['accountid']"
                   }
                 ]
               },
@@ -148,19 +148,6 @@
               },
               "runAfter": {
                 "Get_ECRM_account_id": [
-                  "Succeeded"
-                ]
-              }
-            },
-            "SendTicketCreatedNotification": {
-              "type": "Function",
-              "inputs": {
-                "function": {
-                  "id": "/subscriptions/9a7620ed-46c4-475f-b7ac-a6502e490e88/resourceGroups/tlzdecrmpoc-rg/providers/Microsoft.Web/sites/tlzdecrmpocdev-func/functions/SendTicketCreatedNotification"
-                }
-              },
-              "runAfter": {
-                "Compose_modify_tags_request": [
                   "Succeeded"
                 ]
               }
@@ -207,6 +194,20 @@
               },
               "runAfter": {
                 "Parse_initial_request_JSON": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ModifyZendeskTicketTags": {
+              "type": "Function",
+              "inputs": {
+                "body": "@outputs('Compose_modify_tags_request')",
+                "function": {
+                  "id": "/subscriptions/9a7620ed-46c4-475f-b7ac-a6502e490e88/resourceGroups/tlzdecrmpoc-rg/providers/Microsoft.Web/sites/tlzdecrmpocdev-func/functions/ModifyZendeskTicketTags"
+                }
+              },
+              "runAfter": {
+                "Compose_modify_tags_request": [
                   "Succeeded"
                 ]
               }
