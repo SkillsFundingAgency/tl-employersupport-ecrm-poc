@@ -66,9 +66,10 @@ Based on https://pumpingco.de/blog/how-to-run-a-sonarcloud-scan-during-docker-bu
 - key vault for secrets?
 - logic app?
 
-The POC has a DevOps pipeline. 
+The POC has a DevOps pipeline in `azure-pipelines.yml` with a build and a single release stage. 
+The pipeline uses YAML multi-line strings to make it more readable. See https://yaml-multiline.info/
 
-This requires the following variable groups:
+The pipeline requires the following variable groups to be set up in the Library:
 
     - **Group name** `tl-zd-ecrm-poc-deployment`
     - **Values** as below

@@ -58,7 +58,10 @@ stages:
         command: publish
         publishWebProjects: false
         projects: '**/*.[Ff]unctions.csproj'
-        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore'
+        arguments: >-
+          '--configuration $(buildConfiguration) 
+          --output $(build.artifactstagingdirectory)/publish 
+          --no-restore'
 
     - task: CopyFiles@2
       displayName: 'Copy Azure deployment files to: $(build.artifactstagingdirectory)'
@@ -91,7 +94,12 @@ stages:
               resourceGroupName: '$(ResourceIdentifier)-rg'
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/azure/armTemplate.json'
-              overrideParameters: '-resourceIdentifier "$(ResourceIdentifier)" -resourceEnvironmentName "$(ResourceEnvironmentName)" -govNotifyApiKey "$(GovNotifyApiKey)" -supportEmailAddress "$(SupportEmailAddress)" -zendeskTicketCreatedEmailTemplateId "$(ZendeskTicketCreatedEmailTemplateId)"'
+              overrideParameters: >-
+                '-resourceIdentifier "$(ResourceIdentifier)" 
+                -resourceEnvironmentName "$(ResourceEnvironmentName)" 
+                -govNotifyApiKey "$(GovNotifyApiKey)" 
+                -supportEmailAddress "$(SupportEmailAddress)" 
+                -zendeskTicketCreatedEmailTemplateId "$(ZendeskTicketCreatedEmailTemplateId)"'
               deploymentOutputs: DeploymentOutputs
           
           - bash: | 
