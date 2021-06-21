@@ -14,6 +14,6 @@ namespace tl.employersupport.ecrm.poc.application.Model.Zendesk
         public DateTimeOffset UpdatedStamp { get; init; }
 
         [JsonPropertyName("safe_update")]
-        public bool SafeUpdate { get; init; }
+        public bool SafeUpdate { get; init; } = true;
     }
 }

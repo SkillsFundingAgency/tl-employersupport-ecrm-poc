@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.IO.Pipes;
 using System.Net.Http;
 using System.Text;
 using Microsoft.Azure.Functions.Worker;
@@ -8,7 +7,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace tl.employersupport.ecrm.poc.application.functions.tests.Builders
+namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
 {
     public static class FunctionObjectsBuilder
     {

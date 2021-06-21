@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using System.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
@@ -16,13 +16,22 @@ namespace tl.employersupport.ecrm.poc.application.functions
     {
         private readonly IEmailService _emailService;
         private readonly IDateTimeService _dateTimeService;
+        private readonly ITicketService _ticketService;
+
+        private static JsonSerializerOptions DefaultJsonSerializerOptions =>
+            new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
 
         public TicketWorkflowFunctions(
+            IDateTimeService dateTimeService,
             IEmailService emailService,
-            IDateTimeService dateTimeService = null)
+            ITicketService ticketService)
         {
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _dateTimeService = dateTimeService ?? throw new ArgumentNullException(nameof(dateTimeService));
+            _ticketService = ticketService ?? throw new ArgumentNullException(nameof(ticketService));
         }
 
         [Function("HelloWorld")]
@@ -67,14 +76,8 @@ namespace tl.employersupport.ecrm.poc.application.functions
                     logger.LogInformation($"Body was read successfully: {body}");
                     try
                     {
-                        //Attempt to deserialize
                         var notification = JsonSerializer
-                            .Deserialize<NotifyTicket>(
-                                body,
-                                new JsonSerializerOptions
-                                {
-                                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                                });
+                            .Deserialize<NotifyTicket>(body, DefaultJsonSerializerOptions);
 
                         ticketId = notification?.Id ?? 0;
                         logger.LogInformation($"After deserialization ticket id is {ticketId}");
@@ -108,6 +111,75 @@ namespace tl.employersupport.ecrm.poc.application.functions
             catch (Exception e)
             {
                 var errorMessage = $"Error in {nameof(SendTicketCreatedNotification)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [Function("ModifyZendeskTicketTags")]
+        public async Task<HttpResponseData> ModifyZendeskTicketTags(
+            [HttpTrigger(AuthorizationLevel.Function, "post")]
+            HttpRequestData request,
+            FunctionContext executionContext)
+        {
+            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+
+            try
+            {
+                logger.LogInformation($"{nameof(ModifyZendeskTicketTags)} HTTP function called via {request.Method}.");
+
+                var ticketId = 0L;
+
+                var body = await request.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(body))
+                {
+                    logger.LogInformation("Body was empty");
+                }
+
+                var tagsMessage = JsonSerializer
+                    .Deserialize<ModifyTagsMessage>(body, DefaultJsonSerializerOptions);
+
+                ticketId = tagsMessage?.TicketId ?? 0;
+
+                //Validation
+                if (ticketId <= 0)
+                {
+                    return request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                //Get ticket so we can pull out latest updated date
+                var existingTags = await _ticketService.GetTicketTags(ticketId);
+
+                //TODO: Define error handing when ticket not found
+                if (existingTags != null)
+                {
+                    //Merge any new tags in
+                    var hasNewTags = false;
+                    foreach (var tag in tagsMessage!.Tags
+                        .Where(t => !existingTags.Tags.Contains(t)))
+                    {
+                        existingTags.Tags.Add(tag);
+                        hasNewTags = true;
+                    }
+
+                    if (hasNewTags)
+                    {
+                        var safeTags = new SafeTags
+                        {
+                            Tags = existingTags.Tags,
+                            UpdatedStamp = existingTags.UpdatedStamp
+                        };
+
+                        await _ticketService.ModifyTags(ticketId, safeTags);
+                    }
+                }
+
+                return request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(ModifyZendeskTicketTags)}. Internal Error Message {e}";
                 logger.LogError(errorMessage);
 
                 return request.CreateResponse(HttpStatusCode.InternalServerError);

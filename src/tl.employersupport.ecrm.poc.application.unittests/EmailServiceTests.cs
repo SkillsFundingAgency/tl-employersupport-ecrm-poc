@@ -5,12 +5,12 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Services;
-using tl.employersupport.ecrm.poc.application.tests.Builders;
+using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace tl.employersupport.ecrm.poc.application.tests
+namespace tl.employersupport.ecrm.poc.application.unittests
 {
     public class EmailServiceTests
     {

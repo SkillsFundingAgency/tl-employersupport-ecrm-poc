@@ -5,20 +5,16 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
-using tl.employersupport.ecrm.poc.application.functions.tests.Builders;
+using tl.employersupport.ecrm.poc.application.functions.unittests.Builders;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 
-namespace tl.employersupport.ecrm.poc.application.functions.tests
+namespace tl.employersupport.ecrm.poc.application.functions.unittests
 {
     public class TicketWorkflowFunctionsTests
     {
-        [Fact]
-        public void TicketWorkflowFunctions_()
-        {
-        }
         [Fact]
         public void TicketWorkflowFunctions_Constructor_Succeeds_With_Valid_Parameters()
         {
@@ -63,7 +59,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.tests
                     $"https://test.com/SendTicketCreatedNotification?ticketId={ticketId}");
 
             var functions = new TicketWorkflowFunctionsBuilder()
-                .Build(emailService, dateTimeService);
+                .Build(dateTimeService, emailService);
             
             var result = await functions.SendTicketCreatedNotification(request, functionContext);
             
@@ -110,7 +106,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.tests
                     json);
 
             var functions = new TicketWorkflowFunctionsBuilder()
-                .Build(emailService, dateTimeService);
+                .Build(dateTimeService, emailService);
 
             var result = await functions.SendTicketCreatedNotification(request, functionContext);
 
@@ -144,7 +140,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.tests
                     $"https://test.com/SendTicketCreatedNotification");
 
             var functions = new TicketWorkflowFunctionsBuilder()
-                .Build(emailService, dateTimeService);
+                .Build(dateTimeService, emailService);
 
             var result = await functions.SendTicketCreatedNotification(request, functionContext);
 

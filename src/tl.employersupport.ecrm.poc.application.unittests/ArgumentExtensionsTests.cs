@@ -4,7 +4,7 @@ using Xunit;
 
 // ReSharper disable StringLiteralTypo
 
-namespace tl.employersupport.ecrm.poc.application.tests
+namespace tl.employersupport.ecrm.poc.application.unittests
 {
     public class ArgumentExtensionsTests
     {

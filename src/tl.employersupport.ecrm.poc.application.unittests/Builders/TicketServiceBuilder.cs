@@ -7,7 +7,7 @@ using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Services;
 
-namespace tl.employersupport.ecrm.poc.application.tests.Builders
+namespace tl.employersupport.ecrm.poc.application.unittests.Builders
 {
     public class TicketServiceBuilder
     {

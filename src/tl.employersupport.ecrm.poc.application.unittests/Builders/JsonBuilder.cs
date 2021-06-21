@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using tl.employersupport.ecrm.poc.application.Extensions;
 
-namespace tl.employersupport.ecrm.poc.application.tests.Builders
+namespace tl.employersupport.ecrm.poc.application.unittests.Builders
 {
     public static class JsonBuilder
     {

@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
 using tl.employersupport.ecrm.poc.application.Extensions;
-using tl.employersupport.ecrm.poc.application.tests.Builders;
+using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using Xunit;
 
-namespace tl.employersupport.ecrm.poc.application.tests.Serialization
+namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
 {
     public class ZendeskTicketResponseSerializationExtensionsTests
     {

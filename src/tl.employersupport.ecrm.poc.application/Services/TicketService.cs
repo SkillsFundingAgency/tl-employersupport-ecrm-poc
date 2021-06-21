@@ -23,6 +23,13 @@ namespace tl.employersupport.ecrm.poc.application.Services
         // ReSharper disable once NotAccessedField.Local
         private readonly ZendeskConfiguration _zendeskConfiguration;
 
+        private static JsonSerializerOptions DefaultJsonSerializerOptions =>
+            new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                //WriteIndented = true
+            };
+
         public TicketService(
             IHttpClientFactory httpClientFactory,
             ILogger<TicketService> logger,
@@ -247,14 +254,9 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 SafeUpdate = true
             };
 
-            var serializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                //WriteIndented = true
-            };
-            var json = JsonSerializer.Serialize(tagsToAdd, serializerOptions);
+            var json = JsonSerializer.Serialize(tagsToAdd, DefaultJsonSerializerOptions);
 
-            _logger.LogDebug($"Prepared json for adding ticket:\n{json}");
+            _logger.LogDebug($"Prepared json for adding tag:\n{json}");
 
             //TODO: Add a PutJson method
             var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
@@ -264,7 +266,42 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             //var response = await httpClient.PutAsync(requestUriFragment, httpContent);
 
-            var response = await httpClient.PutAsJsonAsync(requestUriFragment, tagsToAdd, serializerOptions);
+            //POST
+            var response = await httpClient.PutAsJsonAsync(requestUriFragment, tagsToAdd, DefaultJsonSerializerOptions);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            _logger.LogInformation($"Response from PUT tag: \n{jsonDoc.PrettifyJsonDocument()}");
+        }
+        
+        public async Task ModifyTags(long ticketId, SafeTags tags)
+        {
+            Console.WriteLine($"Adding tags for ticket {ticketId}");
+
+            if (tags is null)
+            {
+                _logger.LogWarning("No tags provided.");
+                return;
+            }
+
+            var json = JsonSerializer.Serialize(tags, DefaultJsonSerializerOptions);
+
+            _logger.LogDebug($"Prepared json for modifying ticket tags:\n{json}");
+
+            //TODO: Add a PostJson method
+            var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
+            var requestUriFragment = $"tickets/{ticketId}/tags.json";
+            _logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUriFragment}");
+
+            //var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            //var response = await httpClient.PostAsync(requestUriFragment, httpContent);
+            var response = await httpClient.PostAsJsonAsync(requestUriFragment, tags, DefaultJsonSerializerOptions);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {

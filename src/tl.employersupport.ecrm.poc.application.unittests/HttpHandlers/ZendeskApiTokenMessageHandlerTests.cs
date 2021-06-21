@@ -16,7 +16,7 @@ using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 
-namespace tl.employersupport.ecrm.poc.application.tests.HttpHandlers
+namespace tl.employersupport.ecrm.poc.application.unittests.HttpHandlers
 {
     public class ZendeskApiTokenMessageHandlerTests : DelegatingHandler
     {

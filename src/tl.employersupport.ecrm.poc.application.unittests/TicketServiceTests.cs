@@ -12,13 +12,13 @@ using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Services;
-using tl.employersupport.ecrm.poc.application.tests.Builders;
+using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using tl.employersupport.ecrm.poc.tests.common.HttpClient;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace tl.employersupport.ecrm.poc.application.tests
+namespace tl.employersupport.ecrm.poc.application.unittests
 {
     public class TicketServiceTests
     {
@@ -254,6 +254,40 @@ namespace tl.employersupport.ecrm.poc.application.tests
             };
 
             await service.AddTag(ticketId, ticket, tag);
+        }
+
+        [Fact]
+        public async Task TicketService_ModifyTags_Works_As_Expected()
+        {
+            const int ticketId = 4485;
+
+            var postTagsUriFragment = $"tickets/{ticketId}/tags.json";
+            var tagsJson = JsonBuilder.BuildValidTagsResponse();
+
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        new Uri(ZendeskApiBaseUri),
+                        new Dictionary<Uri, string>
+                        {
+                            { new Uri(new Uri(ZendeskApiBaseUri), postTagsUriFragment), tagsJson }
+                        });
+            httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
+
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory
+                .CreateClient(nameof(TicketService))
+                .Returns(httpClient);
+
+            var service = new TicketServiceBuilder().Build(httpClientFactory);
+
+            var tags = new SafeTags
+            {
+                Tags = new[] { "tag1", "tag2" }, 
+                UpdatedStamp = new DateTimeOffset(2019, 09, 12, 21, 45, 16, TimeSpan.Zero)
+            };
+
+            await service.ModifyTags(ticketId, tags);
         }
     }
 }

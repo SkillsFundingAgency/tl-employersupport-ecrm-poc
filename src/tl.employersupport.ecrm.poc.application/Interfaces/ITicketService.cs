@@ -14,7 +14,9 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
         Task<SafeTags> GetTicketTags(long ticketId);
 
         Task<IList<TicketSearchResult>> SearchTickets();
-        
+
         Task AddTag(long ticketId, CombinedTicket ticket, string tag);
+
+        Task ModifyTags(long ticketId, SafeTags tags);
     }
 }
