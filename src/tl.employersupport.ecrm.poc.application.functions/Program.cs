@@ -41,6 +41,9 @@ var host = new HostBuilder()
                      configuration.GetSection(nameof(ZendeskConfiguration)).Bind(settings);
                  });
 
+            services
+                .AddTransient<ZendeskApiTokenMessageHandler>();
+
             services.AddHttpClient<ITicketService, TicketService>(
                     nameof(TicketService),
                     (serviceProvider, client) =>
