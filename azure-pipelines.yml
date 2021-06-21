@@ -100,6 +100,10 @@ stages:
                 -govNotifyApiKey "$(GovNotifyApiKey)" 
                 -supportEmailAddress "$(SupportEmailAddress)" 
                 -zendeskTicketCreatedEmailTemplateId "$(ZendeskTicketCreatedEmailTemplateId)"
+                -zendeskAuthenticationMethod "$(ZendeskAuthenticationMethod)"
+                -zendeskApiBaseUri "$(ZendeskApiBaseUri)"
+                -zendeskApiToken "$(ZendeskApiToken)"
+                -zendeskUser "$(ZendeskUser)"
               deploymentOutputs: DeploymentOutputs
           
           - bash: | 

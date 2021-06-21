@@ -61,6 +61,18 @@
     },
     "zendeskTicketCreatedEmailTemplateId": {
       "type": "string"
+    },
+    "zendeskAuthenticationMethod": {
+      "type": "string"
+    },
+    "zendeskApiBaseUri": {
+      "type": "string"
+    },
+    "zendeskApiToken": {
+      "type": "string"
+    },
+    "zendeskUser": {
+      "type": "string"
     }
   },
   "variables": {
@@ -149,6 +161,22 @@
             {
               "name": "EmailConfiguration:ZendeskTicketCreatedEmailTemplateId",
               "value": "[parameters('zendeskTicketCreatedEmailTemplateId')]"
+            },
+            {
+              "name": "ZendeskConfiguration:AuthenticationMethod",
+              "value": "[parameters('zendeskAuthenticationMethod')]"
+            },
+            {
+              "name": "ZendeskConfiguration:ApiBaseUri",
+              "value": "[parameters('zendeskApiBaseUri')]"
+            },
+            {
+              "name": "ZendeskConfiguration:ApiToken",
+              "value": "[parameters('zendeskApiToken')]"
+            },
+            {
+              "name": "ZendeskConfiguration:User",
+              "value": "[parameters('zendeskUser')]"
             }
           ]
         }
