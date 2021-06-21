@@ -50,6 +50,14 @@ func host start --verbose
 ```
 
 
+## Automated Tests
+
+If not already installed, install the Specflow for Visual Studio 2019. 
+See (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowForVisualStudio for details.
+
+TODO: Add integration/automation tests project.
+
+
 ## SonarCloud Analysis
 
 (Not implemented)
@@ -134,6 +142,7 @@ Go to the Project Settings in the Azure DevOps project and create a service conn
  - Principal Id is the application id of the app registration
  - Service principal key is the value from the secret created above 
  - tenant id is the tenant id from the app registration 
+
 
 ## Zendesk Contact Form
 
