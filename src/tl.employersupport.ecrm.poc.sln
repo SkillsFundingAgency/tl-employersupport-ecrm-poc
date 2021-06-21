@@ -14,11 +14,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application", "tl.employersupport.ecrm.poc.application\tl.employersupport.ecrm.poc.application.csproj", "{EE08F7D1-E828-43ED-B8AC-93F93A6B463C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.tests", "tl.employersupport.ecrm.poc.application.tests\tl.employersupport.ecrm.poc.application.tests.csproj", "{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.unittests", "tl.employersupport.ecrm.poc.application.unittests\tl.employersupport.ecrm.poc.application.unittests.csproj", "{EB280B94-1E1C-4F67-8B06-2B1D6EEA0A08}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.functions", "tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.application.functions.csproj", "{736C0220-AEBA-44F0-95A6-D29E2F1EE7D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.functions.tests", "tl.employersupport.ecrm.poc.application.functions.tests\tl.employersupport.ecrm.poc.application.functions.tests.csproj", "{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.application.functions.unittests", "tl.employersupport.ecrm.poc.application.functions.unittests\tl.employersupport.ecrm.poc.application.functions.unittests.csproj", "{DE30BB94-B38A-4A93-B3AE-6DDA3D43DA69}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.tests.common", "tl.employersupport.ecrm.poc.tests.common\tl.employersupport.ecrm.poc.tests.common.csproj", "{4B27FD7C-23FD-40BB-A42B-F538821479DF}"
 EndProject

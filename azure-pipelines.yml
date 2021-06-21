@@ -19,7 +19,7 @@ stages:
 
     steps:    
     - task: UseDotNet@2 
-      displayName: "Install .NET Core 3.1.x SDK"
+      displayName: 'Install .NET Core 3.1.x SDK'
       enabled: true
       inputs:
         version: '3.1.x'
@@ -45,10 +45,10 @@ stages:
         arguments: '--configuration $(buildConfiguration)  --no-restore'        
 
     - task: DotNetCoreCLI@2
-      displayName: Test
+      displayName: 'Run unit tests'
       inputs:
         command: test
-        projects: '**/*.[tT]ests.csproj'
+        projects: '**/*.[uU]nit[tT]ests.csproj'
         arguments: '--configuration $(buildConfiguration) --no-restore'
 
     - task: DotNetCoreCLI@2
