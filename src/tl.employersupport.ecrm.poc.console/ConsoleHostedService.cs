@@ -68,7 +68,7 @@ namespace tl.employersupport.ecrm.poc.console
 
                         if (args.HasArgument("--pollyTest"))
                         {
-                            var minTimeout = args.GetIntFromArgument("minTimeout", ":", 0);
+                            var minTimeout = args.GetIntFromArgument("minTimeout", ":");
                             var maxTimeout = args.GetIntFromArgument("maxTimeout", ":", 300);
                             var clientTimeout = args.GetIntFromArgument("clientTimeout", ":", 60);
                             await TestPollyPolicy(clientTimeout, minTimeout, maxTimeout);
@@ -96,6 +96,15 @@ namespace tl.employersupport.ecrm.poc.console
                             _ticketFields ??= await GetTicketFieldsFromZendesk();
 
                             LogTicketDetails(ticket, _ticketFields);
+
+                            if (pause) WaitForUserInput();
+                        }
+                        
+                        if (args.HasArgument("--getContactTicket") && ticketId > 0)
+                        {
+                            var employerContactTicket = await GetEmployerContactTicketFromZendesk(ticketId);
+
+                            LogEmployerContactTicketDetails(employerContactTicket);
 
                             if (pause) WaitForUserInput();
                         }
@@ -181,6 +190,15 @@ namespace tl.employersupport.ecrm.poc.console
             _logger.LogInformation("Getting ticket...");
 
             var ticket = await _ticketService.GetTicket(ticketId);
+
+            return ticket;
+        }
+        
+        private async Task<EmployerContactTicket> GetEmployerContactTicketFromZendesk(long ticketId)
+        {
+            _logger.LogInformation("Getting ticket...");
+
+            var ticket = await _ticketService.GetEmployerContactTicket(ticketId);
 
             return ticket;
         }
@@ -277,6 +295,29 @@ namespace tl.employersupport.ecrm.poc.console
             _logger.LogInformation($"Retrieved ticket {ticket.Id}");
             _logger.LogInformation(ticketDetail.ToString());
         }
+        
+        private void LogEmployerContactTicketDetails(EmployerContactTicket ticket)
+        {
+            if (ticket is null)
+                return;
+
+            var ticketDetail = new StringBuilder();
+
+            ticketDetail.AppendLine($"Id:      {ticket.Id}");
+
+            ticketDetail.AppendLine($"Created: ({ticket.CreatedAt:yyyy-MM-ddTHH:mm:ssZ})");
+            ticketDetail.AppendLine($"Updated: ({ticket.UpdatedAt:yyyy-MM-ddTHH:mm:ssZ})");
+
+            ticketDetail.AppendLine($"Tags: ({ticket.Tags.Count})");
+            foreach (var tag in ticket.Tags)
+            {
+                ticketDetail.AppendLine($"         {tag}");
+            }
+            ticketDetail.AppendLine("");
+
+            _logger.LogInformation($"Retrieved ticket {ticket.Id}");
+            _logger.LogInformation(ticketDetail.ToString());
+        }
 
         private async Task SearchTicketsInZendesk()
         {
@@ -321,6 +362,7 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("Zendesk - ECRM Demo");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
+            Console.WriteLine("  --getContactTicket       - get a ticket with contact details from Zendesk (requires ticketId)");
             Console.WriteLine("  --searchTickets          - looks for recently created tickets");
             Console.WriteLine("  --updateTicket           - update the ticket tags in Zendesk");
             Console.WriteLine("  --sendTicketCreatedEmail - send a test email");

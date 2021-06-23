@@ -7,6 +7,8 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
 {
     public interface ITicketService
     {
+        Task<EmployerContactTicket> GetEmployerContactTicket(long ticketId);
+
         Task<CombinedTicket> GetTicket(long ticketId);
 
         Task<IDictionary<long, TicketField>> GetTicketFields();

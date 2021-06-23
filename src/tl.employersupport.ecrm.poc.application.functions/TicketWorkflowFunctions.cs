@@ -7,6 +7,7 @@ using System.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
@@ -17,12 +18,6 @@ namespace tl.employersupport.ecrm.poc.application.functions
         private readonly IEmailService _emailService;
         private readonly IDateTimeService _dateTimeService;
         private readonly ITicketService _ticketService;
-
-        private static JsonSerializerOptions DefaultJsonSerializerOptions =>
-            new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
 
         public TicketWorkflowFunctions(
             IDateTimeService dateTimeService,
@@ -64,40 +59,7 @@ namespace tl.employersupport.ecrm.poc.application.functions
             {
                 logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called via {request.Method}.");
 
-                var ticketId = 0L;
-
-                var body = await request.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    logger.LogInformation("Body was empty");
-                }
-                else
-                {
-                    logger.LogInformation($"Body was read successfully: {body}");
-                    try
-                    {
-                        var notification = JsonSerializer
-                            .Deserialize<NotifyTicket>(body, DefaultJsonSerializerOptions);
-
-                        ticketId = notification?.Id ?? 0;
-                        logger.LogInformation($"After deserialization ticket id is {ticketId}");
-                        logger.LogInformation($"After deserialization notification is null = {(notification is null)}");
-                        logger.LogInformation($"After deserialization notification is'{notification}'");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError("Failed to deserialize request body {ex}", ex);
-                    }
-                }
-
-                if (ticketId == 0)
-                {
-                    var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
-                    if (!long.TryParse(queryParameters.Get("ticketId"), out ticketId))
-                    {
-                        logger.LogError("Failed to read ticket id from query string");
-                    }
-                }
+                var ticketId = await ReadTicketIdFromRequestData(request, logger);
 
                 if (ticketId <= 0)
                 {
@@ -107,6 +69,52 @@ namespace tl.employersupport.ecrm.poc.application.functions
                 await _emailService.SendZendeskTicketCreatedEmail(ticketId, _dateTimeService.UtcNow);
 
                 return request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(SendTicketCreatedNotification)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [Function("RetrieveEmployerContactTicket")]
+        public async Task<HttpResponseData> RetrieveEmployerContactTicket(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post")]
+            HttpRequestData request,
+            FunctionContext executionContext)
+        {
+            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+
+            try
+            {
+                logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called via {request.Method}.");
+
+                var ticketId = await ReadTicketIdFromRequestData(request, logger);
+
+                if (ticketId <= 0)
+                {
+                    return request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                var ticket = await _ticketService.GetEmployerContactTicket(ticketId);
+
+                if (ticket == null)
+                {
+                    return request.CreateResponse(HttpStatusCode.NotFound);
+                }
+
+                var response = request.CreateResponse(HttpStatusCode.OK);
+                //response.Headers.Add("Content-Type", "application/json");
+
+                var json = JsonSerializer.Serialize(ticket,
+                    JsonExtensions.DefaultJsonSerializerOptions);
+                //await response.WriteStringAsync(json);
+
+                await response.WriteAsJsonAsync(ticket, "application/json");
+
+                return response;
             }
             catch (Exception e)
             {
@@ -129,18 +137,18 @@ namespace tl.employersupport.ecrm.poc.application.functions
             {
                 logger.LogInformation($"{nameof(ModifyZendeskTicketTags)} HTTP function called via {request.Method}.");
 
-                var ticketId = 0L;
-
                 var body = await request.ReadAsStringAsync();
                 if (string.IsNullOrWhiteSpace(body))
                 {
-                    logger.LogInformation("Body was empty");
+                    logger.LogError("Request body was empty");
+                    return request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
                 var tagsMessage = JsonSerializer
-                    .Deserialize<ModifyTagsMessage>(body, DefaultJsonSerializerOptions);
+                    .Deserialize<ModifyTagsMessage>(body,
+                        JsonExtensions.DefaultJsonSerializerOptions);
 
-                ticketId = tagsMessage?.TicketId ?? 0;
+                var ticketId = tagsMessage?.TicketId ?? 0;
 
                 //Validation
                 if (ticketId <= 0)
@@ -227,6 +235,43 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
                 return request.CreateResponse(HttpStatusCode.InternalServerError);
             }
+        }
+
+        private async Task<long> ReadTicketIdFromRequestData(HttpRequestData request, ILogger logger)
+        {
+            var ticketId = 0L;
+
+            var body = await request.ReadAsStringAsync();
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                logger.LogDebug($"Body was read successfully: {body}");
+                try
+                {
+                    var notification = JsonSerializer
+                        .Deserialize<NotifyTicket>(body,
+                            JsonExtensions.DefaultJsonSerializerOptions);
+
+                    ticketId = notification?.Id ?? 0;
+                    logger.LogDebug($"After deserialization ticket id is {ticketId}");
+                    logger.LogDebug($"After deserialization notification is null = {(notification is null)}");
+                    logger.LogDebug($"After deserialization notification is'{notification}'");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Failed to deserialize request body {ex}", ex);
+                }
+            }
+
+            if (ticketId == 0)
+            {
+                var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
+                if (!long.TryParse(queryParameters.Get("ticketId"), out ticketId))
+                {
+                    logger.LogError("Failed to read ticket id from query string");
+                }
+            }
+
+            return ticketId;
         }
     }
 }

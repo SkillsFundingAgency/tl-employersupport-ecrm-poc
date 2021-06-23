@@ -23,13 +23,6 @@ namespace tl.employersupport.ecrm.poc.application.Services
         // ReSharper disable once NotAccessedField.Local
         private readonly ZendeskConfiguration _zendeskConfiguration;
 
-        private static JsonSerializerOptions DefaultJsonSerializerOptions =>
-            new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                //WriteIndented = true
-            };
-
         public TicketService(
             IHttpClientFactory httpClientFactory,
             ILogger<TicketService> logger,
@@ -48,9 +41,53 @@ namespace tl.employersupport.ecrm.poc.application.Services
                                         "Configuration value must not be null");
         }
 
+        public async Task<EmployerContactTicket> GetEmployerContactTicket(long ticketId)
+        {
+            _logger.LogInformation($"Getting ticket {ticketId}");
+
+            var jsonDoc = await GetTicketJsonDocument(ticketId, Sideloads.GetTicketSideloads());
+
+            if (jsonDoc != null)
+            {
+                var ticketElement =
+                    jsonDoc.RootElement
+                        .GetProperty("ticket");
+
+                var createdAtString = ticketElement.SafeGetString("created_at");
+                if (!DateTimeOffset.TryParse(createdAtString, out var createdAt))
+                {
+                    _logger.LogWarning($"Could not read created_at date for ticket {ticketId}.");
+                }
+
+                var updatedAtString = ticketElement.SafeGetString("updated_at");
+                if (!DateTimeOffset.TryParse(updatedAtString, out var updatedAt))
+                {
+                    _logger.LogWarning($"Could not read updated-at date for ticket {ticketId}.");
+                }
+
+                var tags = ticketElement
+                    .GetProperty("tags")
+                    .EnumerateArray()
+                    .Select(t => t.SafeGetString())
+                    .ToList();
+
+                var ticket = new EmployerContactTicket
+                {
+                    Id = ticketElement.GetProperty("id").GetInt64(),
+                    CreatedAt = createdAt,
+                    UpdatedAt = updatedAt,
+                    Tags = tags
+                };
+
+                return ticket;
+            }
+
+            return null;
+        }
+
         public async Task<CombinedTicket> GetTicket(long ticketId)
         {
-            Console.WriteLine($"Getting ticket {ticketId}");
+            _logger.LogInformation($"Getting ticket {ticketId}");
 
             var ticketJson = await GetTicketJson(ticketId, Sideloads.GetTicketSideloads());
             var ticketCommentJson = await GetTicketCommentsJson(ticketId);
@@ -212,7 +249,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
         public async Task AddTag(long ticketId, CombinedTicket ticket, string tag)
         {
-            Console.WriteLine($"Adding tag {tag} to ticket {ticketId}");
+            _logger.LogInformation($"Adding tag {tag} to ticket {ticketId}");
 
             if (ticket is null)
             {
@@ -254,7 +291,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 SafeUpdate = true
             };
 
-            var json = JsonSerializer.Serialize(tagsToAdd, DefaultJsonSerializerOptions);
+            var json = JsonSerializer.Serialize(tagsToAdd, JsonExtensions.DefaultJsonSerializerOptions);
 
             _logger.LogDebug($"Prepared json for adding tag:\n{json}");
 
@@ -267,7 +304,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //var response = await httpClient.PutAsync(requestUriFragment, httpContent);
 
             //POST
-            var response = await httpClient.PutAsJsonAsync(requestUriFragment, tagsToAdd, DefaultJsonSerializerOptions);
+            var response = await httpClient.PutAsJsonAsync(requestUriFragment, tagsToAdd, JsonExtensions.DefaultJsonSerializerOptions);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -282,7 +319,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
         
         public async Task ModifyTags(long ticketId, SafeTags tags)
         {
-            Console.WriteLine($"Adding tags for ticket {ticketId}");
+            _logger.LogInformation($"Adding tags for ticket {ticketId}");
 
             if (tags is null)
             {
@@ -290,7 +327,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 return;
             }
 
-            var json = JsonSerializer.Serialize(tags, DefaultJsonSerializerOptions);
+            var json = JsonSerializer.Serialize(tags, JsonExtensions.DefaultJsonSerializerOptions);
 
             _logger.LogDebug($"Prepared json for modifying ticket tags:\n{json}");
 
@@ -301,7 +338,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             //var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             //var response = await httpClient.PostAsync(requestUriFragment, httpContent);
-            var response = await httpClient.PostAsJsonAsync(requestUriFragment, tags, DefaultJsonSerializerOptions);
+            var response = await httpClient.PostAsJsonAsync(requestUriFragment, tags, JsonExtensions.DefaultJsonSerializerOptions);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -370,6 +407,5 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             return response.Content;
         }
-
     }
 }

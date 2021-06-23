@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Azure.Functions.Worker.Http;
 using NSubstitute;
+using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.functions.unittests.Builders;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
@@ -36,6 +40,140 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             typeof(TicketWorkflowFunctions)
                 .ShouldNotAcceptNullOrBadConstructorArguments();
         }
+        
+        [Fact]
+        public async Task TicketWorkflowFunctions_RetrieveEmployerContactTicket_Via_Get_Returns_Expected_Result()
+        {
+            const long ticketId = 4485;
+
+            var ticket = new EmployerContactTicketBuilder()
+                .WithDefaultValues()
+                .Build();
+
+            var ticketService = Substitute.For<ITicketService>();
+            ticketService
+                .GetEmployerContactTicket(ticketId)
+                .Returns(ticket);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Get,
+                    $"https://test.com/RetrieveEmployerContactTicket?ticketId={ticketId}");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ticketService: ticketService);
+
+            var result = await functions.RetrieveEmployerContactTicket(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            result.Body.Should().NotBeNull();
+
+            using var reader = new StreamReader(result.Body);
+            var responseJson = await reader.ReadToEndAsync();
+
+            var deserializedTicket = JsonSerializer
+                .Deserialize<EmployerContactTicket>(responseJson,
+                    JsonExtensions.DefaultJsonSerializerOptions);
+
+            deserializedTicket.Should().NotBeNull();
+            deserializedTicket!.Id.Should().Be(ticketId);
+
+            //TODO: test other values
+
+            await ticketService
+                .Received(1)
+                .GetEmployerContactTicket(ticketId);
+        }
+
+        [Fact]
+        public async Task TicketWorkflowFunctions_RetrieveEmployerContactTicket_Via_Post_Returns_Expected_Result()
+        {
+            const long ticketId = 4485;
+
+            var ticket = new EmployerContactTicketBuilder()
+                .WithDefaultValues()
+                .Build();
+
+            var ticketService = Substitute.For<ITicketService>();
+            ticketService
+                .GetEmployerContactTicket(ticketId)
+                .Returns(ticket);
+
+            var notification = new NotifyTicket
+            {
+                Id = ticketId
+            };
+
+            var requestJson = JsonSerializer.Serialize(notification,
+                JsonExtensions.DefaultJsonSerializerOptions);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Post,
+                    $"https://test.com/RetrieveEmployerContactTicket",
+                    requestJson);
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ticketService: ticketService);
+
+            var result = await functions.RetrieveEmployerContactTicket(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            result.Body.Should().NotBeNull();
+
+            using var reader = new StreamReader(result.Body);
+            var responseJson = await reader.ReadToEndAsync();
+
+            var deserializedTicket = JsonSerializer
+                .Deserialize<EmployerContactTicket>(responseJson,
+                    JsonExtensions.DefaultJsonSerializerOptions);
+
+            deserializedTicket.Should().NotBeNull();
+            deserializedTicket!.Id.Should().Be(ticketId);
+
+            await ticketService
+                .Received(1)
+                .GetEmployerContactTicket(ticketId);
+        }
+
+        [Fact]
+        public async Task TicketWorkflowFunctions_RetrieveEmployerContactTicket_With_No_Data_Via_Get_Returns_Bad_Request_Result()
+        {
+            const long ticketId = 4485;
+
+            var ticket = new EmployerContactTicketBuilder()
+                .WithDefaultValues()
+                .Build();
+
+            var ticketService = Substitute.For<ITicketService>();
+            ticketService
+                .GetEmployerContactTicket(ticketId)
+                .Returns(ticket);
+            
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Post,
+                    $"https://test.com/RetrieveEmployerContactTicket");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ticketService: ticketService);
+
+            var result = await functions.RetrieveEmployerContactTicket(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            await ticketService
+                .DidNotReceive()
+                .GetEmployerContactTicket(Arg.Any<long>());
+        }
 
         [Fact]
         public async Task TicketWorkflowFunctions_SendTicketCreatedNotification_Via_Get_Returns_Expected_Result()
@@ -53,11 +191,12 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
                 .UtcNow
                 .Returns(createdTime);
 
-            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Get,
                     $"https://test.com/SendTicketCreatedNotification?ticketId={ticketId}");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
 
             var functions = new TicketWorkflowFunctionsBuilder()
                 .Build(dateTimeService, emailService);
@@ -91,20 +230,17 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             {
                 Id = ticketId
             };
-
-            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
-
-            var json = JsonSerializer.Serialize(notification,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+            
+            var requestJson = JsonSerializer.Serialize(notification,
+                JsonExtensions.DefaultJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
                     $"https://test.com/SendTicketCreatedNotification",
-                    json);
+                    requestJson);
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
 
             var functions = new TicketWorkflowFunctionsBuilder()
                 .Build(dateTimeService, emailService);
@@ -121,24 +257,16 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
         [Fact]
         public async Task TicketWorkflowFunctions_SendTicketCreatedNotification_With_No_Data_Via_Get_Returns_Bad_Request_Result()
         {
-            const long ticketId = 4485;
-            var createdTime = DateTime.Parse("2021-06-15 10:10:57");
-
             var emailService = Substitute.For<IEmailService>();
-            emailService
-                .SendZendeskTicketCreatedEmail(ticketId, createdTime)
-                .Returns(true);
 
             var dateTimeService = Substitute.For<IDateTimeService>();
-            dateTimeService
-                .UtcNow
-                .Returns(createdTime);
 
-            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
                     $"https://test.com/SendTicketCreatedNotification");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
 
             var functions = new TicketWorkflowFunctionsBuilder()
                 .Build(dateTimeService, emailService);
@@ -181,17 +309,14 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
                 Tags = existingTags
             };
 
-            var json = JsonSerializer.Serialize(modifyTagsRequest,
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+            var requestJson = JsonSerializer.Serialize(modifyTagsRequest,
+                JsonExtensions.DefaultJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
                     $"https://test.com/ModifyZendeskTicketTags",
-                    json);
+                    requestJson);
 
             var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
             

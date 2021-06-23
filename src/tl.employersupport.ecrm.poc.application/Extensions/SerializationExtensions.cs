@@ -8,21 +8,12 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 {
     public static class SerializationExtensions
     {
-        private static readonly JsonSerializerOptions SerializerOptions
-            = new()
-            {
-                PropertyNameCaseInsensitive = true,
-                //IgnoreNullValues = true,
-                //TODO: Future System.Text.Json version should have snake case support
-                //PropertyNamingPolicy = JsonNamingPolicy.SnakeCase
-            };
-
         public static Ticket DeserializeZendeskTicket(this string json)
         {
             var ticketResponse = JsonSerializer
                 .Deserialize<TicketResponse>(
                     json,
-                    SerializerOptions);
+                    JsonExtensions.DefaultJsonSerializerOptions);
 
             return ticketResponse?.Ticket;
         }
@@ -32,7 +23,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             return JsonSerializer
                 .Deserialize<TicketResponse>(
                     json,
-                    SerializerOptions);
+                    JsonExtensions.DefaultJsonSerializerOptions);
         }
 
         public static IEnumerable<Audit> DeserializeZendeskAudits(this string json)
@@ -40,7 +31,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             var auditResponse = JsonSerializer
                 .Deserialize<AuditResponse>(
                     json,
-                    SerializerOptions);
+                    JsonExtensions.DefaultJsonSerializerOptions);
 
             return auditResponse != null
                 ? auditResponse.Audits
@@ -52,7 +43,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             var commentResponse = JsonSerializer
                 .Deserialize<CommentResponse>(
                     json,
-                    SerializerOptions);
+                    JsonExtensions.DefaultJsonSerializerOptions);
 
             return commentResponse != null 
                 ? commentResponse.Comments 

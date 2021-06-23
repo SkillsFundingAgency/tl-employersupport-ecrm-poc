@@ -2,10 +2,16 @@
 using System.IO;
 using System.Net.Http;
 using System.Text;
+using Azure.Core.Serialization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
+using tl.employersupport.ecrm.poc.application.Extensions;
+
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
 {
@@ -18,9 +24,21 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
             loggerFactory.CreateLogger(Arg.Any<string>())
                 .Returns(logger);
 
+            var workerOptions = Options.Create(new WorkerOptions
+            {
+                Serializer = new JsonObjectSerializer(
+                    JsonExtensions.DefaultJsonSerializerOptions)
+            });
+
+            var serviceProvider = new ServiceCollection()
+                .AddScoped(_ => loggerFactory)
+                .AddScoped(_ => workerOptions)
+                .BuildServiceProvider();
+
             var functionContext = Substitute.For<FunctionContext>();
-            functionContext.InstanceServices.GetService(Arg.Any<Type>())
-                .Returns(loggerFactory);
+
+            functionContext.InstanceServices
+                .Returns(serviceProvider);
 
             return functionContext;
         }

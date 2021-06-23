@@ -7,6 +7,14 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 {
     public static class JsonExtensions
     {
+        public static JsonSerializerOptions DefaultJsonSerializerOptions =>
+            new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                //TODO: Future System.Text.Json version should have snake case support
+                //PropertyNamingPolicy = JsonNamingPolicy.SnakeCase
+            };
+
         public static string PrettifyJsonString(this string json)
         {
             if (string.IsNullOrWhiteSpace(json))

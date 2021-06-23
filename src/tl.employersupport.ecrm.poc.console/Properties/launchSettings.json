@@ -3,7 +3,8 @@
     "tl.employersupport.monitor.poc.console": {
       "commandName": "Project",
       //"commandLineArgs": "--getTicketFields --searchTickets --getTicket --updateTicket ticketId:4485 --pause",
-      "commandLineArgs": "--pollyTest minTimeout:1 maxTimeout:60 clientTimeout:5",
+      "commandLineArgs": "--getContactTicket ticketId:4485",
+      //"commandLineArgs": "--pollyTest minTimeout:1 maxTimeout:60 clientTimeout:5",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }

@@ -70,6 +70,61 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         }
 
         [Fact]
+        public async Task TicketService_GetEmployerContactTicket_Returns_Expected_Value()
+        {
+            const int ticketId = 4485;
+
+            var ticketWithSideloadsUriFragment = $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}";
+            var ticketCommentsUriFragment = $"tickets/{ticketId}/comments.json";
+            var ticketAuditsUriFragment = $"tickets/{ticketId}/audits.json";
+
+            var ticketJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var ticketCommentsJson = JsonBuilder.BuildValidTicketCommentsResponse();
+            var ticketAuditJson = JsonBuilder.BuildValidTicketAuditsResponse();
+
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        new Uri(ZendeskApiBaseUri),
+                        new Dictionary<Uri, string>
+                        {
+                            { new Uri(new Uri(ZendeskApiBaseUri), ticketWithSideloadsUriFragment), ticketJson },
+                            { new Uri(new Uri(ZendeskApiBaseUri), ticketCommentsUriFragment), ticketCommentsJson },
+                            { new Uri(new Uri(ZendeskApiBaseUri), ticketAuditsUriFragment), ticketAuditJson }
+                        });
+            httpClient.BaseAddress = new Uri(ZendeskApiBaseUri);
+
+            var httpClientFactory = Substitute.For<IHttpClientFactory>();
+            httpClientFactory
+                .CreateClient(nameof(TicketService))
+                .Returns(httpClient);
+
+            var service = new TicketServiceBuilder().Build(httpClientFactory);
+
+            var ticket = await service.GetEmployerContactTicket(ticketId);
+
+            ticket.Should().NotBeNull();
+            ticket.Id.Should().Be(ticketId);
+
+            ticket.CreatedAt.Should().Be(
+                DateTimeOffset.Parse("2021-06-09T09:12:50Z",
+                    styles: DateTimeStyles.AdjustToUniversal));
+
+            ticket.UpdatedAt.Should().Be(
+                DateTimeOffset.Parse("2021-06-09T09:12:50Z",
+                    styles: DateTimeStyles.AdjustToUniversal));
+
+            ticket.Tags.Count.Should().Be(4);
+
+            ticket.Tags.Should().NotBeNullOrEmpty();
+            ticket.Tags.Count.Should().Be(4);
+            ticket.Tags.Should().Contain("1-9__micro_");
+            ticket.Tags.Should().Contain("i_m_ready_to_offer_an_industry_placement");
+            ticket.Tags.Should().Contain("tlevels-email");
+            ticket.Tags.Should().Contain("tlevels_approved");
+        }
+
+        [Fact]
         public async Task TicketService_GetTicket_Returns_Expected_Value()
         {
             const int ticketId = 4485;
