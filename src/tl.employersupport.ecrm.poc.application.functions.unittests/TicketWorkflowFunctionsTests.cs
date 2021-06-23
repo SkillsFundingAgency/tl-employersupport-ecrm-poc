@@ -70,7 +70,8 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             result.StatusCode.Should().Be(HttpStatusCode.OK);
 
             result.Body.Should().NotBeNull();
-
+            
+            result.Body.Seek(0, SeekOrigin.Begin);
             using var reader = new StreamReader(result.Body);
             var responseJson = await reader.ReadToEndAsync();
 
@@ -127,6 +128,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
 
             result.Body.Should().NotBeNull();
 
+            result.Body.Seek(0, SeekOrigin.Begin);
             using var reader = new StreamReader(result.Body);
             var responseJson = await reader.ReadToEndAsync();
 
