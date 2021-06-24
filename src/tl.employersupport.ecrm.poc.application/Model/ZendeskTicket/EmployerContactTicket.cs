@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace tl.employersupport.ecrm.poc.application.Model
+namespace tl.employersupport.ecrm.poc.application.Model.ZendeskTicket
 {
     [DebuggerDisplay("{DebuggerDisplay(), nq}")]
     public class EmployerContactTicket
@@ -13,7 +13,7 @@ namespace tl.employersupport.ecrm.poc.application.Model
         public List<string> Tags { get; set; }
 
         private string DebuggerDisplay()
-            => $"nameof(EmployerContactTicket) " +
+            => $"{nameof(EmployerContactTicket)} " +
                $"{nameof(Id)}={Id} " +
                $"{nameof(CreatedAt)}={CreatedAt:yyyy-MM-dd HH:mm:ss}";
     }

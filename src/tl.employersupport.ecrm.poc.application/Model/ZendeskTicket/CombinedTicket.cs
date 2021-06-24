@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
-namespace tl.employersupport.ecrm.poc.application.Model
+namespace tl.employersupport.ecrm.poc.application.Model.ZendeskTicket
 {
     public class CombinedTicket
     {

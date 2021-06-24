@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.application.Interfaces
 {

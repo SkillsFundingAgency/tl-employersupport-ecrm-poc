@@ -1,4 +1,4 @@
-﻿namespace tl.employersupport.ecrm.poc.application.Model
+﻿namespace tl.employersupport.ecrm.poc.application.Model.Configuration
 {
     public enum AuthenticationScheme
     {

@@ -1,5 +1,5 @@
 ﻿
-namespace tl.employersupport.ecrm.poc.application.Model
+namespace tl.employersupport.ecrm.poc.application.Model.Zendesk
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Sideloads

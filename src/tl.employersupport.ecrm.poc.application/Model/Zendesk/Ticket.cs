@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMember.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace tl.employersupport.ecrm.poc.application.Model.Zendesk
 {

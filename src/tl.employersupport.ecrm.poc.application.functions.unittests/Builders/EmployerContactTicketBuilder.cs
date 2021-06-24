@@ -1,4 +1,5 @@
 ﻿using tl.employersupport.ecrm.poc.application.Model;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
 {

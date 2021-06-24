@@ -208,8 +208,8 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
                 var queryParameters = HttpUtility.ParseQueryString(request.Url.Query);
 
-                int.TryParse(queryParameters.Get("minTimeout"), out var minTimeout);
-                int.TryParse(queryParameters.Get("maxTimeout"), out var maxTimeout);
+                var minTimeout = int.Parse(queryParameters.Get("minTimeout") ?? string.Empty);
+                var maxTimeout = int.Parse(queryParameters.Get("maxTimeout") ?? string.Empty);
 
                 minTimeout = Math.Max(0, minTimeout);
                 maxTimeout = Math.Max(maxTimeout, minTimeout);

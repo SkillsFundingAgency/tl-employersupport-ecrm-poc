@@ -8,9 +8,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 using tl.employersupport.ecrm.poc.application.Services;
 using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
@@ -23,7 +23,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests
     public class TicketServiceTests
     {
         private const string ZendeskApiBaseUrl = "https://zendesk.test.api/v2/";
-        private readonly Uri ZendeskApiBaseUri = new Uri(ZendeskApiBaseUrl);
+        private readonly Uri _zendeskApiBaseUri = new(ZendeskApiBaseUrl);
 
         // ReSharper disable once NotAccessedField.Local
         private readonly ITestOutputHelper _output;
@@ -87,13 +87,13 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}"), ticketJson },
-                            { new Uri(ZendeskApiBaseUri, $"tickets/{ticketId}/comments.json"), ticketCommentsJson },
-                            { new Uri(ZendeskApiBaseUri, $"tickets/{ticketId}/audits.json"), ticketAuditJson },
-                            { new Uri(ZendeskApiBaseUri, "ticket_fields.json"), ticketFieldJson }
+                            { new Uri(_zendeskApiBaseUri, $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}"), ticketJson },
+                            { new Uri(_zendeskApiBaseUri, $"tickets/{ticketId}/comments.json"), ticketCommentsJson },
+                            { new Uri(_zendeskApiBaseUri, $"tickets/{ticketId}/audits.json"), ticketAuditJson },
+                            { new Uri(_zendeskApiBaseUri, "ticket_fields.json"), ticketFieldJson }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -142,12 +142,12 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, ticketWithSideloadsUriFragment), ticketJson },
-                            { new Uri(ZendeskApiBaseUri, ticketCommentsUriFragment), ticketCommentsJson },
-                            { new Uri(ZendeskApiBaseUri, ticketAuditsUriFragment), ticketAuditJson }
+                            { new Uri(_zendeskApiBaseUri, ticketWithSideloadsUriFragment), ticketJson },
+                            { new Uri(_zendeskApiBaseUri, ticketCommentsUriFragment), ticketCommentsJson },
+                            { new Uri(_zendeskApiBaseUri, ticketAuditsUriFragment), ticketAuditJson }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -176,10 +176,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, "ticket_fields.json"), ticketFieldJson }
+                            { new Uri(_zendeskApiBaseUri, "ticket_fields.json"), ticketFieldJson }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -211,10 +211,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, ticketSearchUriFragment), ticketSearchResultsJson }
+                            { new Uri(_zendeskApiBaseUri, ticketSearchUriFragment), ticketSearchResultsJson }
                         });
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
             httpClientFactory
@@ -240,10 +240,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, ticketUriFragment), ticketJson }
+                            { new Uri(_zendeskApiBaseUri, ticketUriFragment), ticketJson }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -281,10 +281,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, putTagsUriFragment), tagsJson }
+                            { new Uri(_zendeskApiBaseUri, putTagsUriFragment), tagsJson }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -320,10 +320,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        ZendeskApiBaseUri,
+                        _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(ZendeskApiBaseUri, postTagsUriFragment), tagsJson }
+                            { new Uri(_zendeskApiBaseUri, postTagsUriFragment), tagsJson }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();

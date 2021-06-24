@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using tl.employersupport.ecrm.poc.application.HttpHandlers;
-using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;

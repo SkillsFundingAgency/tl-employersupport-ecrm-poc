@@ -6,13 +6,12 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Azure.Functions.Worker.Http;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.functions.unittests.Builders;
 using tl.employersupport.ecrm.poc.application.Interfaces;
-using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 
@@ -114,7 +113,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
-                    $"https://test.com/RetrieveEmployerContactTicket",
+                    "https://test.com/RetrieveEmployerContactTicket",
                     requestJson);
 
             var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
@@ -161,7 +160,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
-                    $"https://test.com/RetrieveEmployerContactTicket");
+                    "https://test.com/RetrieveEmployerContactTicket");
 
             var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
 
@@ -239,7 +238,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
-                    $"https://test.com/SendTicketCreatedNotification",
+                    "https://test.com/SendTicketCreatedNotification",
                     requestJson);
 
             var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
@@ -266,7 +265,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
-                    $"https://test.com/SendTicketCreatedNotification");
+                    "https://test.com/SendTicketCreatedNotification");
 
             var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
 
@@ -317,7 +316,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
                     HttpMethod.Post,
-                    $"https://test.com/ModifyZendeskTicketTags",
+                    "https://test.com/ModifyZendeskTicketTags",
                     requestJson);
 
             var functionContext = FunctionObjectsBuilder.BuildFunctionContext();

@@ -8,8 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
-using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.console
 {

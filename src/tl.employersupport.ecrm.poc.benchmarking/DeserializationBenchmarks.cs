@@ -7,8 +7,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using tl.employersupport.ecrm.poc.application.Extensions;
-using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.benchmarking
 {

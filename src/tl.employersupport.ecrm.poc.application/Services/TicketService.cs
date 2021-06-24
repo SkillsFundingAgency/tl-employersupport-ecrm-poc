@@ -10,9 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
-using tl.employersupport.ecrm.poc.application.Model;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
+using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.application.Services
 {
@@ -214,9 +214,8 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             //https://support.zendesk.com/hc/en-us/articles/203663226-Zendesk-Support-search-reference#topic_ohr_wsc_3v
 
-            var query = "";
-            //query = $"type:ticket status:open form:{formName} brand:{brandName}";
-            query = $"type:ticket status:new brand:{brandName}";
+            //var query = $"type:ticket status:open form:{formName} brand:{brandName}";
+            var query = $"type:ticket status:new brand:{brandName}";
             //query = $"type:ticket status:open brand:{brandName}&sort_by=created_by&sort_order=desc";
             //query = $"type:ticket status:open brand:{brandName} order_by:created sort:desc";
             //query = "type:ticket status:open";
