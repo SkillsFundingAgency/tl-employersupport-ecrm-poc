@@ -5,7 +5,8 @@ using System.Diagnostics;
 
 namespace tl.employersupport.ecrm.poc.application.Model.Zendesk
 {
-    [DebuggerDisplay("TicketSearchResult {" + nameof(Id) + "} " +
+    [DebuggerDisplay(nameof(TicketSearchResult) + 
+                     " {" + nameof(Id) + "} " +
                      "{" + nameof(Subject) + "}")]
     public class TicketSearchResult
     {

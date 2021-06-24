@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -78,10 +79,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
                 .Deserialize<EmployerContactTicket>(responseJson,
                     JsonExtensions.DefaultJsonSerializerOptions);
 
-            deserializedTicket.Should().NotBeNull();
-            deserializedTicket!.Id.Should().Be(ticketId);
-
-            //TODO: test other values
+            CheckEmployerContactTicket(deserializedTicket, ticketId);
 
             await ticketService
                 .Received(1)
@@ -135,8 +133,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
                 .Deserialize<EmployerContactTicket>(responseJson,
                     JsonExtensions.DefaultJsonSerializerOptions);
 
-            deserializedTicket.Should().NotBeNull();
-            deserializedTicket!.Id.Should().Be(ticketId);
+            CheckEmployerContactTicket(deserializedTicket, ticketId);
 
             await ticketService
                 .Received(1)
@@ -332,5 +329,25 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
                 .Received(1)
                 .GetTicketTags(ticketId);
         }
+
+        private static void CheckEmployerContactTicket(EmployerContactTicket ticket, long ticketId)
+        {
+            ticket.Should().NotBeNull();
+            ticket.Id.Should().Be(ticketId);
+            ticket.CreatedAt.Should()
+                .Be(DateTime.Parse("2021-06-23 14:40"));
+            ticket.UpdatedAt.Should()
+                .Be(DateTime.Parse("2021-06-24 12:19"));
+
+            ticket.RequestedBy.Should().NotBeNull();
+            ticket.RequestedBy.Id.Should().Be(12855186);
+            ticket.RequestedBy.Name.Should().Be("Bob Bobs");
+            ticket.RequestedBy.Email.Should().Be("bob.bobs@bobbobs.com");
+
+            ticket.Organisation.Should().NotBeNull();
+            ticket.Organisation.Id.Should().Be(456876);
+            ticket.Organisation.Name.Should().Be("Large Corporation Limited");
+        }
+
     }
 }

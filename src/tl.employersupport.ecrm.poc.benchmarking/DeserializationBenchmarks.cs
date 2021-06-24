@@ -144,5 +144,59 @@ namespace tl.employersupport.ecrm.poc.benchmarking
 
             return dictionary;
         }
+
+#if !DEBUG
+        [Benchmark]
+#endif
+        public async Task<IDictionary<long, TicketField>> BuildTLevelTicketFieldsFromJsonStream()
+        {
+            _ticketFieldsJsonStream.Position = 0;
+            var jsonDocument = await JsonDocument.ParseAsync(_ticketFieldsJsonStream);
+
+            var dictionary = jsonDocument.RootElement
+                .GetProperty("ticket_fields")
+                .EnumerateArray()
+                .Where(x => x.SafeGetString("title").StartsWith("T Level"))
+                .Select(x =>
+                    new TicketField
+                    {
+                        Id = x.SafeGetInt64("id"),
+                        Title = x.SafeGetString("title"),
+                        Type = x.SafeGetString("type"),
+                        Active = x.SafeGetBoolean("active") || x.SafeGetBoolean("collapsed_for_agents")
+                    })
+                .ToDictionary(t => t.Id,
+                    t => t);
+
+            return dictionary;
+        }
+
+
+#if !DEBUG
+        [Benchmark]
+#endif
+        public async Task<IDictionary<long, TicketField>> BuildTLevelTicketFieldsFromJsonStreamWithoutSafe()
+        {
+            _ticketFieldsJsonStream.Position = 0;
+            var jsonDocument = await JsonDocument.ParseAsync(_ticketFieldsJsonStream);
+
+            var dictionary = jsonDocument.RootElement
+                .GetProperty("ticket_fields")
+                .EnumerateArray()
+                .Where(x => x.GetProperty("title").GetString()!.StartsWith("T Level"))
+                .Select(x =>
+                    new TicketField
+                    {
+                        Id = x.GetProperty("id").GetInt64(),
+                        Title = x.GetProperty("title").GetString(),
+                        Type = x.GetProperty("type").GetString(),
+                        Active = x.GetProperty("active").GetBoolean() ||
+                                 x.GetProperty("collapsed_for_agents").GetBoolean()
+                    })
+                .ToDictionary(t => t.Id,
+                    t => t);
+
+            return dictionary;
+        }
     }
 }

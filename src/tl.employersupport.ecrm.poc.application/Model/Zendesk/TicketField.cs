@@ -5,9 +5,10 @@ using System.Diagnostics;
 
 namespace tl.employersupport.ecrm.poc.application.Model.Zendesk
 {
-    [DebuggerDisplay("TicketField {" + nameof(Id) + "} " +
-                     "{" + nameof(Title) + "} " +
-                     "({" + nameof(Type) + "})")]
+    [DebuggerDisplay(nameof(TicketField) + 
+                     " {" + nameof(Id) + "} " +
+                     "{" + nameof(Title) + ", nq} " +
+                     "({" + nameof(Type) + ", nq})")]
     public class TicketField
     {
         public long Id { get; init; }

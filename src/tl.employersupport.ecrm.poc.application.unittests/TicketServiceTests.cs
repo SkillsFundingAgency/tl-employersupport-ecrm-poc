@@ -75,10 +75,6 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         {
             const int ticketId = 4485;
 
-            //var ticketWithSideloadsUriFragment = $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}";
-            //var ticketCommentsUriFragment = $"tickets/{ticketId}/comments.json";
-            //var ticketAuditsUriFragment = $"tickets/{ticketId}/audits.json";
-
             var ticketJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
             var ticketCommentsJson = JsonBuilder.BuildValidTicketCommentsResponse();
             var ticketAuditJson = JsonBuilder.BuildValidTicketAuditsResponse();
@@ -90,10 +86,26 @@ namespace tl.employersupport.ecrm.poc.application.unittests
                         _zendeskApiBaseUri,
                         new Dictionary<Uri, string>
                         {
-                            { new Uri(_zendeskApiBaseUri, $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}"), ticketJson },
-                            { new Uri(_zendeskApiBaseUri, $"tickets/{ticketId}/comments.json"), ticketCommentsJson },
-                            { new Uri(_zendeskApiBaseUri, $"tickets/{ticketId}/audits.json"), ticketAuditJson },
-                            { new Uri(_zendeskApiBaseUri, "ticket_fields.json"), ticketFieldJson }
+                            {
+                                new Uri(_zendeskApiBaseUri,
+                                    $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}"),
+                                ticketJson
+                            },
+                            {
+                                new Uri(_zendeskApiBaseUri,
+                                    $"tickets/{ticketId}/comments.json"),
+                                ticketCommentsJson
+                            },
+                            {
+                                new Uri(_zendeskApiBaseUri,
+                                    $"tickets/{ticketId}/audits.json"),
+                                ticketAuditJson
+                            },
+                            {
+                                new Uri(_zendeskApiBaseUri,
+                                    "ticket_fields.json"),
+                                ticketFieldJson
+                            }
                         });
 
             var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -108,6 +120,8 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             ticket.Should().NotBeNull();
             ticket.Id.Should().Be(ticketId);
 
+            ticket.Description.Should().Be("I need information about industry placements.");
+
             ticket.CreatedAt.Should().Be(
                 DateTimeOffset.Parse("2021-06-09T09:12:50Z",
                     styles: DateTimeStyles.AdjustToUniversal));
@@ -115,6 +129,25 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             ticket.UpdatedAt.Should().Be(
                 DateTimeOffset.Parse("2021-06-09T09:12:50Z",
                     styles: DateTimeStyles.AdjustToUniversal));
+
+            ticket.RequestedBy.Should().NotBeNull();
+            ticket.RequestedBy.Id.Should().Be(369756029380);
+            ticket.RequestedBy.Name.Should().Be("Mike Wild");
+            ticket.RequestedBy.Email.Should().Be("mike.wild@digital.education.gov.uk");
+
+            ticket.Organisation.Should().NotBeNull();
+            ticket.Organisation.Id.Should().Be(373080599360);
+            ticket.Organisation.Name.Should().Be("Digital Education");
+
+            ticket.EmployerName.Should().Be("Mike's Emporium");
+            ticket.Postcode.Should().BeNullOrEmpty();
+            ticket.AddressLine1.Should().BeNullOrEmpty();
+            ticket.ContactName.Should().Be("Mike");
+            ticket.Phone.Should().Be("077123456789");
+            ticket.EmployerSize.Should().Be("1-9__micro_");
+            ticket.ContactMethod.Should().Be("tlevels-email");
+            ticket.ContactReason.Should().Be("i_m_ready_to_offer_an_industry_placement");
+            ticket.QuerySubject.Should().BeNullOrEmpty();
 
             ticket.Tags.Count.Should().Be(4);
 
@@ -191,12 +224,14 @@ namespace tl.employersupport.ecrm.poc.application.unittests
 
             var result = await service.GetTicketFields();
 
-            const long testFieldId = 34;
-            const string testFieldName = "Subject";
             result.Should().NotBeNullOrEmpty();
+            result.Count.Should().Be(168);
+
+            const long testFieldId = 360020522620;
+            const string testFieldName = "T Levels Employers - Company Name";
             result.Keys.Should().Contain(testFieldId);
             result[testFieldId].Title.Should().Be(testFieldName);
-            result[testFieldId].Type.Should().Be(testFieldName.ToLower());
+            result[testFieldId].Type.Should().Be("text");
             result[testFieldId].Active.Should().Be(true);
         }
 
