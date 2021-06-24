@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B9BAFDCD
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "tl.employersupport.ecrm.poc.application.logic", "tl.employersupport.ecrm.poc.application.logic\tl.employersupport.ecrm.poc.application.logic.deployproj", "{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tl.employersupport.ecrm.poc.benchmarking", "tl.employersupport.ecrm.poc.benchmarking\tl.employersupport.ecrm.poc.benchmarking.csproj", "{82EAED60-1379-4356-9197-5F7F773EB4C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73A570EF-7953-4CCD-B985-CB1D22F2CC8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82EAED60-1379-4356-9197-5F7F773EB4C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82EAED60-1379-4356-9197-5F7F773EB4C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82EAED60-1379-4356-9197-5F7F773EB4C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82EAED60-1379-4356-9197-5F7F773EB4C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

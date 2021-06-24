@@ -79,6 +79,10 @@ namespace tl.employersupport.ecrm.poc.application.Services
                     Tags = tags
                 };
 
+                //Build fields
+                var ticketFields = await GetTicketFields();
+
+
                 return ticket;
             }
 

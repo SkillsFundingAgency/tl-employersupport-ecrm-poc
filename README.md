@@ -50,6 +50,14 @@ func host start --verbose
 ```
 
 
+## Benchmarks
+
+To run benchmarks in a release build use
+```
+dotnet run -p tl.employersupport.ecrm.poc.benchmarking.csproj -c Release
+```
+
+
 ## Automated Tests
 
 If not already installed, install the Specflow for Visual Studio 2019. 

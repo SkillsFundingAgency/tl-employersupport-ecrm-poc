@@ -6,17 +6,26 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 {
     public static class ResourceExtensions
     {
-        public static string ReadManifestResourceStreamAsString(this string resourcePath)
+        public static Stream GetManifestResourceStream(this string resourcePath, Assembly assembly = null)
         {
-            using var stream = Assembly
-                .GetCallingAssembly()
+            assembly ??= Assembly.GetCallingAssembly();
+
+            var stream = assembly
                 .GetManifestResourceStream(resourcePath);
 
             if (stream == null)
             {
                 throw new Exception($"Stream for '{resourcePath}' not found.");
             }
+            
+            return stream;
+        }
 
+        public static string ReadManifestResourceStreamAsString(this string resourcePath, Assembly assembly = null)
+        {
+            assembly ??= Assembly.GetCallingAssembly();
+
+            using var stream = resourcePath.GetManifestResourceStream(assembly);
             using var stringReader = new StreamReader(stream);
             return stringReader.ReadToEnd();
         }

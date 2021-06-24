@@ -1,0 +1,936 @@
+{
+  "ticket": {
+    "url": "https://tlevelsemployertest.zendesk.com/api/v2/tickets/4485.json",
+    "id": 4485,
+    "external_id": null,
+    "via": {
+      "channel": "web",
+      "source": {
+        "from": {},
+        "to": {},
+        "rel": null
+      }
+    },
+    "created_at": "2021-06-09T09:12:50Z",
+    "updated_at": "2021-06-09T09:12:50Z",
+    "type": null,
+    "subject": "",
+    "raw_subject": "",
+    "description": "I need information about industry placements.",
+    "priority": null,
+    "status": "new",
+    "recipient": null,
+    "requester_id": 369756029380,
+    "submitter_id": 369756029380,
+    "assignee_id": null,
+    "organization_id": 373080599360,
+    "group_id": null,
+    "collaborator_ids": [],
+    "follower_ids": [],
+    "email_cc_ids": [],
+    "forum_topic_id": null,
+    "problem_id": null,
+    "has_incidents": false,
+    "is_public": true,
+    "due_at": null,
+    "tags": [
+      "1-9__micro_",
+      "i_m_ready_to_offer_an_industry_placement",
+      "tlevels-email",
+      "tlevels_approved"
+    ],
+    "custom_fields": [
+      {
+        "id": 360008368139,
+        "value": null
+      },
+      {
+        "id": 360009174540,
+        "value": null
+      },
+      {
+        "id": 360010581260,
+        "value": null
+      },
+      {
+        "id": 360012500239,
+        "value": null
+      },
+      {
+        "id": 360010585879,
+        "value": null
+      },
+      {
+        "id": 360012576280,
+        "value": null
+      },
+      {
+        "id": 360011928859,
+        "value": null
+      },
+      {
+        "id": 360010493979,
+        "value": null
+      },
+      {
+        "id": 360014049819,
+        "value": null
+      },
+      {
+        "id": 360012512540,
+        "value": null
+      },
+      {
+        "id": 360004146720,
+        "value": null
+      },
+      {
+        "id": 360010581280,
+        "value": null
+      },
+      {
+        "id": 360008561440,
+        "value": null
+      },
+      {
+        "id": 360020644899,
+        "value": "tlevels-email"
+      },
+      {
+        "id": 360019751459,
+        "value": "Mike"
+      },
+      {
+        "id": 360011960100,
+        "value": null
+      },
+      {
+        "id": 360011960360,
+        "value": null
+      },
+      {
+        "id": 360008582699,
+        "value": null
+      },
+      {
+        "id": 360010585899,
+        "value": null
+      },
+      {
+        "id": 360013351979,
+        "value": null
+      },
+      {
+        "id": 360012663600,
+        "value": null
+      },
+      {
+        "id": 360014706740,
+        "value": null
+      },
+      {
+        "id": 360010581300,
+        "value": null
+      },
+      {
+        "id": 360009211959,
+        "value": null
+      },
+      {
+        "id": 360004171319,
+        "value": null
+      },
+      {
+        "id": 360004171579,
+        "value": null
+      },
+      {
+        "id": 360008582719,
+        "value": null
+      },
+      {
+        "id": 360010585919,
+        "value": null
+      },
+      {
+        "id": 360020522560,
+        "value": "1-9__micro_"
+      },
+      {
+        "id": 360015414080,
+        "value": null
+      },
+      {
+        "id": 360008560960,
+        "value": null
+      },
+      {
+        "id": 360012571459,
+        "value": null
+      },
+      {
+        "id": 360010581060,
+        "value": null
+      },
+      {
+        "id": 360010581320,
+        "value": null
+      },
+      {
+        "id": 360008582219,
+        "value": null
+      },
+      {
+        "id": 360009211979,
+        "value": null
+      },
+      {
+        "id": 360004171339,
+        "value": null
+      },
+      {
+        "id": 360009013580,
+        "value": null
+      },
+      {
+        "id": 360004897100,
+        "value": null
+      },
+      {
+        "id": 360015380559,
+        "value": null
+      },
+      {
+        "id": 360008582739,
+        "value": null
+      },
+      {
+        "id": 360010585939,
+        "value": null
+      },
+      {
+        "id": 360013352019,
+        "value": null
+      },
+      {
+        "id": 360012571479,
+        "value": null
+      },
+      {
+        "id": 360009179480,
+        "value": null
+      },
+      {
+        "id": 360010581340,
+        "value": null
+      },
+      {
+        "id": 360010138460,
+        "value": null
+      },
+      {
+        "id": 360009649760,
+        "value": null
+      },
+      {
+        "id": 360004897120,
+        "value": null
+      },
+      {
+        "id": 360012513380,
+        "value": null
+      },
+      {
+        "id": 360010585959,
+        "value": null
+      },
+      {
+        "id": 360013352039,
+        "value": null
+      },
+      {
+        "id": 360020522600,
+        "value": "i_m_ready_to_offer_an_industry_placement"
+      },
+      {
+        "id": 360008561260,
+        "value": null
+      },
+      {
+        "id": 360010138480,
+        "value": null
+      },
+      {
+        "id": 360008355700,
+        "value": null
+      },
+      {
+        "id": 360010585979,
+        "value": null
+      },
+      {
+        "id": 360020522620,
+        "value": "Mike\u0027s Emporium"
+      },
+      {
+        "id": 360008355460,
+        "value": null
+      },
+      {
+        "id": 360012576900,
+        "value": null
+      },
+      {
+        "id": 360019503240,
+        "value": null
+      },
+      {
+        "id": 360010585999,
+        "value": null
+      },
+      {
+        "id": 360020522640,
+        "value": "077123456789"
+      },
+      {
+        "id": 360004146580,
+        "value": null
+      },
+      {
+        "id": 360014706580,
+        "value": null
+      },
+      {
+        "id": 360008561300,
+        "value": null
+      },
+      {
+        "id": 360004171419,
+        "value": null
+      },
+      {
+        "id": 360008368539,
+        "value": null
+      },
+      {
+        "id": 360008582559,
+        "value": null
+      },
+      {
+        "id": 360015466659,
+        "value": null
+      },
+      {
+        "id": 360008355500,
+        "value": null
+      },
+      {
+        "id": 360004171439,
+        "value": null
+      },
+      {
+        "id": 360013565360,
+        "value": null
+      },
+      {
+        "id": 360010160819,
+        "value": null
+      },
+      {
+        "id": 360009102259,
+        "value": null
+      },
+      {
+        "id": 360010587319,
+        "value": null
+      },
+      {
+        "id": 360008368319,
+        "value": null
+      },
+      {
+        "id": 360011960260,
+        "value": null
+      },
+      {
+        "id": 360013340100,
+        "value": null
+      },
+      {
+        "id": 360009102279,
+        "value": null
+      },
+      {
+        "id": 360015501000,
+        "value": null
+      },
+      {
+        "id": 360012512460,
+        "value": null
+      },
+      {
+        "id": 360004146640,
+        "value": null
+      },
+      {
+        "id": 360014681559,
+        "value": null
+      },
+      {
+        "id": 360008558300,
+        "value": null
+      },
+      {
+        "id": 360011108320,
+        "value": null
+      },
+      {
+        "id": 360008368099,
+        "value": null
+      },
+      {
+        "id": 360009072100,
+        "value": null
+      },
+      {
+        "id": 360010582500,
+        "value": null
+      },
+      {
+        "id": 360008561380,
+        "value": null
+      },
+      {
+        "id": 360014681579,
+        "value": null
+      },
+      {
+        "id": 360013340140,
+        "value": null
+      },
+      {
+        "id": 360006944759,
+        "value": null
+      },
+      {
+        "id": 360008368119,
+        "value": null
+      },
+      {
+        "id": 360012571639,
+        "value": null
+      },
+      {
+        "id": 360009174520,
+        "value": null
+      },
+      {
+        "id": 360010581240,
+        "value": null
+      },
+      {
+        "id": 360012500219,
+        "value": null
+      },
+      {
+        "id": 360004171519,
+        "value": null
+      }
+    ],
+    "satisfaction_rating": {
+      "score": "unoffered"
+    },
+    "sharing_agreement_ids": [],
+    "comment_count": 1,
+    "fields": [
+      {
+        "id": 360008368139,
+        "value": null
+      },
+      {
+        "id": 360009174540,
+        "value": null
+      },
+      {
+        "id": 360010581260,
+        "value": null
+      },
+      {
+        "id": 360012500239,
+        "value": null
+      },
+      {
+        "id": 360010585879,
+        "value": null
+      },
+      {
+        "id": 360012576280,
+        "value": null
+      },
+      {
+        "id": 360011928859,
+        "value": null
+      },
+      {
+        "id": 360010493979,
+        "value": null
+      },
+      {
+        "id": 360014049819,
+        "value": null
+      },
+      {
+        "id": 360012512540,
+        "value": null
+      },
+      {
+        "id": 360004146720,
+        "value": null
+      },
+      {
+        "id": 360010581280,
+        "value": null
+      },
+      {
+        "id": 360008561440,
+        "value": null
+      },
+      {
+        "id": 360020644899,
+        "value": "tlevels-email"
+      },
+      {
+        "id": 360019751459,
+        "value": "Mike"
+      },
+      {
+        "id": 360011960100,
+        "value": null
+      },
+      {
+        "id": 360011960360,
+        "value": null
+      },
+      {
+        "id": 360008582699,
+        "value": null
+      },
+      {
+        "id": 360010585899,
+        "value": null
+      },
+      {
+        "id": 360013351979,
+        "value": null
+      },
+      {
+        "id": 360012663600,
+        "value": null
+      },
+      {
+        "id": 360014706740,
+        "value": null
+      },
+      {
+        "id": 360010581300,
+        "value": null
+      },
+      {
+        "id": 360009211959,
+        "value": null
+      },
+      {
+        "id": 360004171319,
+        "value": null
+      },
+      {
+        "id": 360004171579,
+        "value": null
+      },
+      {
+        "id": 360008582719,
+        "value": null
+      },
+      {
+        "id": 360010585919,
+        "value": null
+      },
+      {
+        "id": 360020522560,
+        "value": "1-9__micro_"
+      },
+      {
+        "id": 360015414080,
+        "value": null
+      },
+      {
+        "id": 360008560960,
+        "value": null
+      },
+      {
+        "id": 360012571459,
+        "value": null
+      },
+      {
+        "id": 360010581060,
+        "value": null
+      },
+      {
+        "id": 360010581320,
+        "value": null
+      },
+      {
+        "id": 360008582219,
+        "value": null
+      },
+      {
+        "id": 360009211979,
+        "value": null
+      },
+      {
+        "id": 360004171339,
+        "value": null
+      },
+      {
+        "id": 360009013580,
+        "value": null
+      },
+      {
+        "id": 360004897100,
+        "value": null
+      },
+      {
+        "id": 360015380559,
+        "value": null
+      },
+      {
+        "id": 360008582739,
+        "value": null
+      },
+      {
+        "id": 360010585939,
+        "value": null
+      },
+      {
+        "id": 360013352019,
+        "value": null
+      },
+      {
+        "id": 360012571479,
+        "value": null
+      },
+      {
+        "id": 360009179480,
+        "value": null
+      },
+      {
+        "id": 360010581340,
+        "value": null
+      },
+      {
+        "id": 360010138460,
+        "value": null
+      },
+      {
+        "id": 360009649760,
+        "value": null
+      },
+      {
+        "id": 360004897120,
+        "value": null
+      },
+      {
+        "id": 360012513380,
+        "value": null
+      },
+      {
+        "id": 360010585959,
+        "value": null
+      },
+      {
+        "id": 360013352039,
+        "value": null
+      },
+      {
+        "id": 360020522600,
+        "value": "i_m_ready_to_offer_an_industry_placement"
+      },
+      {
+        "id": 360008561260,
+        "value": null
+      },
+      {
+        "id": 360010138480,
+        "value": null
+      },
+      {
+        "id": 360008355700,
+        "value": null
+      },
+      {
+        "id": 360010585979,
+        "value": null
+      },
+      {
+        "id": 360020522620,
+        "value": "Mike\u0027s Emporium"
+      },
+      {
+        "id": 360008355460,
+        "value": null
+      },
+      {
+        "id": 360012576900,
+        "value": null
+      },
+      {
+        "id": 360019503240,
+        "value": null
+      },
+      {
+        "id": 360010585999,
+        "value": null
+      },
+      {
+        "id": 360020522640,
+        "value": "077123456789"
+      },
+      {
+        "id": 360004146580,
+        "value": null
+      },
+      {
+        "id": 360014706580,
+        "value": null
+      },
+      {
+        "id": 360008561300,
+        "value": null
+      },
+      {
+        "id": 360004171419,
+        "value": null
+      },
+      {
+        "id": 360008368539,
+        "value": null
+      },
+      {
+        "id": 360008582559,
+        "value": null
+      },
+      {
+        "id": 360015466659,
+        "value": null
+      },
+      {
+        "id": 360008355500,
+        "value": null
+      },
+      {
+        "id": 360004171439,
+        "value": null
+      },
+      {
+        "id": 360013565360,
+        "value": null
+      },
+      {
+        "id": 360010160819,
+        "value": null
+      },
+      {
+        "id": 360009102259,
+        "value": null
+      },
+      {
+        "id": 360010587319,
+        "value": null
+      },
+      {
+        "id": 360008368319,
+        "value": null
+      },
+      {
+        "id": 360011960260,
+        "value": null
+      },
+      {
+        "id": 360013340100,
+        "value": null
+      },
+      {
+        "id": 360009102279,
+        "value": null
+      },
+      {
+        "id": 360015501000,
+        "value": null
+      },
+      {
+        "id": 360012512460,
+        "value": null
+      },
+      {
+        "id": 360004146640,
+        "value": null
+      },
+      {
+        "id": 360014681559,
+        "value": null
+      },
+      {
+        "id": 360008558300,
+        "value": null
+      },
+      {
+        "id": 360011108320,
+        "value": null
+      },
+      {
+        "id": 360008368099,
+        "value": null
+      },
+      {
+        "id": 360009072100,
+        "value": null
+      },
+      {
+        "id": 360010582500,
+        "value": null
+      },
+      {
+        "id": 360008561380,
+        "value": null
+      },
+      {
+        "id": 360014681579,
+        "value": null
+      },
+      {
+        "id": 360013340140,
+        "value": null
+      },
+      {
+        "id": 360006944759,
+        "value": null
+      },
+      {
+        "id": 360008368119,
+        "value": null
+      },
+      {
+        "id": 360012571639,
+        "value": null
+      },
+      {
+        "id": 360009174520,
+        "value": null
+      },
+      {
+        "id": 360010581240,
+        "value": null
+      },
+      {
+        "id": 360012500219,
+        "value": null
+      },
+      {
+        "id": 360004171519,
+        "value": null
+      }
+    ],
+    "followup_ids": [],
+    "ticket_form_id": 360001820480,
+    "brand_id": 360002505739,
+    "satisfaction_probability": null,
+    "allow_channelback": false,
+    "allow_attachments": true
+  },
+  "users": [
+    {
+      "id": 369756029380,
+      "url": "https://tlevelsemployertest.zendesk.com/api/v2/users/369756029380.json",
+      "name": "Mike Wild",
+      "email": "mike.wild@digital.education.gov.uk",
+      "created_at": "2020-05-04T15:54:47Z",
+      "updated_at": "2021-06-09T11:17:18Z",
+      "time_zone": "London",
+      "iana_time_zone": "Europe/London",
+      "phone": null,
+      "shared_phone_number": null,
+      "photo": null,
+      "locale_id": 1176,
+      "locale": "en-gb",
+      "organization_id": 373080599360,
+      "role": "admin",
+      "verified": true,
+      "external_id": null,
+      "tags": [],
+      "alias": "",
+      "active": true,
+      "shared": false,
+      "shared_agent": false,
+      "last_login_at": "2021-06-09T11:17:18Z",
+      "two_factor_auth_enabled": null,
+      "signature": "",
+      "details": "",
+      "notes": "",
+      "role_type": null,
+      "custom_role_id": null,
+      "moderator": true,
+      "ticket_restriction": null,
+      "only_private_comments": false,
+      "restricted_agent": false,
+      "suspended": false,
+      "chat_only": false,
+      "default_group_id": 360003102259,
+      "report_csv": false,
+      "user_fields": {
+        "address_line_1": null,
+        "address_line_2": null,
+        "address_line_3": null,
+        "city": null,
+        "communities_user": null,
+        "contact_type": null,
+        "postcode": null
+      }
+    }
+  ],
+  "groups": [],
+  "organizations": [
+    {
+      "url": "https://tlevelsemployertest.zendesk.com/api/v2/organizations/373080599360.json",
+      "id": 373080599360,
+      "name": "Digital Education",
+      "shared_tickets": false,
+      "shared_comments": false,
+      "external_id": null,
+      "created_at": "2020-07-22T04:19:41Z",
+      "updated_at": "2020-07-22T04:20:38Z",
+      "domain_names": [
+        "digital.education.gov.uk"
+      ],
+      "details": "",
+      "notes": "",
+      "group_id": null,
+      "tags": [
+        "tlevels_approved"
+      ],
+      "organization_fields": {
+        "account_manager": null,
+        "account_manager_e_mail": null,
+        "account_manager_status": null,
+        "address_line_1": null,
+        "address_line_2": null,
+        "address_line_3": null,
+        "city": null,
+        "county": null,
+        "main_phone": null,
+        "organisation_status": null,
+        "organisation_type": null,
+        "postcode": null
+      }
+    }
+  ]
+}
