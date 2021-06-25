@@ -46,8 +46,7 @@ await Host.CreateDefaultBuilder(args)
 
         services
             .Configure<ZendeskConfiguration>(zendeskConfiguration)
-            .AddTransient<ZendeskApiTokenMessageHandler>()
-            ;
+            .AddTransient<ZendeskApiTokenMessageHandler>();
 
         //Add http clients before creating services
         services.AddHttpClient<ITicketService, TicketService>(
@@ -76,8 +75,7 @@ await Host.CreateDefaultBuilder(args)
                 }
                 return handler;
             })
-            //TODO:
-            //.AddTypedClient<ZendeskApi>()
+            .AddTypedClient<IZendeskApiClient, ZendeskApiClient>()
             .AddHttpMessageHandler<ZendeskApiTokenMessageHandler>()
             .AddTransientHttpErrorPolicy(policy =>
                 policy.WaitAndRetryAsync(new[] {
@@ -85,15 +83,9 @@ await Host.CreateDefaultBuilder(args)
                     TimeSpan.FromSeconds(1),
                     TimeSpan.FromSeconds(5),
                     TimeSpan.FromSeconds(10),
-                }))
-            ;
+                }));
 
-        services.AddHttpClient<IFunctionsApiClient, FunctionsApiClient>(
-                //client =>
-                //{
-                //  client.BaseAddress = 
-                //})
-            )
+        services.AddHttpClient<IFunctionsApiClient, FunctionsApiClient>()
             .AddTransientHttpErrorPolicy(policy =>
                 policy.WaitAndRetryAsync(new[] {
                     TimeSpan.FromMilliseconds(200),
@@ -104,6 +96,7 @@ await Host.CreateDefaultBuilder(args)
 
         services
             .AddHostedService<ConsoleHostedService>()
+            .AddTransient<IDateTimeService, DateTimeService>()
             .AddTransient<IEmailService, EmailService>()
             .AddTransient<ITicketService, TicketService>()
             .AddTransient<IMonitorService, MonitorService>()

@@ -3,7 +3,7 @@ using FluentAssertions;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using Xunit;
 
-namespace tl.employersupport.ecrm.poc.application.unittests
+namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
 {
     public class JsonExtensionsTests
     {

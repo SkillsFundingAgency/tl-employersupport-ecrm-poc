@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Notify.Client;
 using Notify.Interfaces;
 using Polly;
+using tl.employersupport.ecrm.poc.application.ApiClients;
 using tl.employersupport.ecrm.poc.application.HttpHandlers;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
@@ -94,8 +95,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
                     }
                     return handler;
                 })
-                //TODO:
-                //.AddTypedClient<ZendeskApi>()
+                .AddTypedClient<IZendeskApiClient, ZendeskApiClient>()
                 .AddHttpMessageHandler<ZendeskApiTokenMessageHandler>()
                 .AddTransientHttpErrorPolicy(policy =>
                     policy.WaitAndRetryAsync(new[] {

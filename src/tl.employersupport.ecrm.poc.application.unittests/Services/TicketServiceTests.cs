@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 using tl.employersupport.ecrm.poc.application.Services;
 using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
-using tl.employersupport.ecrm.poc.tests.common.HttpClient;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace tl.employersupport.ecrm.poc.application.unittests
+namespace tl.employersupport.ecrm.poc.application.unittests.Services
 {
     public class TicketServiceTests
     {
@@ -62,12 +61,12 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         {
             Assert.Throws<ArgumentNullException>(
                 "zendeskConfiguration.Value",
-                () =>
-                    new TicketService(
-                        Substitute.For<IHttpClientFactory>(),
-                        Substitute.For<ILogger<TicketService>>(),
-                        Substitute.For<IOptions<ZendeskConfiguration>>())
-            );
+                () => new TicketServiceBuilder().Build(
+                    Substitute.For<IHttpClientFactory>(),
+                    Substitute.For<IZendeskApiClient>(),
+                    Substitute.For<ILogger<TicketService>>(),
+                    Substitute.For<IOptions<ZendeskConfiguration>>()
+                    ));
         }
 
         [Fact]
@@ -76,44 +75,18 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             const int ticketId = 4485;
 
             var ticketJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
-            var ticketCommentsJson = JsonBuilder.BuildValidTicketCommentsResponse();
-            var ticketAuditJson = JsonBuilder.BuildValidTicketAuditsResponse();
-            var ticketFieldJson = JsonBuilder.BuildValidTicketFieldsResponse;
+            var ticketFieldsJson = JsonBuilder.BuildValidTicketFieldsResponse;
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            {
-                                new Uri(_zendeskApiBaseUri,
-                                    $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}"),
-                                ticketJson
-                            },
-                            {
-                                new Uri(_zendeskApiBaseUri,
-                                    $"tickets/{ticketId}/comments.json"),
-                                ticketCommentsJson
-                            },
-                            {
-                                new Uri(_zendeskApiBaseUri,
-                                    $"tickets/{ticketId}/audits.json"),
-                                ticketAuditJson
-                            },
-                            {
-                                new Uri(_zendeskApiBaseUri,
-                                    "ticket_fields.json"),
-                                ticketFieldJson
-                            }
-                        });
+            var ticketJsonDocument = JsonDocument.Parse(ticketJson);
+            var ticketFieldsJsonDocument = JsonDocument.Parse(ticketFieldsJson);
 
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.GetTicketJsonDocument(ticketId, Arg.Is<string>(s => s != null))
+                .Returns(ticketJsonDocument);
+            apiClient.GetTicketFieldsJsonDocument()
+                .Returns(ticketFieldsJsonDocument);
 
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var ticket = await service.GetEmployerContactTicket(ticketId);
 
@@ -163,32 +136,20 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         public async Task TicketService_GetTicket_Returns_Expected_Value()
         {
             const int ticketId = 4485;
-
-            var ticketWithSideloadsUriFragment = $"tickets/{ticketId}.json?include={Sideloads.GetTicketSideloads()}";
-            var ticketCommentsUriFragment = $"tickets/{ticketId}/comments.json";
-            var ticketAuditsUriFragment = $"tickets/{ticketId}/audits.json";
-
+            var sideloads = Sideloads.GetTicketSideloads();
             var ticketJson = JsonBuilder.BuildValidTicketWithSideloadsResponse();
             var ticketCommentsJson = JsonBuilder.BuildValidTicketCommentsResponse();
-            var ticketAuditJson = JsonBuilder.BuildValidTicketAuditsResponse();
+            var ticketAuditsJson = JsonBuilder.BuildValidTicketAuditsResponse();
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            { new Uri(_zendeskApiBaseUri, ticketWithSideloadsUriFragment), ticketJson },
-                            { new Uri(_zendeskApiBaseUri, ticketCommentsUriFragment), ticketCommentsJson },
-                            { new Uri(_zendeskApiBaseUri, ticketAuditsUriFragment), ticketAuditJson }
-                        });
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.GetTicketJson(ticketId, sideloads)
+                .Returns(ticketJson);
+            apiClient.GetTicketCommentsJson(ticketId)
+                .Returns(ticketCommentsJson);
+            apiClient.GetTicketAuditsJson(ticketId)
+                .Returns(ticketAuditsJson);
 
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
-
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var ticket = await service.GetTicket(ticketId);
 
@@ -204,23 +165,14 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         [Fact]
         public async Task TicketService_GetTicketFields_Returns_Expected_Value()
         {
-            var ticketFieldJson = JsonBuilder.BuildValidTicketFieldsResponse;
+            var ticketFieldsJson = JsonBuilder.BuildValidTicketFieldsResponse;
+            var ticketJsonDocument = JsonDocument.Parse(ticketFieldsJson);
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            { new Uri(_zendeskApiBaseUri, "ticket_fields.json"), ticketFieldJson }
-                        });
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.GetTicketFieldsJsonDocument()
+                .Returns(ticketJsonDocument);
 
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
-
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var result = await service.GetTicketFields();
 
@@ -239,24 +191,16 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         public async Task TicketService_SearchTickets_Returns_Expected_Value()
         {
             const string query = "type:ticket status:new brand:tlevelsemployertest";
-            var ticketSearchUriFragment = $"search.json?query={WebUtility.UrlEncode(query)}";
 
             var ticketSearchResultsJson = JsonBuilder.BuildValidTicketSearchResultsResponse;
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            { new Uri(_zendeskApiBaseUri, ticketSearchUriFragment), ticketSearchResultsJson }
-                        });
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
+            var ticketJsonDocument = JsonDocument.Parse(ticketSearchResultsJson);
 
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.GetTicketSearchResultsJsonDocument(query)
+                .Returns(ticketJsonDocument);
+
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var results = await service.SearchTickets();
 
@@ -269,24 +213,14 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         public async Task TicketService_GetTicketTags_Returns_Expected_Value()
         {
             const int ticketId = 4485;
-            var ticketUriFragment = $"tickets/{ticketId}.json";
             var ticketJson = JsonBuilder.BuildValidTicketResponse();
+            var ticketJsonDocument = JsonDocument.Parse(ticketJson);
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            { new Uri(_zendeskApiBaseUri, ticketUriFragment), ticketJson }
-                        });
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.GetTicketJsonDocument(ticketId)
+                .Returns(ticketJsonDocument);
 
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
-
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var result = await service.GetTicketTags(ticketId);
 
@@ -310,24 +244,13 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             const int ticketId = 4485;
             const string tag = "test_tag";
 
-            var putTagsUriFragment = $"tickets/{ticketId}/tags.json";
             var tagsJson = JsonBuilder.BuildValidTagsResponse();
+            
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.PutTags(ticketId, Arg.Is<SafeTags>(t => t != null))
+                .Returns(JsonDocument.Parse(tagsJson));
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            { new Uri(_zendeskApiBaseUri, putTagsUriFragment), tagsJson }
-                        });
-
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
-
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var ticket = new CombinedTicket
             {
@@ -342,6 +265,8 @@ namespace tl.employersupport.ecrm.poc.application.unittests
             };
 
             await service.AddTag(ticketId, ticket, tag);
+
+            //result.Should().NotBeNull();
         }
 
         [Fact]
@@ -349,24 +274,13 @@ namespace tl.employersupport.ecrm.poc.application.unittests
         {
             const int ticketId = 4485;
 
-            var postTagsUriFragment = $"tickets/{ticketId}/tags.json";
             var tagsJson = JsonBuilder.BuildValidTagsResponse();
 
-            var httpClient =
-                new TestHttpClientFactory()
-                    .CreateHttpClient(
-                        _zendeskApiBaseUri,
-                        new Dictionary<Uri, string>
-                        {
-                            { new Uri(_zendeskApiBaseUri, postTagsUriFragment), tagsJson }
-                        });
+            var apiClient = Substitute.For<IZendeskApiClient>();
+            apiClient.PostTags(ticketId, Arg.Is<SafeTags>(t => t != null))
+                .Returns(JsonDocument.Parse(tagsJson));
 
-            var httpClientFactory = Substitute.For<IHttpClientFactory>();
-            httpClientFactory
-                .CreateClient(nameof(TicketService))
-                .Returns(httpClient);
-
-            var service = new TicketServiceBuilder().Build(httpClientFactory);
+            var service = new TicketServiceBuilder().Build(null, apiClient);
 
             var tags = new SafeTags
             {

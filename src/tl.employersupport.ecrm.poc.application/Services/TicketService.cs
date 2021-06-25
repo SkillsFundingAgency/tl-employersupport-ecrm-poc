@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,15 +18,18 @@ namespace tl.employersupport.ecrm.poc.application.Services
     {
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IZendeskApiClient _zendeskApiClient;
         // ReSharper disable once NotAccessedField.Local
         private readonly ZendeskConfiguration _zendeskConfiguration;
 
         public TicketService(
             IHttpClientFactory httpClientFactory,
+            IZendeskApiClient zendeskApiClient,
             ILogger<TicketService> logger,
             IOptions<ZendeskConfiguration> zendeskConfiguration)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _zendeskApiClient = zendeskApiClient ?? throw new ArgumentNullException(nameof(zendeskApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             //Note: check this last otherwise unit tests checking null ctor args will fail
@@ -46,7 +46,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
         {
             _logger.LogInformation($"Getting ticket {ticketId}");
 
-            var jsonDoc = await GetTicketJsonDocument(ticketId, Sideloads.GetTicketSideloads());
+            var jsonDoc = await _zendeskApiClient.GetTicketJsonDocument(ticketId, Sideloads.GetTicketSideloads());
 
             if (jsonDoc != null)
             {
@@ -200,9 +200,9 @@ namespace tl.employersupport.ecrm.poc.application.Services
         {
             _logger.LogInformation($"Getting ticket {ticketId}");
 
-            var ticketJson = await GetTicketJson(ticketId, Sideloads.GetTicketSideloads());
-            var ticketCommentJson = await GetTicketCommentsJson(ticketId);
-            var ticketAuditsJson = await GetTicketAuditsJson(ticketId);
+            var ticketJson = await _zendeskApiClient.GetTicketJson(ticketId, Sideloads.GetTicketSideloads());
+            var ticketCommentJson = await _zendeskApiClient.GetTicketCommentsJson(ticketId);
+            var ticketAuditsJson = await _zendeskApiClient.GetTicketAuditsJson(ticketId);
 
             _logger.LogDebug($"Ticket json: \n{ticketJson.PrettifyJsonString()}");
             _logger.LogDebug($"Ticket comments json: \n{ticketCommentJson.PrettifyJsonString()}");
@@ -229,12 +229,10 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
         public async Task<IDictionary<long, TicketField>> GetTicketFields()
         {
-            var jsonDoc = await GetTicketFieldsJsonDocument();
+            var jsonDoc = await _zendeskApiClient.GetTicketFieldsJsonDocument();
 
             if (jsonDoc != null)
             {
-                var temp = jsonDoc.PrettifyJsonDocument();
-
                 var count = jsonDoc.RootElement.GetProperty("count");
                 var nextPage = jsonDoc.RootElement.GetProperty("next_page");
                 _logger.LogInformation($"GetTicketFields found {count} items. Next page is '{nextPage}'");
@@ -261,7 +259,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
         public async Task<SafeTags> GetTicketTags(long ticketId)
         {
-            var jsonDoc = await GetTicketJsonDocument(ticketId);
+            var jsonDoc = await _zendeskApiClient.GetTicketJsonDocument(ticketId);
 
             if (jsonDoc != null)
             {
@@ -330,7 +328,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //https://developer.zendesk.com/api-reference/ticketing/ticket-management/search/
             //query=created>2012-07-17 type:ticket organization:"MD Photo"
 
-            var jsonDoc = await GetTicketSearchResultsJsonDocument(query);
+            var jsonDoc = await _zendeskApiClient.GetTicketSearchResultsJsonDocument(query);
 
             if (jsonDoc != null)
             {
@@ -395,36 +393,15 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //2019-09-12T21:45:16Z
             //var formattedDate = $"{updatedAt:yyyy-MM-ddTHH:mm:ssZ}";
 
-            var tagsToAdd = new SafeTags
+            var tags = new SafeTags
             {
                 Tags = new List<string> { tag },
                 UpdatedStamp = updatedAt!.Value,
                 SafeUpdate = true
             };
+            
+            var jsonDoc = await _zendeskApiClient.PutTags(ticketId, tags);
 
-            var json = JsonSerializer.Serialize(tagsToAdd, JsonExtensions.DefaultJsonSerializerOptions);
-
-            _logger.LogDebug($"Prepared json for adding tag:\n{json}");
-
-            //TODO: Add a PutJson method
-            var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
-            var requestUriFragment = $"tickets/{ticketId}/tags.json";
-            _logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUriFragment}");
-
-            //var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            //var response = await httpClient.PutAsync(requestUriFragment, httpContent);
-
-            //POST
-            var response = await httpClient.PutAsJsonAsync(requestUriFragment, tagsToAdd, JsonExtensions.DefaultJsonSerializerOptions);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             _logger.LogInformation($"Response from PUT tag: \n{jsonDoc.PrettifyJsonDocument()}");
         }
 
@@ -437,86 +414,9 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 _logger.LogWarning("No tags provided.");
                 return;
             }
-
-            var json = JsonSerializer.Serialize(tags, JsonExtensions.DefaultJsonSerializerOptions);
-
-            _logger.LogDebug($"Prepared json for modifying ticket tags:\n{json}");
-
-            //TODO: Add a PostJson method
-            var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
-            var requestUriFragment = $"tickets/{ticketId}/tags.json";
-            _logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUriFragment}");
-
-            //var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            //var response = await httpClient.PostAsync(requestUriFragment, httpContent);
-            var response = await httpClient.PostAsJsonAsync(requestUriFragment, tags, JsonExtensions.DefaultJsonSerializerOptions);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-            _logger.LogInformation($"Response from PUT tag: \n{jsonDoc.PrettifyJsonDocument()}");
-        }
-
-        private async Task<JsonDocument> GetTicketSearchResultsJsonDocument(string query)
-        {
-            var requestQueryString = $"query={WebUtility.UrlEncode(query)}";
-
-            return await GetJsonDocument($"search.json?{requestQueryString}");
-        }
-
-        private async Task<string> GetTicketJson(long ticketId, string sideloads = null)
-        {
-            var requestQueryString = !string.IsNullOrEmpty(sideloads) ? $"?include={sideloads}" : "";
-            return await GetJson($"tickets/{ticketId}.json{requestQueryString}");
-        }
-
-        private async Task<JsonDocument> GetTicketJsonDocument(long ticketId, string sideloads = null)
-        {
-            var requestQueryString = !string.IsNullOrEmpty(sideloads) ? $"?include={sideloads}" : "";
-            return await GetJsonDocument($"tickets/{ticketId}.json{requestQueryString}");
-        }
-
-        private async Task<JsonDocument> GetTicketFieldsJsonDocument() =>
-            await GetJsonDocument("ticket_fields.json");
-
-        private async Task<string> GetTicketCommentsJson(long ticketId) =>
-            await GetJson($"tickets/{ticketId}/comments.json");
-
-        private async Task<string> GetTicketAuditsJson(long ticketId) =>
-            await GetJson($"tickets/{ticketId}/audits.json");
-
-        private async Task<string> GetJson(string requestUriFragment)
-        {
-            var content = await GetHttp(requestUriFragment);
-            return await content.ReadAsStringAsync();
-        }
-
-        private async Task<JsonDocument> GetJsonDocument(string requestUriFragment)
-        {
-            var content = await GetHttp(requestUriFragment);
-            return await JsonDocument.ParseAsync(await content.ReadAsStreamAsync());
-        }
-
-        private async Task<HttpContent> GetHttp(string requestUriFragment)
-        {
-            var httpClient = _httpClientFactory.CreateClient(nameof(TicketService));
-
-            _logger.LogInformation($"Calling Zendesk Support API {httpClient.BaseAddress} endpoint {requestUriFragment}");
-
-            var response = await httpClient.GetAsync(requestUriFragment);
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            return response.Content;
+            
+            var jsonDoc = await _zendeskApiClient.PostTags(ticketId, tags);
+            _logger.LogInformation($"Response from POST tags: \n{jsonDoc.PrettifyJsonDocument()}");
         }
     }
 }

@@ -15,8 +15,7 @@ var host = new HostBuilder()
                 .AddZendeskHttpClient()
                 .AddTransient<IDateTimeService, DateTimeService>()
                 .AddEmailServices()
-                .AddTransient<ITicketService, TicketService>()
-                ;
+                .AddTransient<ITicketService, TicketService>();
         })
     .Build();
 
