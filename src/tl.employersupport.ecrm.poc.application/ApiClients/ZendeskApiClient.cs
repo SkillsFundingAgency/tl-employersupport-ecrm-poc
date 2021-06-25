@@ -45,46 +45,20 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
         public async Task<JsonDocument> GetTicketFieldsJsonDocument() =>
             await GetJsonDocument("ticket_fields.json");
 
-        public async Task<JsonDocument> GetTicketSearchResultsJsonDocument(string query)
-        {
-            var requestQueryString = $"query={WebUtility.UrlEncode(query)}";
-
-            return await GetJsonDocument($"search.json?{requestQueryString}");
-        }
-
+        public async Task<JsonDocument> GetTicketSearchResultsJsonDocument(string query) =>
+            await GetJsonDocument($"search.json?query={WebUtility.UrlEncode(query)}");
+        
         public async Task<JsonDocument> PostTags(long ticketId, SafeTags tags)
         {
-            var requestUriFragment = $"tickets/{ticketId}/tags.json";
-            _logger.LogInformation($"Calling Zendesk Support API {_httpClient.BaseAddress} endpoint {requestUriFragment}");
-
-            var response = await _httpClient.PostAsJsonAsync(requestUriFragment, tags, JsonExtensions.DefaultJsonSerializerOptions);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            var content = await PostAsJson($"tickets/{ticketId}/tags.json", tags);
+            var jsonDocument = await JsonDocument.ParseAsync(await content.ReadAsStreamAsync());
             return jsonDocument;
         }
 
         public async Task<JsonDocument> PutTags(long ticketId, SafeTags tags)
         {
-            var requestUriFragment = $"tickets/{ticketId}/tags.json";
-            _logger.LogInformation($"Calling Zendesk Support API {_httpClient.BaseAddress} endpoint {requestUriFragment}");
-
-            var response = await _httpClient.PutAsJsonAsync(requestUriFragment, tags, JsonExtensions.DefaultJsonSerializerOptions);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            var content = await PutAsJson($"tickets/{ticketId}/tags.json", tags);
+            var jsonDocument = await JsonDocument.ParseAsync(await content.ReadAsStreamAsync());
             return jsonDocument;
         }
 
@@ -102,9 +76,41 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         private async Task<HttpContent> GetHttp(string requestUri)
         {
-            _logger.LogInformation($"Calling Zendesk Support API {_httpClient.BaseAddress} endpoint {requestUri}");
+            _logger.LogInformation($"Calling API {_httpClient.BaseAddress} endpoint {requestUri}");
 
             var response = await _httpClient.GetAsync(requestUri);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            return response.Content;
+        }
+
+        private async Task<HttpContent> PostAsJson<TValue>(string requestUri, TValue value)
+        {
+            _logger.LogInformation($"Calling API {_httpClient.BaseAddress} endpoint {requestUri}");
+
+            var response = await _httpClient.PostAsJsonAsync(requestUri, value, JsonExtensions.DefaultJsonSerializerOptions);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            return response.Content;
+        }
+
+        private async Task<HttpContent> PutAsJson<TValue>(string requestUri, TValue value)
+        {
+            _logger.LogInformation($"Calling API {_httpClient.BaseAddress} endpoint {requestUri}");
+
+            var response = await _httpClient.PutAsJsonAsync(requestUri, value, JsonExtensions.DefaultJsonSerializerOptions);
+
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");

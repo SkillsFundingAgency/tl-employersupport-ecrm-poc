@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -62,11 +61,9 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             Assert.Throws<ArgumentNullException>(
                 "zendeskConfiguration.Value",
                 () => new TicketServiceBuilder().Build(
-                    Substitute.For<IHttpClientFactory>(),
                     Substitute.For<IZendeskApiClient>(),
                     Substitute.For<ILogger<TicketService>>(),
-                    Substitute.For<IOptions<ZendeskConfiguration>>()
-                    ));
+                    Substitute.For<IOptions<ZendeskConfiguration>>()));
         }
 
         [Fact]
@@ -86,7 +83,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.GetTicketFieldsJsonDocument()
                 .Returns(ticketFieldsJsonDocument);
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var ticket = await service.GetEmployerContactTicket(ticketId);
 
@@ -149,7 +146,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.GetTicketAuditsJson(ticketId)
                 .Returns(ticketAuditsJson);
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var ticket = await service.GetTicket(ticketId);
 
@@ -172,7 +169,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.GetTicketFieldsJsonDocument()
                 .Returns(ticketJsonDocument);
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var result = await service.GetTicketFields();
 
@@ -200,7 +197,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.GetTicketSearchResultsJsonDocument(query)
                 .Returns(ticketJsonDocument);
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var results = await service.SearchTickets();
 
@@ -220,7 +217,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.GetTicketJsonDocument(ticketId)
                 .Returns(ticketJsonDocument);
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var result = await service.GetTicketTags(ticketId);
 
@@ -250,7 +247,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.PutTags(ticketId, Arg.Is<SafeTags>(t => t != null))
                 .Returns(JsonDocument.Parse(tagsJson));
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var ticket = new CombinedTicket
             {
@@ -280,7 +277,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             apiClient.PostTags(ticketId, Arg.Is<SafeTags>(t => t != null))
                 .Returns(JsonDocument.Parse(tagsJson));
 
-            var service = new TicketServiceBuilder().Build(null, apiClient);
+            var service = new TicketServiceBuilder().Build(apiClient);
 
             var tags = new SafeTags
             {

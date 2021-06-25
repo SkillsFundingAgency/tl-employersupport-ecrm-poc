@@ -63,8 +63,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
         {
             services
                 .AddTransient<ZendeskApiTokenMessageHandler>()
-                .AddHttpClient<ITicketService, TicketService>(
-                    nameof(TicketService),
+                .AddHttpClient<IZendeskApiClient, ZendeskApiClient>(
                     (serviceProvider, client) =>
                     {
                         var zendeskOptions = serviceProvider
@@ -95,7 +94,6 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
                     }
                     return handler;
                 })
-                .AddTypedClient<IZendeskApiClient, ZendeskApiClient>()
                 .AddHttpMessageHandler<ZendeskApiTokenMessageHandler>()
                 .AddTransientHttpErrorPolicy(policy =>
                     policy.WaitAndRetryAsync(new[] {

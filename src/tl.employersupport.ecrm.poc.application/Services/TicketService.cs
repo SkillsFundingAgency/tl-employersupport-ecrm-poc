@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,18 +16,15 @@ namespace tl.employersupport.ecrm.poc.application.Services
     public class TicketService : ITicketService
     {
         private readonly ILogger _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IZendeskApiClient _zendeskApiClient;
         // ReSharper disable once NotAccessedField.Local
         private readonly ZendeskConfiguration _zendeskConfiguration;
 
         public TicketService(
-            IHttpClientFactory httpClientFactory,
             IZendeskApiClient zendeskApiClient,
             ILogger<TicketService> logger,
             IOptions<ZendeskConfiguration> zendeskConfiguration)
         {
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _zendeskApiClient = zendeskApiClient ?? throw new ArgumentNullException(nameof(zendeskApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 

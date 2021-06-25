@@ -49,8 +49,7 @@ await Host.CreateDefaultBuilder(args)
             .AddTransient<ZendeskApiTokenMessageHandler>();
 
         //Add http clients before creating services
-        services.AddHttpClient<ITicketService, TicketService>(
-                nameof(TicketService),
+        services.AddHttpClient<IZendeskApiClient, ZendeskApiClient>(
                 client =>
                 {
                     client.BaseAddress =
@@ -75,7 +74,6 @@ await Host.CreateDefaultBuilder(args)
                 }
                 return handler;
             })
-            .AddTypedClient<IZendeskApiClient, ZendeskApiClient>()
             .AddHttpMessageHandler<ZendeskApiTokenMessageHandler>()
             .AddTransientHttpErrorPolicy(policy =>
                 policy.WaitAndRetryAsync(new[] {

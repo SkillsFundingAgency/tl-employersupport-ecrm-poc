@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -12,7 +11,6 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Builders
     public class TicketServiceBuilder
     {
         public ITicketService Build(
-            IHttpClientFactory httpClientFactory = null,
             IZendeskApiClient zendeskApiClient = null,
             ILogger<TicketService> logger = null,
             IOptions<ZendeskConfiguration> configuration = null)
@@ -28,17 +26,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Builders
                 return config;
             }).Invoke();
 
-            if (httpClientFactory is null)
-            {
-                var httpClient = Substitute.For<HttpClient>();
-
-                httpClientFactory = Substitute.For<IHttpClientFactory>();
-                httpClientFactory
-                    .CreateClient(nameof(TicketService))
-                    .Returns(httpClient);
-            }
-
-            return new TicketService(httpClientFactory, zendeskApiClient, logger, configuration);
+            return new TicketService(zendeskApiClient, logger, configuration);
         }
     }
 }
