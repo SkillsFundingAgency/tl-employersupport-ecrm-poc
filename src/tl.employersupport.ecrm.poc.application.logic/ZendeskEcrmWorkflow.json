@@ -105,7 +105,7 @@
                 "uri": "https://todo-get-ecrm-api.gov.uk"
               },
               "runAfter": {
-                "Send_ticket_created_emal": [
+                "Retrieve_ticket_details": [
                   "Succeeded"
                 ]
               },
@@ -208,6 +208,22 @@
               },
               "runAfter": {
                 "Compose_modify_tags_request": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Retrieve_ticket_details": {
+              "type": "Function",
+              "inputs": {
+                "body": {
+                  "id": "@variables('TicketId')"
+                },
+                "function": {
+                  "id": "/subscriptions/9a7620ed-46c4-475f-b7ac-a6502e490e88/resourceGroups/tlzdecrmpoc-rg/providers/Microsoft.Web/sites/tlzdecrmpocdev-func/functions/RetrieveEmployerContactTicket"
+                }
+              },
+              "runAfter": {
+                "Send_ticket_created_emal": [
                   "Succeeded"
                 ]
               }
