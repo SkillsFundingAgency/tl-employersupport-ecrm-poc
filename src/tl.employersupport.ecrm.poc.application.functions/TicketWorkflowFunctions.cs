@@ -108,8 +108,8 @@ namespace tl.employersupport.ecrm.poc.application.functions
                 var response = request.CreateResponse(HttpStatusCode.OK);
                 //response.Headers.Add("Content-Type", "application/json");
 
-                var json = JsonSerializer.Serialize(ticket,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                //var json = JsonSerializer.Serialize(ticket,
+                //    JsonExtensions.DefaultJsonSerializerOptions);
                 //await response.WriteStringAsync(json);
 
                 await response.WriteAsJsonAsync(ticket, "application/json");

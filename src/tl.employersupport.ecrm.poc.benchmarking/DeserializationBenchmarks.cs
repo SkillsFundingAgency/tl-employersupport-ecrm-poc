@@ -14,6 +14,7 @@ namespace tl.employersupport.ecrm.poc.benchmarking
 {
     [MinColumn]
     [MaxColumn]
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class DeserializationBenchmarks
     {
         private readonly string _ticketJson;
@@ -189,9 +190,9 @@ namespace tl.employersupport.ecrm.poc.benchmarking
                     {
                         Id = x.GetProperty("id").GetInt64(),
                         Title = x.GetProperty("title").GetString(),
-                        Type = x.GetProperty("type").GetString(),
-                        Active = x.GetProperty("active").GetBoolean() ||
-                                 x.GetProperty("collapsed_for_agents").GetBoolean()
+                        //Type = x.GetProperty("type").GetString(),
+                        //Active = x.GetProperty("active").GetBoolean() ||
+                        //         x.GetProperty("collapsed_for_agents").GetBoolean()
                     })
                 .ToDictionary(t => t.Id,
                     t => t);

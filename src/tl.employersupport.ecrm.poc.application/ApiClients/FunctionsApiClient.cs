@@ -39,14 +39,13 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             var queryParameters = HttpUtility.ParseQueryString(string.Empty);
             queryParameters["minTimeout"] = minTimeout.ToString();
             queryParameters["maxTimeout"] = maxTimeout.ToString();
-            var query = queryParameters.ToString();
 
             var code = !string.IsNullOrEmpty(_configuration.TimeoutFunctionCode)
                 ? $"&code={_configuration.TimeoutFunctionCode}"
                 : "";
             var requestUri = $"{_configuration.TimeoutFunctionUri}?minTimeout={minTimeout}&maxTimeout={maxTimeout}{code}";
 
-            var response = await _httpClient.GetAsync(requestUri);
+            await _httpClient.GetAsync(requestUri);
         }
     }
 }
