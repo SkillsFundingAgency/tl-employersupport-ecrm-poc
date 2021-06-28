@@ -111,7 +111,7 @@
         {
           "type": "Queues",
           "apiVersion": "2017-04-01",
-          "name": "[parameters('serviceBusQueueName')]",
+          "name": "[variables('serviceBusQueueName')]",
           "dependsOn": [
             "[resourceId('Microsoft.ServiceBus/namespaces', variables('serviceBusNamespace'))]"
           ],
