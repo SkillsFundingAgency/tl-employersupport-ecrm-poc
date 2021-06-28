@@ -83,7 +83,6 @@
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "serviceBusNamespace": "[concat(variables('resourceNamePrefix'), '-sb')]",
-    "serviceBusQueueName": "[concat(variables('resourceNamePrefix'), '-sbq')]",
     "defaultSASKeyName": "RootManageSharedAccessKey",
     "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespace'), variables('defaultSASKeyName'))]",
     "sbVersion": "2017-04-01"
@@ -110,27 +109,6 @@
       },
       "properties": {},
       "resources": [
-        {
-          "type": "Queues",
-          "apiVersion": "[variables('sbVersion')]",
-          "name": "[variables('serviceBusQueueName')]",
-          "dependsOn": [
-            "[resourceId('Microsoft.ServiceBus/namespaces', variables('serviceBusNamespace'))]"
-          ],
-          "properties": {
-            "lockDuration": "PT5M",
-            "maxSizeInMegabytes": 1024,
-            "requiresDuplicateDetection": false,
-            "requiresSession": false,
-            "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
-            "deadLetteringOnMessageExpiration": false,
-            "duplicateDetectionHistoryTimeWindow": "PT10M",
-            "maxDeliveryCount": 10,
-            "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
-            "enablePartitioning": false,
-            "enableExpress": false
-          }
-        }
       ]
     },
     {
@@ -243,10 +221,6 @@
     "FunctionAppName": {
       "type": "string",
       "value": "[variables('functionAppName')]"
-    },
-    "ServiceBusQueueName": {
-      "type": "string",
-      "value": "[variables('serviceBusQueueName')]"
     },
     "ServiceBusConnectionString": {
       "type": "string",
