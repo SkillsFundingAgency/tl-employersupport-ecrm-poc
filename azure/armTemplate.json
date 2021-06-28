@@ -218,7 +218,6 @@
             {
               "name": "ServiceBusConnectionString",
               "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
-
             }
           ]
         }
@@ -236,7 +235,7 @@
         "ApplicationId": "[variables('applicationInsightsName')]",
         "Request_Source": "IbizaWebAppExtensionCreate"
       }
-    },
+    }
   ],
   "outputs": {
     "FunctionAppName": {
