@@ -94,11 +94,11 @@ await Host.CreateDefaultBuilder(args)
 
         services
             .AddHostedService<ConsoleHostedService>()
-            .AddTransient<IDateTimeService, DateTimeService>()
+            .AddSingleton<IDateTimeService, DateTimeService>()
             .AddTransient<IEmailService, EmailService>()
-            .AddTransient<ITicketService, TicketService>()
-            .AddTransient<IMonitorService, MonitorService>()
-            .AddTransient<IAsyncNotificationClient, NotificationClient>(
+            .AddScoped<ITicketService, TicketService>()
+            .AddScoped<IMonitorService, MonitorService>()
+            .AddScoped<IAsyncNotificationClient, NotificationClient>(
                 _ => new NotificationClient(emailOptions.GovNotifyApiKey));
     })
     .RunConsoleAsync();

@@ -12,7 +12,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void Deserializes_Zendesk_Ticket_Should_Return_Ticket()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticket = json.DeserializeZendeskTicket();
 
@@ -22,7 +22,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Ticket_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticket = json.DeserializeZendeskTicket();
 
@@ -80,7 +80,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Ticket_Tags_Should_Have_Expected_Values()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticket = json.DeserializeZendeskTicket();
 
@@ -96,7 +96,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Ticket_Fields_Should_Have_Expected_Values()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticket = json.DeserializeZendeskTicket();
 
@@ -112,7 +112,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Ticket_CustomFields_Should_Have_Expected_Values()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticket = json.DeserializeZendeskTicket();
 
@@ -128,7 +128,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Ticket_Via_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticket = json.DeserializeZendeskTicket();
 

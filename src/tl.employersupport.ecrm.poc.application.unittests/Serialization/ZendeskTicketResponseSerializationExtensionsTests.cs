@@ -10,7 +10,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void Deserializes_Zendesk_TicketResponse_Should_Return_TicketResponse()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticketResponse = json.DeserializeZendeskTicketResponse();
 
@@ -20,7 +20,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_TicketResponse_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticketResponse = json.DeserializeZendeskTicketResponse();
 
@@ -37,7 +37,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_TicketResponse_Organizations_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticketResponse = json.DeserializeZendeskTicketResponse();
 
@@ -63,7 +63,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_TicketResponse_User_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticketResponse = json.DeserializeZendeskTicketResponse();
 
@@ -88,7 +88,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_TicketResponse_Groups_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketWithSideloadsResponse();
+            var json = JsonBuilder.BuildTicketWithSideloadsResponse();
 
             var ticketResponse = json.DeserializeZendeskTicketResponse();
 

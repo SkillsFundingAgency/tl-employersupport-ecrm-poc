@@ -13,7 +13,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void Deserializes_Zendesk_Audits_Should_Return_Audits()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -23,7 +23,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -41,7 +41,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_Events_Should_Have_Expected_Count()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -54,7 +54,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_First_Event_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -74,7 +74,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_First_Event_Attachments_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -104,7 +104,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_Event_With_String_Type_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -127,7 +127,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_Event_With_Complex_Type_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 
@@ -158,7 +158,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Audits_Via_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildValidTicketAuditsResponse();
+            var json = JsonBuilder.BuildTicketAuditsResponse();
 
             var result = json.DeserializeZendeskAudits();
 

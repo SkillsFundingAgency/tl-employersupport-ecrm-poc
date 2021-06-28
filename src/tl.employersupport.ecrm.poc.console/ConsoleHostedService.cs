@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
-using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.console
@@ -21,7 +19,7 @@ namespace tl.employersupport.ecrm.poc.console
         private readonly IEmailService _emailService;
         private readonly ITicketService _ticketService;
 
-        private IDictionary<long, TicketField> _ticketFields;
+        private TicketFieldCollection _ticketFields;
 
         private int? _exitCode;
 
@@ -160,7 +158,7 @@ namespace tl.employersupport.ecrm.poc.console
                 .CallTestTimeout(clientTimeout, minTimeout, maxTimeout);
         }
 
-        private async Task<IDictionary<long, TicketField>> GetTicketFieldsFromZendesk()
+        private async Task<TicketFieldCollection> GetTicketFieldsFromZendesk()
         {
             var ticketFields = await _ticketService.GetTicketFields();
 
@@ -203,7 +201,7 @@ namespace tl.employersupport.ecrm.poc.console
             return ticket;
         }
 
-        private void LogTicketDetails(CombinedTicket ticket, IDictionary<long, TicketField> ticketFields)
+        private void LogTicketDetails(CombinedTicket ticket, TicketFieldCollection ticketFields)
         {
             if (ticket is null)
                 return;

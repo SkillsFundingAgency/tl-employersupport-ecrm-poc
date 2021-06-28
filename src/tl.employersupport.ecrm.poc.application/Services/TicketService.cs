@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -42,150 +41,13 @@ namespace tl.employersupport.ecrm.poc.application.Services
         {
             _logger.LogInformation($"Getting ticket {ticketId}");
 
-            var jsonDoc = await _zendeskApiClient.GetTicketJsonDocument(ticketId, Sideloads.GetTicketSideloads());
+            var jsonDocument = await _zendeskApiClient.GetTicketJsonDocument(ticketId, Sideloads.GetTicketSideloads());
 
-            if (jsonDoc != null)
+            if (jsonDocument != null)
             {
-                var ticketElement = jsonDoc.RootElement.GetProperty("ticket");
-
-                var createdAtString = ticketElement.SafeGetString("created_at");
-                if (!DateTimeOffset.TryParse(createdAtString, out var createdAt))
-                {
-                    _logger.LogWarning($"Could not read created_at date for ticket {ticketId}.");
-                }
-
-                var updatedAtString = ticketElement.SafeGetString("updated_at");
-                if (!DateTimeOffset.TryParse(updatedAtString, out var updatedAt))
-                {
-                    _logger.LogWarning($"Could not read updated-at date for ticket {ticketId}.");
-                }
-
-                var tags = ticketElement
-                    .GetProperty("tags")
-                    .EnumerateArray()
-                    .Select(t => t.SafeGetString())
-                    .ToList();
-
-                var users = jsonDoc.RootElement.TryGetProperty("users", out var userElement)
-                    ? userElement
-                        .EnumerateArray()
-                        .Select(u => new UserDetail
-                        {
-                            Id = u.GetProperty("id").GetInt64(),
-                            Name = u.GetProperty("name").GetString(),
-                            Email = u.GetProperty("email").GetString()
-                        })
-                        .ToList()
-                    : new List<UserDetail>();
-
-                var requesterId = ticketElement.SafeGetInt64("requester_id");
-                var user = users.FirstOrDefault(o => o.Id == requesterId)
-                           ?? new UserDetail();
-
-                var organisations = jsonDoc.RootElement.TryGetProperty("organizations", out var organisationElement)
-                    ? organisationElement
-                        .EnumerateArray()
-                        .Select(o => new OrganisationDetail
-                        {
-                            Id = o.GetProperty("id").GetInt64(),
-                            Name = o.GetProperty("name").GetString()
-                        })
-                        .ToList()
-                    : new List<OrganisationDetail>();
-
-                var organisationId = ticketElement.SafeGetInt64("organization_id");
-                var organisation = organisations.FirstOrDefault(o => o.Id == organisationId)
-                                   ?? new OrganisationDetail();
-
-                var ticket = new EmployerContactTicket
-                {
-                    Id = ticketElement.GetProperty("id").GetInt64(),
-                    Description = ticketElement.SafeGetString("description"),
-                    CreatedAt = createdAt,
-                    UpdatedAt = updatedAt,
-                    Tags = tags,
-                    Organisation = organisation,
-                    RequestedBy = user
-                };
-
-                //Build fields
                 var fieldDefinitions = await GetTicketFields();
-                //TODO: Just pull out the ones we care about, to reduce lookups
-                var tLevelFields = fieldDefinitions
-                    .Where(d =>
-                        d.Value.Title.StartsWith("T Level"))
-                    .ToDictionary(d => d.Key,
-                        t => t.Value);
 
-                foreach (var f in tLevelFields)
-                {
-                    Debug.WriteLine($"{f.Value.Title} - {f.Value.Type}");
-                }
-
-                Debug.WriteLine("Looking at standard fields");
-                if (ticketElement.TryGetProperty("custom_fields", out var customFieldsElement))
-                {
-                    foreach (var fieldElement in customFieldsElement.EnumerateArray())
-                    {
-                        var fieldId = fieldElement.GetProperty("id").GetInt64();
-                        if (tLevelFields.TryGetValue(fieldId, out var definition))
-                        {
-                            if (definition.Title.StartsWith("T Level"))
-                            {
-                                Debug.WriteLine($"{definition.Title} {definition.Type}");
-                                var fieldValue = fieldElement.SafeGetString("value");
-                                Debug.WriteLine($"    '{fieldValue}' ({fieldValue is null})");
-
-                                switch (definition.Title)
-                                {
-                                    case "T Levels Employers - Contact Method":
-                                        ticket.ContactMethod = fieldValue;
-                                        break;
-                                    case "T Level Name":
-                                        ticket.ContactName = fieldValue;
-                                        break;
-                                    case "T Levels Employers - Phone Number":
-                                        ticket.Phone = fieldValue;
-                                        break;
-                                    case "T Levels Employers - Total Employees":
-                                        ticket.EmployerSize = fieldValue;
-                                        break;
-                                    case "T Levels Employers - Company Name":
-                                        ticket.EmployerName = fieldValue;
-                                        break;
-                                    case "T Levels Employers - Contact reason":
-                                        ticket.ContactReason = fieldValue;
-                                        break;
-                                    case "T Levels Query Subject":
-                                        ticket.QuerySubject = fieldValue;
-                                        break;
-                                    default:
-                                        Debug.WriteLine($"Found missing field {definition.Title}");
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Debug.WriteLine("Looking at standard fields");
-                if (ticketElement.TryGetProperty("fields", out var fieldsElement))
-                {
-                    foreach (var fieldElement in fieldsElement.EnumerateArray())
-                    {
-                        var fieldId = fieldElement.GetProperty("id").GetInt64();
-                        if (tLevelFields.TryGetValue(fieldId, out var definition))
-                        {
-                            if (definition.Title.StartsWith("T Level"))
-                            {
-                                Debug.WriteLine($"{definition.Title} {definition.Type}");
-                                var fieldValue = fieldElement.SafeGetString("value");
-                                Debug.WriteLine($"    '{fieldValue}' ({fieldValue is null})");
-                            }
-                        }
-                    }
-                }
-
+                var ticket = jsonDocument.ToEmployerContactTicket(fieldDefinitions);
                 return ticket;
             }
 
@@ -223,70 +85,27 @@ namespace tl.employersupport.ecrm.poc.application.Services
             };
         }
 
-        public async Task<IDictionary<long, TicketField>> GetTicketFields()
+        public async Task<TicketFieldCollection> GetTicketFields()
         {
-            var jsonDoc = await _zendeskApiClient.GetTicketFieldsJsonDocument();
+            var jsonDocument = await _zendeskApiClient.GetTicketFieldsJsonDocument();
 
-            if (jsonDoc != null)
+            if (jsonDocument != null)
             {
-                var count = jsonDoc.RootElement.GetProperty("count");
-                var nextPage = jsonDoc.RootElement.GetProperty("next_page");
+                var count = jsonDocument.RootElement.GetProperty("count");
+                var nextPage = jsonDocument.RootElement.GetProperty("next_page");
                 _logger.LogInformation($"GetTicketFields found {count} items. Next page is '{nextPage}'");
-
-                var dictionary = jsonDoc.RootElement
-                    .GetProperty("ticket_fields")
-                    .EnumerateArray()
-                    .Select(x =>
-                        new TicketField
-                        {
-                            Id = x.SafeGetInt64("id"),
-                            Title = x.SafeGetString("title"),
-                            Type = x.SafeGetString("type"),
-                            Active = x.SafeGetBoolean("active") || x.SafeGetBoolean("collapsed_for_agents")
-                        })
-                    .ToDictionary(t => t.Id,
-                        t => t);
-
-                return dictionary;
+                
+                return jsonDocument.DeserializeTicketFields();
             }
 
-            return new Dictionary<long, TicketField>();
+            return new TicketFieldCollection();
         }
 
         public async Task<SafeTags> GetTicketTags(long ticketId)
         {
-            var jsonDoc = await _zendeskApiClient.GetTicketJsonDocument(ticketId);
+            var jsonDocument = await _zendeskApiClient.GetTicketJsonDocument(ticketId);
 
-            if (jsonDoc != null)
-            {
-                var ticketElement =
-                    jsonDoc.RootElement
-                        .GetProperty("ticket");
-
-                //var createdAtString = ticketElement.SafeGetString("created_at");
-                var updatedAtString = ticketElement.SafeGetString("updated_at");
-                if (!DateTimeOffset.TryParse(updatedAtString, out var updatedAt))
-                {
-                    _logger.LogWarning($"Could not read updated-at date for ticket {ticketId}.");
-                }
-
-                var tags = ticketElement
-                    .GetProperty("tags")
-                    .EnumerateArray()
-                    .Select(t => t.SafeGetString())
-                    .ToList();
-
-                var safeTags = new SafeTags
-                {
-                    Tags = tags,
-                    SafeUpdate = true,
-                    UpdatedStamp = updatedAt
-                };
-
-                return safeTags;
-            }
-
-            return null;
+            return jsonDocument?.ExtractTicketSafeTags();
         }
 
         public async Task<IList<TicketSearchResult>> SearchTickets()
@@ -324,28 +143,16 @@ namespace tl.employersupport.ecrm.poc.application.Services
             //https://developer.zendesk.com/api-reference/ticketing/ticket-management/search/
             //query=created>2012-07-17 type:ticket organization:"MD Photo"
 
-            var jsonDoc = await _zendeskApiClient.GetTicketSearchResultsJsonDocument(query);
+            var jsonDocument = await _zendeskApiClient.GetTicketSearchResultsJsonDocument(query);
 
-            if (jsonDoc != null)
+            if (jsonDocument != null)
             {
                 //var temp =jsonDoc.PrettifyJsonDocument();
                 //TODO: Worry about paging? Or only get recent ones?
-                //Other fields:
-                //ticket_form_id=360001820480
-                var count = jsonDoc.RootElement.GetProperty("count");
-                var nextPage = jsonDoc.RootElement.GetProperty("next_page");
+                var count = jsonDocument.RootElement.GetProperty("count");
+                var nextPage = jsonDocument.RootElement.GetProperty("next_page");
                 _logger.LogInformation($"Search found {count} items. Next page is '{nextPage}'");
-                var searchResults = jsonDoc.RootElement
-                    .GetProperty("results")
-                    .EnumerateArray()
-                    .Select(x => new TicketSearchResult
-                    {
-                        Id = x.SafeGetInt64("id"),
-                        Subject = x.SafeGetString("subject"),
-                    })
-                    .OrderBy(x => x.Id)
-                    .ToList();
-
+                var searchResults = jsonDocument.ToTicketSearchResultList();
                 return searchResults;
             }
 
@@ -396,9 +203,9 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 SafeUpdate = true
             };
             
-            var jsonDoc = await _zendeskApiClient.PutTags(ticketId, tags);
+            var jsonDocument = await _zendeskApiClient.PutTags(ticketId, tags);
 
-            _logger.LogInformation($"Response from PUT tag: \n{jsonDoc.PrettifyJsonDocument()}");
+            _logger.LogInformation($"Response from PUT tag: \n{jsonDocument.PrettifyJsonDocument()}");
         }
 
         public async Task ModifyTags(long ticketId, SafeTags tags)
@@ -411,8 +218,8 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 return;
             }
             
-            var jsonDoc = await _zendeskApiClient.PostTags(ticketId, tags);
-            _logger.LogInformation($"Response from POST tags: \n{jsonDoc.PrettifyJsonDocument()}");
+            var jsonDocument = await _zendeskApiClient.PostTags(ticketId, tags);
+            _logger.LogInformation($"Response from POST tags: \n{jsonDocument.PrettifyJsonDocument()}");
         }
     }
 }

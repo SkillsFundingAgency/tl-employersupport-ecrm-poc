@@ -48,7 +48,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
         {
             services
                 .AddTransient<IEmailService, EmailService>()
-                .AddTransient<IAsyncNotificationClient, NotificationClient>(serviceProvider =>
+                .AddScoped<IAsyncNotificationClient, NotificationClient>(serviceProvider =>
                 {
                     var emailOptions = serviceProvider
                         .GetRequiredService<IOptions<EmailConfiguration>>()
@@ -62,7 +62,7 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
         public static IServiceCollection AddZendeskHttpClient(this IServiceCollection services)
         {
             services
-                .AddTransient<ZendeskApiTokenMessageHandler>()
+                .AddScoped<ZendeskApiTokenMessageHandler>()
                 .AddHttpClient<IZendeskApiClient, ZendeskApiClient>(
                     (serviceProvider, client) =>
                     {

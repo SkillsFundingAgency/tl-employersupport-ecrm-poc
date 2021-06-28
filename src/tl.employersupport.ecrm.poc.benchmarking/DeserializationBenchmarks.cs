@@ -45,7 +45,7 @@ namespace tl.employersupport.ecrm.poc.benchmarking
         }
 
 #if !DEBUG
-        [Benchmark]
+        //[Benchmark]
 #endif
         public void DeserializeTicketFromJson()
         {
@@ -53,7 +53,7 @@ namespace tl.employersupport.ecrm.poc.benchmarking
         }
 
 #if !DEBUG
-        [Benchmark]
+        //[Benchmark]
 #endif
         public void DeserializeTicketWithSideloadsFromJson()
         {
@@ -61,7 +61,7 @@ namespace tl.employersupport.ecrm.poc.benchmarking
         }
 
 #if !DEBUG
-        [Benchmark]
+        //[Benchmark]
 #endif
         public async Task BuildTicketFromJsonStream()
         {
@@ -71,7 +71,7 @@ namespace tl.employersupport.ecrm.poc.benchmarking
         }
         
 #if !DEBUG
-        [Benchmark]
+        //[Benchmark]
 #endif
         public async Task BuildTicketFromTicketWithSideloadsJsonStream()
         {
@@ -144,6 +144,18 @@ namespace tl.employersupport.ecrm.poc.benchmarking
                     t => t);
 
             return dictionary;
+        }
+
+#if !DEBUG
+        [Benchmark]
+#endif
+        public async Task<TicketFieldCollection> BuildTicketFieldCollectionFromJsonStream()
+        {
+            _ticketFieldsJsonStream.Position = 0;
+            var jsonDocument = await JsonDocument.ParseAsync(_ticketFieldsJsonStream);
+
+            var ticketFields = jsonDocument.DeserializeTicketFields();
+            return ticketFields;
         }
 
 #if !DEBUG
