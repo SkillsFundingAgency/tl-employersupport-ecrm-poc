@@ -82,9 +82,8 @@
     "hostingPlanName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
-    "serviceBusNamespace": "[concat(variables('resourceNamePrefix'), '-sb')]",
+    "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb')]",
     "defaultSASKeyName": "RootManageSharedAccessKey",
-    "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespace'), variables('defaultSASKeyName'))]",
     "sbVersion": "2017-04-01"
   },
   "resources": [
@@ -100,16 +99,13 @@
     },
     {
       "type": "Microsoft.ServiceBus/namespaces",
-      "apiVersion": "[variables('sbVersion')]",
-      "name": "[variables('serviceBusNamespace')]",
+      "apiVersion": "2017-04-01",
+      "name": "[variables('serviceBusNamespaceName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Standard",
         "tier": "Standard"
-      },
-      "properties": {},
-      "resources": [
-      ]
+      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -194,10 +190,6 @@
             {
               "name": "ZendeskConfiguration:User",
               "value": "[parameters('zendeskUser')]"
-            },
-            {
-              "name": "ServiceBusConnectionString",
-              "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
             }
           ]
         }
@@ -224,7 +216,7 @@
     },
     "ServiceBusConnectionString": {
       "type": "string",
-      "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
+      "value": "Test"
     }
   }
 }
