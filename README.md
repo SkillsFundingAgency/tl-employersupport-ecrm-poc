@@ -32,6 +32,29 @@ Added NuGet packages and extensions for `ShouldNotAcceptNullConstructorArguments
 
 TODO: describe the functions here
 
+### Functions local settings
+
+Add a file `local.settings.json` to the functions project. This file is gitignored so secrets will not be saved to git.
+
+```
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "ServiceBusConnectionString": "<service bus connection string",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "EmailConfiguration:SupportEmailAddress": "<your-email>",
+    "EmailConfiguration:GovNotifyApiKey": "<key>",
+    "EmailConfiguration:ZendeskTicketCreatedEmailTemplateId": "<template-id>",
+    "ZendeskConfiguration:AuthenticationMethod": "BasicWithApiToken",
+    "ZendeskConfiguration:ApiBaseUri": "<api-url>",
+    "ZendeskConfiguration:User": "<user-email>",
+    "ZendeskConfiguration:ApiToken": "<api-token>",
+    "ZendeskConfiguration:CompressApiResponse": true
+  }
+}
+```
+
 ### Running functions from the command line
 
 Navigate to the function project folder, e.g. 

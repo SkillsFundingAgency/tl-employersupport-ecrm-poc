@@ -237,6 +237,31 @@ namespace tl.employersupport.ecrm.poc.application.functions
             }
         }
 
+        [Function("QueueTicketRequest")] 
+        [ServiceBusOutput("ticket-queue", Connection = "ServiceBusConnectionString", EntityType = EntityType.Queue)]
+        public async Task<string> QueueTicketRequest(
+            [HttpTrigger(AuthorizationLevel.Function, "post")]
+            HttpRequestData request,
+            FunctionContext executionContext)
+        {
+            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+
+            try
+            {
+                logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called via {request.Method}.");
+
+                var body = await request.ReadAsStringAsync();
+                return body;
+               
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(SendTicketCreatedNotification)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+                throw;
+            }
+        }
+
         private async Task<long> ReadTicketIdFromRequestData(HttpRequestData request, ILogger logger)
         {
             var ticketId = 0L;

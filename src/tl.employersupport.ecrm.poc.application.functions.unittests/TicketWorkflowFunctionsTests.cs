@@ -329,6 +329,35 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
                 .GetTicketTags(ticketId);
         }
 
+        [Fact]
+        public async Task TicketWorkflowFunctions_QueueTicketRequest_Returns_Expected_Result()
+        {
+            const long ticketId = 4485;
+
+            var notification = new NotifyTicket
+            {
+                Id = ticketId
+            };
+
+            var requestJson = JsonSerializer.Serialize(notification,
+                JsonExtensions.DefaultJsonSerializerOptions);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Post,
+                    "https://test.com/QueueTicketRequest",
+                    requestJson);
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build();
+
+            var result = await functions.QueueTicketRequest(request, functionContext);
+
+            result.Should().Be(requestJson);
+        }
+
         private static void CheckEmployerContactTicket(EmployerContactTicket ticket, long ticketId)
         {
             ticket.Should().NotBeNull();
