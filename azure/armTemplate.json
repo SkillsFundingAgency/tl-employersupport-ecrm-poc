@@ -81,7 +81,9 @@
     "functionAppName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "hostingPlanName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "functionWorkerRuntime": "[parameters('runtime')]",
-    "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]"
+    "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
+    "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb')]",
+    "serviceBusQueueName": "[concat(variables('resourceNamePrefix'), '-sbq')]"
   },
   "resources": [
     {
@@ -194,6 +196,39 @@
         "ApplicationId": "[variables('applicationInsightsName')]",
         "Request_Source": "IbizaWebAppExtensionCreate"
       }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[parameters('serviceBusNamespaceName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {},
+      "resources": [
+        {
+          "type": "Queues",
+          "apiVersion": "2017-04-01",
+          "name": "[parameters('serviceBusQueueName')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusNamespaceName'))]"
+          ],
+          "properties": {
+            "lockDuration": "PT5M",
+            "maxSizeInMegabytes": 1024,
+            "requiresDuplicateDetection": false,
+            "requiresSession": false,
+            "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+            "deadLetteringOnMessageExpiration": false,
+            "duplicateDetectionHistoryTimeWindow": "PT10M",
+            "maxDeliveryCount": 10,
+            "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+            "enablePartitioning": false,
+            "enableExpress": false
+          }
+        }
+      ]
     }
   ],
   "outputs": {

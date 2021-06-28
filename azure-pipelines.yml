@@ -109,7 +109,14 @@ stages:
           - bash: | 
               FunctionAppNameValue="$(DeploymentOutputs.functionAppName.value)"
               echo "##vso[task.setvariable variable=functionAppName]$FunctionAppNameValue"
+              ServiceBusQueueNameValue="$(DeploymentOutputs.serviceBusQueueName.value)"
+              echo "##vso[task.setvariable variable=serviceBusQueueName]ServiceBusQueueNameValue"
             displayName: 'Copy ARM output variables'
+
+          - script: echo "functionAppName=" $(functionAppName)
+            displayName: 'Show function app name variable'
+          - script: echo "serviceBusQueueName=" $(serviceBusQueueName)
+            displayName: 'Show service bus queue name variable'
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy Function App'
