@@ -83,7 +83,6 @@
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb')]",
-    "defaultSASKeyName": "RootManageSharedAccessKey",
     "sbVersion": "2017-04-01"
   },
   "resources": [
@@ -96,16 +95,6 @@
         "name": "[parameters('storageAccountType')]"
       },
       "kind": "Storage"
-    },
-    {
-      "type": "Microsoft.ServiceBus/namespaces",
-      "apiVersion": "2017-04-01",
-      "name": "[variables('serviceBusNamespaceName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard",
-        "tier": "Standard"
-      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -216,7 +205,7 @@
     },
     "ServiceBusConnectionString": {
       "type": "string",
-      "value": "Test"
+      "value": "[variables('serviceBusNamespaceName')]"
     }
   }
 }
