@@ -82,8 +82,10 @@
     "hostingPlanName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
-    "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb')]",
-    "serviceBusQueueName": "[concat(variables('resourceNamePrefix'), '-sbq')]"
+    "serviceBusNamespace": "[concat(variables('resourceNamePrefix'), '-sb')]",
+    "serviceBusQueueName": "[concat(variables('resourceNamePrefix'), '-sbq')]",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespace'), variables('defaultSASKeyName'))]"
   },
   "resources": [
     {
@@ -95,6 +97,39 @@
         "name": "[parameters('storageAccountType')]"
       },
       "kind": "Storage"
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[variables('serviceBusNamespace')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {},
+      "resources": [
+        {
+          "type": "Queues",
+          "apiVersion": "2017-04-01",
+          "name": "[parameters('serviceBusQueueName')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.ServiceBus/namespaces', variables('serviceBusNamespace'))]"
+          ],
+          "properties": {
+            "lockDuration": "PT5M",
+            "maxSizeInMegabytes": 1024,
+            "requiresDuplicateDetection": false,
+            "requiresSession": false,
+            "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+            "deadLetteringOnMessageExpiration": false,
+            "duplicateDetectionHistoryTimeWindow": "PT10M",
+            "maxDeliveryCount": 10,
+            "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+            "enablePartitioning": false,
+            "enableExpress": false
+          }
+        }
+      ]
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -179,6 +214,11 @@
             {
               "name": "ZendeskConfiguration:User",
               "value": "[parameters('zendeskUser')]"
+            },
+            {
+              "name": "ServiceBusConnectionString",
+              "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
+
             }
           ]
         }
@@ -197,44 +237,19 @@
         "Request_Source": "IbizaWebAppExtensionCreate"
       }
     },
-    {
-      "type": "Microsoft.ServiceBus/namespaces",
-      "apiVersion": "2018-01-01-preview",
-      "name": "[parameters('serviceBusNamespaceName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {},
-      "resources": [
-        {
-          "type": "Queues",
-          "apiVersion": "2017-04-01",
-          "name": "[parameters('serviceBusQueueName')]",
-          "dependsOn": [
-            "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusNamespaceName'))]"
-          ],
-          "properties": {
-            "lockDuration": "PT5M",
-            "maxSizeInMegabytes": 1024,
-            "requiresDuplicateDetection": false,
-            "requiresSession": false,
-            "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
-            "deadLetteringOnMessageExpiration": false,
-            "duplicateDetectionHistoryTimeWindow": "PT10M",
-            "maxDeliveryCount": 10,
-            "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
-            "enablePartitioning": false,
-            "enableExpress": false
-          }
-        }
-      ]
-    }
   ],
   "outputs": {
     "FunctionAppName": {
       "type": "string",
       "value": "[variables('functionAppName')]"
+    },
+    "ServiceBusQueueName": {
+      "type": "string",
+      "value": "[variables('serviceBusQueueName')]"
+    },
+    "ServiceBusConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
     }
   }
 }
