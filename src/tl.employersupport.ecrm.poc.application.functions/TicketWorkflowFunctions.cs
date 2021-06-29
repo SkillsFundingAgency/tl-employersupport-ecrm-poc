@@ -237,7 +237,7 @@ namespace tl.employersupport.ecrm.poc.application.functions
             }
         }
 
-        [Function("QueueTicketRequest")] 
+        [Function("QueueTicketRequest")]
         [ServiceBusOutput("ticket-queue", Connection = "ServiceBusConnectionString", EntityType = EntityType.Queue)]
         public async Task<string> QueueTicketRequest(
             [HttpTrigger(AuthorizationLevel.Function, "post")]
@@ -252,7 +252,6 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
                 var body = await request.ReadAsStringAsync();
                 return body;
-               
             }
             catch (Exception e)
             {
@@ -277,9 +276,6 @@ namespace tl.employersupport.ecrm.poc.application.functions
                             JsonExtensions.DefaultJsonSerializerOptions);
 
                     ticketId = notification?.Id ?? 0;
-                    logger.LogDebug($"After deserialization ticket id is {ticketId}");
-                    logger.LogDebug($"After deserialization notification is null = {(notification is null)}");
-                    logger.LogDebug($"After deserialization notification is'{notification}'");
                 }
                 catch (Exception ex)
                 {
