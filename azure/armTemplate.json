@@ -40,22 +40,6 @@
         "description": "Storage Account type"
       }
     },
-    "serviceBusSkuName": {
-      "type": "String",
-      "defaultValue": "Standard"
-    },
-    "serviceBusSkuTier": {
-      "type": "String",
-      "defaultValue": "Standard"
-    },
-    "serviceBusSkuCapacity": {
-      "type": "Int",
-      "defaultValue": 1
-    },
-    "serviceBusZoneRedundant": {
-      "type": "Bool",
-      "defaultValue": false
-    },
     "runtime": {
       "type": "string",
       "defaultValue": "dotnet-isolated",
@@ -103,6 +87,16 @@
   },
   "resources": [
     {
+      "apiVersion": "2018-01-01-preview",
+      "name": "testsb",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {}
+    },
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccountName')]",
@@ -111,20 +105,6 @@
         "name": "[parameters('storageAccountType')]"
       },
       "kind": "Storage"
-    },
-    {
-      "type": "Microsoft.ServiceBus/namespaces",
-      "apiVersion": "2018-01-01-preview",
-      "name": "[variables('serviceBusNamespaceName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "[parameters('serviceBusSkuTier')]",
-        "tier": "[parameters('serviceBusSkuTier')]",
-        "capacity": "[parameters('serviceBusSkuCapacity')]"
-      },
-      "properties": {
-        "zoneRedundant": "[parameters('serviceBusZoneRedundant')]"
-      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
