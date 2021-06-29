@@ -82,14 +82,15 @@
     "hostingPlanName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
-    "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb')]",
-    "sbVersion": "2017-04-01"
+    "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb-ns')]",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespaceName'), variables('defaultSASKeyName'))]"
   },
   "resources": [
     {
       "type": "Microsoft.ServiceBus/namespaces",
       "apiVersion": "2018-01-01-preview",
-      "name": "tlzdecrmpocrgsb",
+      "name": "[variables('serviceBusNamespaceName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Standard",
