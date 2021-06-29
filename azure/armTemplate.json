@@ -87,12 +87,13 @@
   },
   "resources": [
     {
-      "apiVersion": "2018-01-01-preview",
-      "name": "tlzdecrmpoc-rg-sb",
       "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2018-01-01-preview",
+      "name": "tlzdecrmpocrgsb",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "Standard"
+        "name": "Standard",
+        "tier": "Standard"
       },
       "properties": {}
     },
