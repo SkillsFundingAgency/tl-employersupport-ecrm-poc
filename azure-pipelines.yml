@@ -109,12 +109,16 @@ stages:
           - bash: | 
               FunctionAppNameValue="$(DeploymentOutputs.functionAppName.value)"
               echo "##vso[task.setvariable variable=functionAppName]$FunctionAppNameValue"
-              ServiceBusConnectionStringValue="$(DeploymentOutputs.ServiceBusConnectionString.value)"
+              ServiceBusNamespaceNameValue="$(DeploymentOutputs.ServiceBusNamespaceName.value)"
+              echo "##vso[task.setvariable variable=serviceBusNamespaceName]$ServiceBusNamespaceNameValue"
+              ServiceBusConnectionStringValue="$(DeploymentOutputs.serviceBusConnectionString.value)"
               echo "##vso[task.setvariable variable=serviceBusConnectionString]$ServiceBusConnectionStringValue"
             displayName: 'Copy ARM output variables'
 
           - script: echo "functionAppName=" $(functionAppName)
             displayName: 'Show function app name variable'
+          - script: echo "serviceBusNamespaceName=" $(serviceBusNamespaceName)
+            displayName: 'Show service bus name variable'
           - script: echo "serviceBusConnectionString=" $(serviceBusConnectionString)
             displayName: 'Show service bus connection string variable'
 
