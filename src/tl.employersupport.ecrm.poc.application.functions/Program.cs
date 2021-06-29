@@ -11,11 +11,15 @@ var host = new HostBuilder()
             //Required order - add configuration first, then http clients, then other services
             services
                 .AddEmailConfiguration()
+                .AddEcrmConfiguration()
                 .AddZendeskConfiguration()
+                .AddEcrmHttpClient()
                 .AddZendeskHttpClient()
                 .AddTransient<IDateTimeService, DateTimeService>()
                 .AddEmailServices()
-                .AddTransient<ITicketService, TicketService>();
+                .AddTransient<ITicketService, TicketService>()
+                .AddTransient<IEcrmService, EcrmService>()
+                ;
         })
     .Build();
 

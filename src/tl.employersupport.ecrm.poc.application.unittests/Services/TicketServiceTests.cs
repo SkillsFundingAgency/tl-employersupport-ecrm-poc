@@ -20,9 +20,6 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
 {
     public class TicketServiceTests
     {
-        private const string ZendeskApiBaseUrl = "https://zendesk.test.api/v2/";
-        private readonly Uri _zendeskApiBaseUri = new(ZendeskApiBaseUrl);
-
         // ReSharper disable once NotAccessedField.Local
         private readonly ITestOutputHelper _output;
 

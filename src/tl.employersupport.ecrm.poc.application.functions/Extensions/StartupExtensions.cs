@@ -33,6 +33,17 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
             return services;
         }
 
+        public static IServiceCollection AddEcrmConfiguration(this IServiceCollection services)
+        {
+            services
+                .AddOptions<EcrmConfiguration>()
+                .Configure<IConfiguration>((settings, configuration) =>
+                {
+                    configuration.GetSection(nameof(EcrmConfiguration)).Bind(settings);
+                });
+            return services;
+        }
+
         public static IServiceCollection AddZendeskConfiguration(this IServiceCollection services)
         {
             services
@@ -59,6 +70,50 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
             return services;
         }
 
+        public static IServiceCollection AddEcrmHttpClient(this IServiceCollection services)
+        {
+            services
+                .AddHttpClient<IEcrmApiClient, EcrmApiClient>(
+                    (serviceProvider, client) =>
+                    {
+                        var ecrmOptions = serviceProvider
+                            .GetRequiredService<IOptions<EcrmConfiguration>>()
+                            .Value;
+
+                        client.BaseAddress =
+                            ecrmOptions.ApiBaseUri.EndsWith("/")
+                                ? new Uri(ecrmOptions.ApiBaseUri)
+                                : new Uri(ecrmOptions.ApiBaseUri + "/");
+
+                        client.DefaultRequestHeaders.Add("Accept", "application/json");
+                        client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ecrmOptions.ApiKey);
+
+                        client.DefaultRequestHeaders.Add("Accept", "application/json");
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                    }
+                )
+                .ConfigurePrimaryHttpMessageHandler(_ =>
+                {
+                    var handler = new HttpClientHandler();
+                    if (handler.SupportsAutomaticDecompression)
+                    {
+                        handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                    }
+                    return handler;
+                })
+                .AddTransientHttpErrorPolicy(policy =>
+                    policy.WaitAndRetryAsync(new[] {
+                        TimeSpan.FromMilliseconds(200),
+                        TimeSpan.FromSeconds(1),
+                        TimeSpan.FromSeconds(5),
+                        TimeSpan.FromSeconds(10),
+                    }))
+                ;
+
+            return services;
+        }
+
         public static IServiceCollection AddZendeskHttpClient(this IServiceCollection services)
         {
             services
@@ -75,20 +130,14 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
                                 : new Uri(zendeskOptions.ApiBaseUri + "/");
 
                         client.DefaultRequestHeaders.Add("Accept", "application/json");
-                        if (zendeskOptions.CompressApiResponse)
-                        {
-                            client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                            client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-                        }
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
                     }
                 )
-                .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+                .ConfigurePrimaryHttpMessageHandler(_ =>
                 {
-                    var zendeskOptions = serviceProvider
-                        .GetRequiredService<IOptions<ZendeskConfiguration>>()
-                        .Value; 
                     var handler = new HttpClientHandler();
-                    if (zendeskOptions.CompressApiResponse && handler.SupportsAutomaticDecompression)
+                    if (handler.SupportsAutomaticDecompression)
                     {
                         handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                     }

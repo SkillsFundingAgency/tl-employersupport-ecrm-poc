@@ -8,13 +8,19 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
         public TicketWorkflowFunctions Build(
             IDateTimeService dateTimeService = null,
             IEmailService emailService = null,
-            ITicketService ticketService = null)
+            ITicketService ticketService = null,
+            IEcrmService ecrmService = null)
         {
             emailService ??= Substitute.For<IEmailService>();
             dateTimeService ??= Substitute.For<IDateTimeService>();
             ticketService ??= Substitute.For<ITicketService>();
+            ecrmService ??= Substitute.For<IEcrmService>();
 
-            return new TicketWorkflowFunctions(dateTimeService, emailService, ticketService);
+            return new TicketWorkflowFunctions(
+                dateTimeService, 
+                emailService, 
+                ticketService, 
+                ecrmService);
         }
     }
 }

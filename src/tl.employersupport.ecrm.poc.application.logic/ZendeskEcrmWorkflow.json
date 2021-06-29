@@ -84,7 +84,7 @@
                 ]
               }
             },
-            "Send_ticket_created_emal": {
+            "Send_ticket_created_email": {
               "type": "Function",
               "inputs": {
                 "body": "@triggerBody()",
@@ -223,7 +223,7 @@
                 }
               },
               "runAfter": {
-                "Send_ticket_created_emal": [
+                "Send_ticket_created_email": [
                   "Succeeded"
                 ]
               }

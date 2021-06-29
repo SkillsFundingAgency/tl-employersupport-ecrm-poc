@@ -29,9 +29,9 @@ await Host.CreateDefaultBuilder(args)
         var emailConfiguration = hostContext.Configuration.GetSection(nameof(EmailConfiguration));
         emailConfiguration.Bind(emailOptions);
 
-        var crmOptions = new CrmConfiguration();
-        var crmConfiguration = hostContext.Configuration.GetSection(nameof(CrmConfiguration));
-        crmConfiguration.Bind(crmOptions);
+        var ecrmOptions = new EcrmConfiguration();
+        var crmConfiguration = hostContext.Configuration.GetSection(nameof(EcrmConfiguration));
+        crmConfiguration.Bind(ecrmOptions);
 
         var zendeskOptions = new ZendeskConfiguration();
         var zendeskConfiguration = hostContext.Configuration.GetSection(nameof(ZendeskConfiguration));
@@ -58,17 +58,14 @@ await Host.CreateDefaultBuilder(args)
                             : new Uri(zendeskOptions.ApiBaseUri + "/");
 
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
-                    if (zendeskOptions.CompressApiResponse)
-                    {
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-                    }
+                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
                 }
             )
             .ConfigurePrimaryHttpMessageHandler(_ =>
             {
                 var handler = new HttpClientHandler();
-                if (zendeskOptions.CompressApiResponse && handler.SupportsAutomaticDecompression)
+                if (handler.SupportsAutomaticDecompression)
                 {
                     handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                 }

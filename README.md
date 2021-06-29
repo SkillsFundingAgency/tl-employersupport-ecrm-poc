@@ -50,7 +50,8 @@ Add a file `local.settings.json` to the functions project. This file is gitignor
     "ZendeskConfiguration:ApiBaseUri": "<api-url>",
     "ZendeskConfiguration:User": "<user-email>",
     "ZendeskConfiguration:ApiToken": "<api-token>",
-    "ZendeskConfiguration:CompressApiResponse": true
+    "EcrmConfiguration:ApiBaseUri": "<api-url>",
+    "EcrmConfiguration:ApiKey": "<api-key>"
   }
 }
 ```
@@ -193,7 +194,7 @@ Data comes from the Zendesk ticket form `Form - T Levels - Employer Contact Form
 
 ## HTTP compression
 
-The setting `CompressApiResponse` turns on/off compression in API responses. For comparison a single ticket request used:
+Comparison of a single Zendesk with and without compression in an API response:
 
 | Compression type | Message size |
 | ---------------- | ------------ |

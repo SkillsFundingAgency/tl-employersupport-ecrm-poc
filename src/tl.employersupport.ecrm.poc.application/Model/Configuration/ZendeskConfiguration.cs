@@ -9,6 +9,5 @@ namespace tl.employersupport.ecrm.poc.application.Model.Configuration
         public string ApiToken { get; init; }
         public string User { get; init; }
         public string Password { get; init; }
-        public bool CompressApiResponse { get; init; }
     }
 }

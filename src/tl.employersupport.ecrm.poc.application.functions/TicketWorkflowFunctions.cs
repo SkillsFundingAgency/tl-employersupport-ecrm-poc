@@ -9,6 +9,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
 namespace tl.employersupport.ecrm.poc.application.functions
@@ -18,15 +19,18 @@ namespace tl.employersupport.ecrm.poc.application.functions
         private readonly IEmailService _emailService;
         private readonly IDateTimeService _dateTimeService;
         private readonly ITicketService _ticketService;
+        private readonly IEcrmService _ecrmService;
 
         public TicketWorkflowFunctions(
             IDateTimeService dateTimeService,
             IEmailService emailService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            IEcrmService ecrmService)
         {
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _dateTimeService = dateTimeService ?? throw new ArgumentNullException(nameof(dateTimeService));
             _ticketService = ticketService ?? throw new ArgumentNullException(nameof(ticketService));
+            _ecrmService = ecrmService ?? throw new ArgumentNullException(nameof(ecrmService));
         }
 
         [Function("HelloWorld")]
@@ -237,6 +241,47 @@ namespace tl.employersupport.ecrm.poc.application.functions
             }
         }
 
+        [Function("SearchEcrmEmployer")]
+        public async Task<HttpResponseData> SearchEcrmEmployer(
+            [HttpTrigger(AuthorizationLevel.Function, "post")]
+            HttpRequestData request,
+            FunctionContext executionContext)
+        {
+            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+
+            try
+            {
+                logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called via {request.Method}.");
+
+                var employerSearchRequest = await ReadEmployerSearchRequestFromRequestData(request, logger);
+
+                if (employerSearchRequest == null)
+                {
+                    return request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                var employer = await _ecrmService.FindEmployer(employerSearchRequest);
+
+                if (employer == null)
+                {
+                    return request.CreateResponse(HttpStatusCode.NotFound);
+                }
+
+                var response = request.CreateResponse(HttpStatusCode.OK);
+
+                await response.WriteAsJsonAsync(employer, "application/json");
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(SendTicketCreatedNotification)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+        }
+
         [Function("QueueTicketRequest")]
         [ServiceBusOutput("ticket-queue", Connection = "ServiceBusConnectionString", EntityType = EntityType.Queue)]
         public async Task<string> QueueTicketRequest(
@@ -250,8 +295,7 @@ namespace tl.employersupport.ecrm.poc.application.functions
             {
                 logger.LogInformation($"{nameof(SendTicketCreatedNotification)} HTTP function called via {request.Method}.");
 
-                var body = await request.ReadAsStringAsync();
-                return body;
+                return await request.ReadAsStringAsync();
             }
             catch (Exception e)
             {
@@ -294,5 +338,29 @@ namespace tl.employersupport.ecrm.poc.application.functions
 
             return ticketId;
         }
+
+        private async Task<EmployerSearchRequest> ReadEmployerSearchRequestFromRequestData(HttpRequestData request, ILogger logger)
+        {
+            var body = await request.ReadAsStringAsync();
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                logger.LogDebug($"Body was read successfully: {body}");
+                try
+                {
+                    var employerSearchRequest = JsonSerializer
+                        .Deserialize<EmployerSearchRequest>(body,
+                            JsonExtensions.DefaultJsonSerializerOptions);
+
+                    return employerSearchRequest;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Failed to deserialize request body {ex}", ex);
+                }
+            }
+
+            return null;
+        }
+
     }
 }

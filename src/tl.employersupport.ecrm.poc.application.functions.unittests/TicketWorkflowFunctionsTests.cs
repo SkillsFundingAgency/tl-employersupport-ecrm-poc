@@ -10,6 +10,7 @@ using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.functions.unittests.Builders;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
@@ -358,6 +359,57 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             result.Should().Be(requestJson);
         }
 
+        [Fact]
+        public async Task TicketWorkflowFunctions_SearchEcrmEmployer_Returns_Expected_Result()
+        {
+            var searchRequest =  new EmployerSearchRequestBuilder()
+                .Build();
+
+            var employer = new EmployerBuilder()
+                .Build();
+
+            var ecrmService = Substitute.For<IEcrmService>();
+            ecrmService
+                .FindEmployer(Arg.Is<EmployerSearchRequest>(
+                    s => s.CompanyName == searchRequest.CompanyName))
+                .Returns(employer);
+
+            var requestJson = JsonSerializer.Serialize(searchRequest,
+                JsonExtensions.DefaultJsonSerializerOptions);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Post,
+                    "https://test.com/FindEmployer",
+                    requestJson);
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ecrmService: ecrmService);
+
+            var result = await functions.SearchEcrmEmployer(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            result.Body.Should().NotBeNull();
+
+            result.Body.Seek(0, SeekOrigin.Begin);
+            using var reader = new StreamReader(result.Body);
+            var responseJson = await reader.ReadToEndAsync();
+
+            var deserializedEmployer = JsonSerializer
+                .Deserialize<Employer>(responseJson,
+                    JsonExtensions.DefaultJsonSerializerOptions);
+            
+            CheckEmployer(deserializedEmployer);
+
+            await ecrmService
+                .Received(1)
+                .FindEmployer(Arg.Is<EmployerSearchRequest>(
+                    s => s.CompanyName == searchRequest.CompanyName));
+        }
+
         private static void CheckEmployerContactTicket(EmployerContactTicket ticket, long ticketId)
         {
             ticket.Should().NotBeNull();
@@ -377,5 +429,11 @@ namespace tl.employersupport.ecrm.poc.application.functions.unittests
             ticket.Organisation.Name.Should().Be("Large Corporation Limited");
         }
 
+        private static void CheckEmployer(Employer employer)
+        {
+            employer.Should().NotBeNull();
+            employer.AccountId.Should().Be(Guid.Parse("461082b5-d2ea-475b-bf85-2417e650aa68"));
+            employer.CompanyName.Should().Be("Fake Company");
+        }
     }
 }
