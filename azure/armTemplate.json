@@ -85,7 +85,8 @@
     "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb-ns')]",
     "defaultSASKeyName": "RootManageSharedAccessKey",
     "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespaceName'), variables('defaultSASKeyName'))]",
-    "sbVersion": "2018-01-01-preview"
+    "sbVersion": "2018-01-01-preview",
+    "authRuleVersion": "2017-04-01"
   },
   "resources": [
     {
@@ -167,7 +168,7 @@
             },
             {
               "name": "ServiceBusConnectionString",
-              "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
+              "value": "[listkeys(variables('authRuleResourceId'), variables('authRuleVersion')).primaryConnectionString]"
             },
             {
               "name": "EmailConfiguration:GovNotifyApiKey",
@@ -226,7 +227,7 @@
     },
     "ServiceBusConnectionString": {
       "type": "string",
-      "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
+      "value": "[listkeys(variables('authRuleResourceId'), variables('authRuleVersion')).primaryConnectionString]"
     }
   }
 }
