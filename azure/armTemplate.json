@@ -73,6 +73,12 @@
     },
     "zendeskUser": {
       "type": "string"
+    },
+    "ecrmApiBaseUri": {
+      "type": "string"
+    },
+    "ecrmApiKey": {
+      "type": "string"
     }
   },
   "variables": {
@@ -221,6 +227,14 @@
             {
               "name": "ZendeskConfiguration:User",
               "value": "[parameters('zendeskUser')]"
+            },
+            {
+              "name": "EcrmConfiguration:ApiBaseUri",
+              "value": "[parameters('ecrmApiBaseUri')]"
+            },
+            {
+              "name": "EcrmConfiguration:ApiKey",
+              "value": "[parameters('ecrmApiKey')]"
             }
           ]
         }

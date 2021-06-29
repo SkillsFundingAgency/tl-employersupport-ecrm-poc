@@ -128,8 +128,8 @@ The pipeline requires the following variable groups to be set up in the Library:
         | ----                                | ------------ |
         | GovNotifyApiKey                     | ********     |
         | SupportEmailAddress                 | ********     |
-        | CrmApiBaseUri                       | https://dev.api.crm.org.uk/directory/apiname/ |
-        | CrmApiKey                           | ********     |
+        | EcrmApiBaseUri                      | https://dev.api.crm.org.uk/directory/apiname/ |
+        | EcrmApiKey                          | ********     |
         | ZendeskApiBaseUri                   | https://tlevelsemployertest.zendesk.com/api/v2 |
         | ZendeskApiToken                     | ********     |
         | ZendeskAuthenticationMethod         | BasicWithApiToken |

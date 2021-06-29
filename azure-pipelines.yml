@@ -104,6 +104,8 @@ stages:
                 -zendeskApiBaseUri "$(ZendeskApiBaseUri)"
                 -zendeskApiToken "$(ZendeskApiToken)"
                 -zendeskUser "$(ZendeskUser)"
+                -ecrmApiBaseUri "$(EcrmApiBaseUri)"
+                -ecrmApiKey "$(EcrmApiKey)"
               deploymentOutputs: DeploymentOutputs
           
           - bash: | 
