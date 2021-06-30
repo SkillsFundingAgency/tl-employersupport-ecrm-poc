@@ -76,7 +76,7 @@
   "variables": {},
   "resources": [
     {
-      "name": "[parameters('LogicAppName')]",
+      "name": "[parameters('logicAppName')]",
       "type": "Microsoft.Logic/workflows",
       "location": "[parameters('logicAppLocation')]",
       "tags": {
@@ -103,17 +103,22 @@
                 }
               },
               "runAfter": {
-                "Parse_JSON": [
+                "Parse_payload_to_JSON": [
                   "Succeeded"
                 ]
               }
             },
-            "Parse_JSON": {
+            "Parse_payload_to_JSON": {
               "type": "ParseJson",
               "inputs": {
-                "content": "@decodeBase64(triggerBody(triggerBody()?['ContentData']))",
+                "content": "@decodeBase64(triggerBody()?['ContentData'])",
                 "schema": {
-                  "id": 4604
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    }
+                  }
                 }
               },
               "runAfter": {}

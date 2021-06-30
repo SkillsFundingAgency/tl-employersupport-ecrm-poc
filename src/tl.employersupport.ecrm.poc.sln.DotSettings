@@ -14,5 +14,6 @@
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=tlevelsemployertest/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=unittests/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=unoffered/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=workflows/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Zendesk/@EntryIndexedValue">True</s:Boolean>
 	</wpf:ResourceDictionary>
