@@ -87,8 +87,6 @@ namespace tl.employersupport.ecrm.poc.application.functions.Extensions
 
                         client.DefaultRequestHeaders.Add("Accept", "application/json");
                         client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ecrmOptions.ApiKey);
-
-                        client.DefaultRequestHeaders.Add("Accept", "application/json");
                         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
                         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
                     }
