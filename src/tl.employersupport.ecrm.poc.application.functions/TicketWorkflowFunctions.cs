@@ -12,7 +12,7 @@ using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 
-namespace tl.employersupport.ecrm.poc.application.functions
+namespace tl.employersupport.ecrm.poc.functions
 {
     public class TicketWorkflowFunctions
     {

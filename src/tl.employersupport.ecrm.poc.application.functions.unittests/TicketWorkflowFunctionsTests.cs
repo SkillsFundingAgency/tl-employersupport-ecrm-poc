@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Extensions;
-using tl.employersupport.ecrm.poc.application.functions.unittests.Builders;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 using tl.employersupport.ecrm.poc.application.Model.Zendesk;
 using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
+using tl.employersupport.ecrm.poc.functions.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using Xunit;
 
-namespace tl.employersupport.ecrm.poc.application.functions.unittests
+namespace tl.employersupport.ecrm.poc.functions.unittests
 {
     public class TicketWorkflowFunctionsTests
     {

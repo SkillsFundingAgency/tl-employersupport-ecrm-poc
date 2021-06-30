@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
-namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
+namespace tl.employersupport.ecrm.poc.functions.unittests.Builders
 {
     public class EmployerContactTicketBuilder
     {

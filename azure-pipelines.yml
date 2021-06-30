@@ -130,5 +130,5 @@ stages:
               azureSubscription: 'ARM Subscription'
               appType: functionApp
               WebAppName: $(functionAppName)
-              packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.application.functions.zip'
+              packageForLinux: '$(Pipeline.Workspace)/**/publish/tl.employersupport.ecrm.poc.functions.zip'
               

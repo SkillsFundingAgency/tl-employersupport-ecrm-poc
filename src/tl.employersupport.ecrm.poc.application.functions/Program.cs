@@ -2,9 +2,9 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using tl.employersupport.ecrm.poc.application.functions.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Services;
+using tl.employersupport.ecrm.poc.functions.Extensions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()

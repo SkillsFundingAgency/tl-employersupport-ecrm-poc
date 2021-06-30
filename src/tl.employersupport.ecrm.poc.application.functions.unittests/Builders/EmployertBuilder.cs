@@ -1,7 +1,7 @@
 ﻿using System;
 using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 
-namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
+namespace tl.employersupport.ecrm.poc.functions.unittests.Builders
 {
     public class EmployerBuilder
     {

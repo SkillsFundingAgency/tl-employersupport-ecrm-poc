@@ -14,7 +14,7 @@ using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Services;
 
-namespace tl.employersupport.ecrm.poc.application.functions.Extensions
+namespace tl.employersupport.ecrm.poc.functions.Extensions
 {
     internal static class StartupExtensions
     {

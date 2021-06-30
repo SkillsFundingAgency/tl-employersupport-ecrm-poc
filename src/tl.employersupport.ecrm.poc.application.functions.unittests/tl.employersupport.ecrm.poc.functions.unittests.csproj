@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.application.functions.csproj" />
+    <ProjectReference Include="..\tl.employersupport.ecrm.poc.application.functions\tl.employersupport.ecrm.poc.functions.csproj" />
     <ProjectReference Include="..\tl.employersupport.ecrm.poc.tests.common\tl.employersupport.ecrm.poc.tests.common.csproj" />
   </ItemGroup>
 

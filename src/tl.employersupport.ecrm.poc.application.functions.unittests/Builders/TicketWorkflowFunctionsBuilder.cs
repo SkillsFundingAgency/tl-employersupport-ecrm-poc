@@ -1,7 +1,7 @@
 ﻿using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 
-namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
+namespace tl.employersupport.ecrm.poc.functions.unittests.Builders
 {
     public class TicketWorkflowFunctionsBuilder
     {

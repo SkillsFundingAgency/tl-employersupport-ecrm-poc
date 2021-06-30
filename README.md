@@ -60,7 +60,7 @@ Add a file `local.settings.json` to the functions project. This file is gitignor
 
 Navigate to the function project folder, e.g. 
 ```
-cd C:\dev\esfa\tl-employersupport-ecrm-poc\src\tl.employersupport.ecrm.poc.application.functions
+cd C:\dev\esfa\tl-employersupport-ecrm-poc\src\tl.employersupport.ecrm.poc.functions
 ```
 
 If function tools are not installed, run

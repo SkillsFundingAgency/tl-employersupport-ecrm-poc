@@ -13,7 +13,7 @@ using tl.employersupport.ecrm.poc.application.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace tl.employersupport.ecrm.poc.application.functions.unittests.Builders
+namespace tl.employersupport.ecrm.poc.functions.unittests.Builders
 {
     public static class FunctionObjectsBuilder
     {
