@@ -27,8 +27,10 @@
       <Visible>False</Visible>
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <Content Include="ZendeskEcrmWorkflowLogicApp.parameters.json" />
     <Content Include="ZendeskEcrmWorkflow.json" />
-    <Content Include="ZendeskEcrmWorkflow.parameters.json" />
+    <Content Include="ServiceBusTriggerredWorkflowLogicApp.parameters.json" />
+    <Content Include="ServiceBusTriggerredWorkflow.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

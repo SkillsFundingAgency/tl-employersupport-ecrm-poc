@@ -7,7 +7,7 @@ Param(
     [string] $StorageAccountName,
     [string] $StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts',
     [string] $TemplateFile = 'ZendeskEcrmWorkflow.json',
-    [string] $TemplateParametersFile = 'ZendeskEcrmWorkflow.parameters.json',
+    [string] $TemplateParametersFile = 'ZendeskEcrmWorkflowLogicApp.parameters.parameters.json',
     [string] $ArtifactStagingDirectory = '.',
     [string] $DSCSourceFolder = 'DSC',
     [switch] $ValidateOnly
