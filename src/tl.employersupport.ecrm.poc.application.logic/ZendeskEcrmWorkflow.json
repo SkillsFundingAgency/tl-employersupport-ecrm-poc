@@ -79,7 +79,7 @@
                 "statusCode": 200
               },
               "runAfter": {
-                "ModifyZendeskTicketTags": [
+                "Parse_initial_request_JSON": [
                   "Succeeded"
                 ]
               }
@@ -193,7 +193,7 @@
                 ]
               },
               "runAfter": {
-                "Parse_initial_request_JSON": [
+                "Send_OK_response": [
                   "Succeeded"
                 ]
               }
