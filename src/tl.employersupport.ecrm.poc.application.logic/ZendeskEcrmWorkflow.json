@@ -73,17 +73,6 @@
         "definition": {
           "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
           "actions": {
-            "Send_OK_response": {
-              "type": "Response",
-              "inputs": {
-                "statusCode": 200
-              },
-              "runAfter": {
-                "Parse_initial_request_JSON": [
-                  "Succeeded"
-                ]
-              }
-            },
             "Send_ticket_created_email": {
               "type": "Function",
               "inputs": {
@@ -193,7 +182,7 @@
                 ]
               },
               "runAfter": {
-                "Send_OK_response": [
+                "Parse_initial_request_JSON": [
                   "Succeeded"
                 ]
               }
@@ -224,6 +213,18 @@
               },
               "runAfter": {
                 "Send_ticket_created_email": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_response": {
+              "type": "Response",
+              "kind": "http",
+              "inputs": {
+                "statusCode": 200
+              },
+              "runAfter": {
+                "Parse_initial_request_JSON": [
                   "Succeeded"
                 ]
               }
