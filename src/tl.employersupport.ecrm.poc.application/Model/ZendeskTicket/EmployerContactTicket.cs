@@ -9,19 +9,20 @@ namespace tl.employersupport.ecrm.poc.application.Model.ZendeskTicket
     {
         public long Id { get; init; }
 
-        public string Description { get; init; }
-
         public string EmployerName { get; set; }
         public string Postcode { get; init; }
         public string AddressLine1 { get; init; }
         public string ContactName { get; set; }
+        public string ContactFirstName { get; set; }
+        public string ContactLastName { get; set; }
         public string Phone { get; set; }
         public string EmployerSize { get; set; }
         public string ContactMethod { get; set; }
         public string ContactReason { get; set; }
         public string QuerySubject { get; set; }
 
-
+        public string Message { get; init; }
+        
         public OrganisationDetail Organisation { get; init; }
 
         public UserDetail RequestedBy { get; init; }

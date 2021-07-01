@@ -11,11 +11,15 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
         [InlineData("Bob", "Bob", "")]
         [InlineData("Corporal Kevin Swells", "Kevin", "Swells")]
         [InlineData("Mrs. Joan Johnson", "Joan", "Johnson")]
-        public void NameSplitterExtensions_SplitName_Returns_Expected_Results(string input, string first, string last)
+        [InlineData("", "", "")]
+        [InlineData(null, "", "")]
+        public void NameSplitterExtensions_SplitName_Returns_Expected_Results(string input, string expectedFirstName, string expectedLastName)
         {
-            var result = input.SplitName();
-            result.First.Should().Be(first);
-            result.Last.Should().Be(last);
+            var (firstName, lastName) = 
+                input.SplitName();
+
+            firstName.Should().Be(expectedFirstName);
+            lastName.Should().Be(expectedLastName);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace tl.employersupport.ecrm.poc.application.Model.Zendesk
             //TODO: Consider an enum or class to manage sideloads
             //Allowed sideloads:
             //users, groups, organizations, lastaudits, metricsets, dates, sharingagreements, commentcount, incidentcounts, ticketforms, metric_events(single ticket), slas(single ticket)
-            "users,groups,organizations,audits";
+            "users,groups,organizations,audits,metric_events";
         // ReSharper restore CommentTypo
     }
 }

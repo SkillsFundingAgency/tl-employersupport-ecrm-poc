@@ -122,7 +122,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
             //Spot check
             ticket.CustomFields.Should().Contain(f =>
                 f.Id == 360019751459 &&
-                f.Value == "Mike");
+                f.Value == "Mike Wild");
         }
 
         [Fact]

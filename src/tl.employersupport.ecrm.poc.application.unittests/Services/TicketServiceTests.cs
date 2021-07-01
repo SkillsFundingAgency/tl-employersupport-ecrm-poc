@@ -87,7 +87,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             ticket.Should().NotBeNull();
             ticket.Id.Should().Be(ticketId);
 
-            ticket.Description.Should().Be("I need information about industry placements.");
+            ticket.Message.Should().Be("I need information about industry placements.");
 
             ticket.CreatedAt.Should().Be(
                 DateTimeOffset.Parse("2021-06-09T09:12:50Z",
@@ -109,7 +109,9 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             ticket.EmployerName.Should().Be("Mike's Emporium");
             ticket.Postcode.Should().BeNullOrEmpty();
             ticket.AddressLine1.Should().BeNullOrEmpty();
-            ticket.ContactName.Should().Be("Mike");
+            ticket.ContactName.Should().Be("Mike Wild");
+            ticket.ContactFirstName.Should().Be("Mike");
+            ticket.ContactLastName.Should().Be("Wild");
             ticket.Phone.Should().Be("077123456789");
             ticket.EmployerSize.Should().Be("1-9__micro_");
             ticket.ContactMethod.Should().Be("tlevels-email");

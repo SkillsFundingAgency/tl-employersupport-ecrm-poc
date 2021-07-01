@@ -20,7 +20,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
                 "}" +
             "}");
 
-        [Theory(DisplayName = "JsonElement.SafeGetInt32 Data Tests")]
+        [Theory(DisplayName = nameof(JsonExtensions.SafeGetBoolean) + " Data Tests")]
         [InlineData("myInt32", false)]
         [InlineData("myPositiveDouble", false)]
         [InlineData("myString", false)]
@@ -35,7 +35,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [Theory(DisplayName = "JsonElement.SafeGetInt32 Data Tests")]
+        [Theory(DisplayName = nameof(JsonExtensions.SafeGetInt32) + " Data Tests")]
         [InlineData("myInt32", 123)]
         [InlineData("myPositiveDouble", 0)]
         [InlineData("myString", 0)]
@@ -51,7 +51,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [Theory(DisplayName = "JsonElement.SafeGetInt64 Data Tests")]
+        [Theory(DisplayName = nameof(JsonExtensions.SafeGetInt64) + " Data Tests")]
         [InlineData("myInt32", 123)]
         [InlineData("myInt64", 1000000000)]
         [InlineData("myPositiveDouble", 0)]
@@ -68,7 +68,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [Theory(DisplayName = "JsonElement.SafeGetDouble Data Tests")]
+        [Theory(DisplayName = nameof(JsonExtensions.SafeGetDouble) + " Data Tests")]
         [InlineData("myPositiveDouble", 100.999)]
         [InlineData("myNegativeDouble", -100.999)]
         [InlineData("myInt64", 1000000000)]
@@ -84,7 +84,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [Theory(DisplayName = "JsonElement.SafeGetString Data Tests")]
+        [Theory(DisplayName = nameof(JsonExtensions.SafeGetString) + " Data Tests")]
         [InlineData("myString", "my value")]
         [InlineData("myInt32", null)]
         [InlineData("myInt64", null)]

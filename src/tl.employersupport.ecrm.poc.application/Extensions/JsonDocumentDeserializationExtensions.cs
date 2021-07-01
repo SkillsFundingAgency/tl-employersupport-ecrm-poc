@@ -130,7 +130,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                 var ticket = new EmployerContactTicket
                 {
                     Id = ticketElement.GetProperty("id").GetInt64(),
-                    Description = ticketElement.SafeGetString("description"),
+                    Message = ticketElement.SafeGetString("description"),
                     CreatedAt = createdAt,
                     UpdatedAt = updatedAt,
                     Tags = tags,
@@ -161,9 +161,8 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                         {
                             if (definition.Title.StartsWith("T Level"))
                             {
-                                Debug.WriteLine($"{definition.Title} {definition.Type}");
                                 var fieldValue = fieldElement.SafeGetString("value");
-                                Debug.WriteLine($"    '{fieldValue}' ({fieldValue is null})");
+                                Debug.WriteLine($"{definition.Title} {definition.Type} value='{fieldValue}')");
 
                                 switch (definition.Title)
                                 {
@@ -172,6 +171,9 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                                         break;
                                     case "T Level Name":
                                         ticket.ContactName = fieldValue;
+                                        var (first, last) = fieldValue.SplitName();
+                                        ticket.ContactFirstName = first;
+                                        ticket.ContactLastName = last;
                                         break;
                                     case "T Levels Employers - Phone Number":
                                         ticket.Phone = fieldValue;
@@ -189,7 +191,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                                         ticket.QuerySubject = fieldValue;
                                         break;
                                     default:
-                                        Debug.WriteLine($"Found missing field {definition.Title}");
+                                        Debug.WriteLine($"Unused T Level field {definition.Title}");
                                         break;
                                 }
                             }
