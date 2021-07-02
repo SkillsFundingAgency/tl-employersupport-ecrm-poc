@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -43,10 +44,13 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                 //req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                 // ReSharper disable once StringLiteralTypo
 
-                var request = new HttpRequestMessage(HttpMethod.Post, "coursesearch");
-                request.Content = new StringContent(testQueryString,
-                    Encoding.UTF8,
-                    contentType);//CONTENT-TYPE header
+                var request = new HttpRequestMessage(HttpMethod.Post, "coursesearch")
+                {
+                    Content = new StringContent(testQueryString,
+                        Encoding.UTF8,
+                        contentType)
+                };
+                //CONTENT-TYPE header
 
                 // ReSharper disable StringLiteralTypo
                 //var ncsContent = await _httpClient.PostAsJson("coursesearch", testQueryString);
@@ -73,7 +77,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             }
 
             var requestQueryString = JsonSerializer.Serialize(searchRequest, JsonExtensions.DefaultJsonSerializerOptions);
-            
+
             var content = await _httpClient.PostAsJson($"employerSearch", searchRequest);
 
             var json = await content.ReadAsStringAsync();
@@ -82,6 +86,20 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                 .Deserialize<Employer>(
                     json,
                     JsonExtensions.DefaultJsonSerializerOptions);
+        }
+
+        public async Task<bool> GetHeartbeat()
+        {
+            //req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "HeartBeat");
+            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            request.Headers.Add("Ocp-Apim-Trace", "true");
+
+            var response = await _httpClient.SendAsync(request);
+
+            //var response = await _httpClient.GetAsync("HeartBeat");
+            return response.StatusCode == HttpStatusCode.OK;
         }
     }
 }

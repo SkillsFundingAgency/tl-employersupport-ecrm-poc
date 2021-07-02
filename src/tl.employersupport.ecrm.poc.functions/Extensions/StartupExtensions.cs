@@ -87,8 +87,8 @@ namespace tl.employersupport.ecrm.poc.functions.Extensions
 
                         client.DefaultRequestHeaders.Add("Accept", "application/json");
                         client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ecrmOptions.ApiKey);
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                        //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                        //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
                     }
                 )
                 .ConfigurePrimaryHttpMessageHandler(_ =>
@@ -96,7 +96,7 @@ namespace tl.employersupport.ecrm.poc.functions.Extensions
                     var handler = new HttpClientHandler();
                     if (handler.SupportsAutomaticDecompression)
                     {
-                        handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                        //handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                     }
                     return handler;
                 })

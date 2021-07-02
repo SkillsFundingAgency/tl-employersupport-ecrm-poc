@@ -21,7 +21,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _ecrmApiClient = ecrmApiClient ?? throw new ArgumentNullException(nameof(ecrmApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-
+        
         public async Task<Employer> FindEmployer(EmployerSearchRequest searchRequest)
         {
             _logger.LogInformation($"Getting employer {searchRequest.CompanyName}");
@@ -29,6 +29,11 @@ namespace tl.employersupport.ecrm.poc.application.Services
             var employer = await _ecrmApiClient.GetEmployer(searchRequest);
 
             return employer;
+        }
+
+        public async Task<bool> GetHeartbeat()
+        {
+            return await _ecrmApiClient.GetHeartbeat();
         }
     }
 }

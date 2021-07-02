@@ -89,7 +89,7 @@ namespace tl.employersupport.ecrm.poc.functions
             HttpRequestData request,
             FunctionContext executionContext)
         {
-            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+            var logger = executionContext.GetLogger("RetrieveEmployerContactTicket");
 
             try
             {
@@ -135,7 +135,7 @@ namespace tl.employersupport.ecrm.poc.functions
             HttpRequestData request,
             FunctionContext executionContext)
         {
-            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+            var logger = executionContext.GetLogger("ModifyZendeskTicketTags");
 
             try
             {
@@ -241,13 +241,43 @@ namespace tl.employersupport.ecrm.poc.functions
             }
         }
 
+        [Function("CheckEcrmHeartbeat")]
+        public async Task<HttpResponseData> CheckEcrmHeartbeat(
+            [HttpTrigger(AuthorizationLevel.Function, "get")]
+            HttpRequestData request,
+            FunctionContext executionContext)
+        {
+            var logger = executionContext.GetLogger("CheckEcrmHeartbeat");
+
+            try
+            {
+                logger.LogInformation($"{nameof(CheckEcrmHeartbeat)} HTTP function called via {request.Method}.");
+
+
+                var isOk = await _ecrmService.GetHeartbeat();
+                
+                var response = isOk ? 
+                    request.CreateResponse(HttpStatusCode.OK)
+                    : request.CreateResponse(HttpStatusCode.NotFound);
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(SendTicketCreatedNotification)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+        }
+
         [Function("SearchEcrmEmployer")]
         public async Task<HttpResponseData> SearchEcrmEmployer(
             [HttpTrigger(AuthorizationLevel.Function, "post")]
             HttpRequestData request,
             FunctionContext executionContext)
         {
-            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+            var logger = executionContext.GetLogger("SearchEcrmEmployer");
 
             try
             {
@@ -289,7 +319,7 @@ namespace tl.employersupport.ecrm.poc.functions
             HttpRequestData request,
             FunctionContext executionContext)
         {
-            var logger = executionContext.GetLogger("SendTicketCreatedNotification");
+            var logger = executionContext.GetLogger("QueueTicketRequest");
 
             try
             {

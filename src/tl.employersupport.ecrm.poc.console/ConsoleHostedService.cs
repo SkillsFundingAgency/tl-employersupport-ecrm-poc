@@ -18,6 +18,7 @@ namespace tl.employersupport.ecrm.poc.console
         private readonly IMonitorService _functionsApiService;
         private readonly IEmailService _emailService;
         private readonly ITicketService _ticketService;
+        private readonly IEcrmService _ecrmService;
 
         private TicketFieldCollection _ticketFields;
 
@@ -28,13 +29,15 @@ namespace tl.employersupport.ecrm.poc.console
             IHostApplicationLifetime appLifetime,
             IEmailService emailService,
             ITicketService ticketService,
-            IMonitorService functionsApiService)
+            IMonitorService functionsApiService,
+            IEcrmService ecrmService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _appLifetime = appLifetime ?? throw new ArgumentNullException(nameof(appLifetime));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _functionsApiService = functionsApiService ?? throw new ArgumentNullException(nameof(functionsApiService));
             _ticketService = ticketService ?? throw new ArgumentNullException(nameof(ticketService));
+            _ecrmService = ecrmService ?? throw new ArgumentNullException(nameof(ecrmService));
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -57,6 +60,12 @@ namespace tl.employersupport.ecrm.poc.console
                         CombinedTicket ticket = null;
 
                         var pause = args.HasArgument("--pause");
+                        
+                        if (args.HasArgument("--ecrmHeartbeat"))
+                        {
+                            await CheckEcrmHeartBeat();
+                            if (pause) WaitForUserInput();
+                        }
 
                         if (args.HasArgument("--sendTicketCreatedEmail"))
                         {
@@ -139,6 +148,12 @@ namespace tl.employersupport.ecrm.poc.console
             // Exit code may be null if the user cancelled via Ctrl+C/SIGTERM
             Environment.ExitCode = _exitCode.GetValueOrDefault(-1);
             return Task.CompletedTask;
+        }
+
+        private async Task CheckEcrmHeartBeat()
+        {
+            var heartbeat = await _ecrmService.GetHeartbeat();
+            _logger.LogInformation($"Ecrm Heartbeat result: {(heartbeat ? "Alive" : "Goner")}");
         }
 
         private async Task SendTicketCreatedEmail()
@@ -358,6 +373,7 @@ namespace tl.employersupport.ecrm.poc.console
         private static void WriteHelpText()
         {
             Console.WriteLine("Zendesk - ECRM Demo");
+            Console.WriteLine("  --ecrmHeartbeat        - test ECRM API heartbeat");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
             Console.WriteLine("  --getContactTicket       - get a ticket with contact details from Zendesk (requires ticketId)");

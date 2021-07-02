@@ -360,6 +360,52 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
         }
 
         [Fact]
+        public async Task TicketWorkflowFunctions_CheckEcrmHeartbeat_Returns_Ok_Result()
+        {
+            var ecrmService = Substitute.For<IEcrmService>();
+            ecrmService
+                .GetHeartbeat()
+                .Returns(true);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Get,
+                    "https://api-crm.gov.uk/v1/crm/HeartBeat");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ecrmService: ecrmService);
+
+            var result = await functions.CheckEcrmHeartbeat(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task TicketWorkflowFunctions_CheckEcrmHeartbeat_Not_Found_Returns_Not_Found_Result()
+        {
+            var ecrmService = Substitute.For<IEcrmService>();
+            ecrmService
+                .GetHeartbeat()
+                .Returns(false);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Get,
+                    "https://api-crm.gov.uk/v1/crm/HeartBeat");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ecrmService: ecrmService);
+
+            var result = await functions.CheckEcrmHeartbeat(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
         public async Task TicketWorkflowFunctions_SearchEcrmEmployer_Returns_Expected_Result()
         {
             var searchRequest =  new EmployerSearchRequestBuilder()

@@ -39,6 +39,27 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         }
 
         [Fact]
+        public async Task CrmApiClient_GetHeartbeat_Returns_Expected_Value()
+        {
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        _ecrmApiBaseUri,
+                        new Dictionary<Uri, string>
+                        {
+                            {
+                                new Uri(_ecrmApiBaseUri, "HeartBeat"), ""
+                            }
+                        });
+
+            var client = new EcrmApiClientBuilder().Build(httpClient);
+
+            var response = await client.GetHeartbeat();
+
+            response.Should().BeTrue();
+        }
+
+        [Fact]
         public async Task CrmApiClient_GetTicketJsonDocument_Returns_Expected_Value()
         {
             var searchRequest = new EmployerSearchRequestBuilder()
@@ -59,11 +80,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
                             {
                                 new Uri(_ecrmApiBaseUri, "employerSearch"),
                                 responseJson
-                            },
-                            //{
-                            //    new Uri(_ecrmApiBaseUri, "coursesearch"),
-                            //    responseJson
-                            //}
+                            }
                         });
 
             var client = new EcrmApiClientBuilder().Build(httpClient);

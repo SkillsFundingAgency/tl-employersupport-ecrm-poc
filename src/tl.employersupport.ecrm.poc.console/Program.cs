@@ -90,12 +90,45 @@ await Host.CreateDefaultBuilder(args)
             );
 
         services
+            .AddHttpClient<IEcrmApiClient, EcrmApiClient>(
+                (serviceProvider, client) =>
+                {
+                    client.BaseAddress =
+                        ecrmOptions.ApiBaseUri.EndsWith("/")
+                            ? new Uri(ecrmOptions.ApiBaseUri)
+                            : new Uri(ecrmOptions.ApiBaseUri + "/");
+
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
+                    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ecrmOptions.ApiKey);
+                    //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                    //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                }
+            )
+            .ConfigurePrimaryHttpMessageHandler(_ =>
+            {
+                var handler = new HttpClientHandler();
+                if (handler.SupportsAutomaticDecompression)
+                {
+                    //handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                }
+                return handler;
+            })
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.WaitAndRetryAsync(new[] {
+                    TimeSpan.FromMilliseconds(200),
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromSeconds(10),
+                }))
+            ;
+        services
             .AddHostedService<ConsoleHostedService>()
             .AddSingleton<IDateTimeService, DateTimeService>()
             .AddTransient<IEmailService, EmailService>()
-            .AddScoped<ITicketService, TicketService>()
-            .AddScoped<IMonitorService, MonitorService>()
-            .AddScoped<IAsyncNotificationClient, NotificationClient>(
+            .AddTransient<ITicketService, TicketService>()
+            .AddTransient<IMonitorService, MonitorService>()
+            .AddTransient<IEcrmService, EcrmService>()
+            .AddTransient<IAsyncNotificationClient, NotificationClient>(
                 _ => new NotificationClient(emailOptions.GovNotifyApiKey));
     })
     .RunConsoleAsync();
