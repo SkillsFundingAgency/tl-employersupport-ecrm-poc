@@ -66,6 +66,12 @@ namespace tl.employersupport.ecrm.poc.console
                             await CheckEcrmHeartBeat();
                             if (pause) WaitForUserInput();
                         }
+                        
+                        if (args.HasArgument("----ecrmHeartbeat"))
+                        {
+                            await CheckEcrmWhoAmI();
+                            if (pause) WaitForUserInput();
+                        }
 
                         if (args.HasArgument("--sendTicketCreatedEmail"))
                         {
@@ -152,10 +158,27 @@ namespace tl.employersupport.ecrm.poc.console
 
         private async Task CheckEcrmHeartBeat()
         {
-            var heartbeat = await _ecrmService.GetHeartbeat();
+            var heartbeat = await _ecrmService.Heartbeat();
             _logger.LogInformation($"Ecrm Heartbeat result: {(heartbeat ? "Alive" : "Goner")}");
         }
 
+        private async Task CheckEcrmWhoAmI()
+        {
+            var whoAmI = await _ecrmService.WhoAmI();
+            if (whoAmI is null)
+            {
+                _logger.LogInformation("Ecrm WhoAmI returned null");
+            }
+            else
+            {
+                _logger.LogInformation($"Ecrm WhoAmI:");
+                var whoAmIBuilder = new StringBuilder();
+                whoAmIBuilder.AppendLine($"    Business unit: ({whoAmI.BusinessUnitId})");
+                whoAmIBuilder.AppendLine($"    Organisation:  ({whoAmI.UserId})");
+                whoAmIBuilder.AppendLine($"    User:          ({whoAmI.OrganizationId})");
+                _logger.LogInformation(whoAmIBuilder.ToString());
+            }
+        }
         private async Task SendTicketCreatedEmail()
         {
             var random = new Random();
@@ -373,7 +396,8 @@ namespace tl.employersupport.ecrm.poc.console
         private static void WriteHelpText()
         {
             Console.WriteLine("Zendesk - ECRM Demo");
-            Console.WriteLine("  --ecrmHeartbeat        - test ECRM API heartbeat");
+            Console.WriteLine("  --ecrmHeartbeat          - test ECRM API heartbeat");
+            Console.WriteLine("  --ecrmWhoAmI             - test ECRM API WhoAmI");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
             Console.WriteLine("  --getContactTicket       - get a ticket with contact details from Zendesk (requires ticketId)");

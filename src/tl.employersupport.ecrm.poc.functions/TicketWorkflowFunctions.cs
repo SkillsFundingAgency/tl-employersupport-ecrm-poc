@@ -253,10 +253,9 @@ namespace tl.employersupport.ecrm.poc.functions
             {
                 logger.LogInformation($"{nameof(CheckEcrmHeartbeat)} HTTP function called via {request.Method}.");
 
+                var isOk = await _ecrmService.Heartbeat();
 
-                var isOk = await _ecrmService.GetHeartbeat();
-                
-                var response = isOk ? 
+                var response = isOk ?
                     request.CreateResponse(HttpStatusCode.OK)
                     : request.CreateResponse(HttpStatusCode.NotFound);
 

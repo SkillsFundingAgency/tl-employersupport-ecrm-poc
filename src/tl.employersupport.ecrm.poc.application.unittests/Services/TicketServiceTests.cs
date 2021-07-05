@@ -68,8 +68,8 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         {
             const int ticketId = 4485;
 
-            var ticketJson = JsonBuilder.BuildTicketWithSideloadsResponse();
-            var ticketFieldsJson = JsonBuilder.BuildTicketFieldsResponse();
+            var ticketJson = JsonBuilder.BuildZendeskTicketWithSideloadsResponse();
+            var ticketFieldsJson = JsonBuilder.BuildZendeskTicketFieldsResponse();
 
             var ticketJsonDocument = JsonDocument.Parse(ticketJson);
             var ticketFieldsJsonDocument = JsonDocument.Parse(ticketFieldsJson);
@@ -133,9 +133,9 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         {
             const int ticketId = 4485;
             var sideloads = Sideloads.GetTicketSideloads();
-            var ticketJson = JsonBuilder.BuildTicketWithSideloadsResponse();
-            var ticketCommentsJson = JsonBuilder.BuildTicketCommentsResponse();
-            var ticketAuditsJson = JsonBuilder.BuildTicketAuditsResponse();
+            var ticketJson = JsonBuilder.BuildZendeskTicketWithSideloadsResponse();
+            var ticketCommentsJson = JsonBuilder.BuildZendeskTicketCommentsResponse();
+            var ticketAuditsJson = JsonBuilder.BuildZendeskTicketAuditsResponse();
 
             var apiClient = Substitute.For<IZendeskApiClient>();
             apiClient.GetTicketJson(ticketId, sideloads)
@@ -161,7 +161,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         [Fact]
         public async Task TicketService_GetTicketFields_Returns_Expected_Value()
         {
-            var ticketFieldsJson = JsonBuilder.BuildTicketFieldsResponse();
+            var ticketFieldsJson = JsonBuilder.BuildZendeskTicketFieldsResponse();
             var ticketJsonDocument = JsonDocument.Parse(ticketFieldsJson);
 
             var apiClient = Substitute.For<IZendeskApiClient>();
@@ -188,7 +188,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         {
             const string query = "type:ticket status:new brand:tlevelsemployertest";
 
-            var ticketSearchResultsJson = JsonBuilder.BuildTicketSearchResultsResponse();
+            var ticketSearchResultsJson = JsonBuilder.BuildZendeskTicketSearchResultsResponse();
 
             var ticketJsonDocument = JsonDocument.Parse(ticketSearchResultsJson);
 
@@ -209,7 +209,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         public async Task TicketService_GetTicketTags_Returns_Expected_Value()
         {
             const int ticketId = 4485;
-            var ticketJson = JsonBuilder.BuildTicketResponse();
+            var ticketJson = JsonBuilder.BuildZendeskTicketResponse();
             var ticketJsonDocument = JsonDocument.Parse(ticketJson);
 
             var apiClient = Substitute.For<IZendeskApiClient>();
@@ -240,7 +240,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             const int ticketId = 4485;
             const string tag = "test_tag";
 
-            var tagsJson = JsonBuilder.BuildTagsResponse();
+            var tagsJson = JsonBuilder.BuildZendeskTagsResponse();
             
             var apiClient = Substitute.For<IZendeskApiClient>();
             apiClient.PutTags(ticketId, Arg.Is<SafeTags>(t => t != null))
@@ -270,7 +270,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         {
             const int ticketId = 4485;
 
-            var tagsJson = JsonBuilder.BuildTagsResponse();
+            var tagsJson = JsonBuilder.BuildZendeskTagsResponse();
 
             var apiClient = Substitute.For<IZendeskApiClient>();
             apiClient.PostTags(ticketId, Arg.Is<SafeTags>(t => t != null))

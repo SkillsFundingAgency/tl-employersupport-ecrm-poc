@@ -7,5 +7,8 @@ namespace tl.employersupport.ecrm.poc.application.Model.Configuration
     {
         public string ApiBaseUri { get; init; }
         public string ApiKey { get; init; }
+        public string ClientId { get; init; }
+        public string ClientSecret { get; init; }
+        public string Tenant { get; init; }
     }
 }

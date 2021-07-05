@@ -28,54 +28,6 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         public async Task<Employer> GetEmployer(EmployerSearchRequest searchRequest)
         {
-            //Temp test code
-            if (_httpClient!.BaseAddress!.AbsoluteUri.StartsWith("https://dev.api.nationalcareersservice.org.uk"))
-            {
-                var testQueryString =
-                    "{\r\n" +
-                    "\"subjectKeyword\": \"Maths\",\r\n" +
-                    "\"distance\": 10.0,\r\n" +
-                    "\"postcode\": \"CV1 2WT\",\r\n" +
-                    "\"limit\": 5\r\n" +
-                    "}";
-
-                var contentType = "application/json-patch+json";
-                //_httpClient.DefaultRequestHeaders.Contains[ ]
-                //req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                // ReSharper disable once StringLiteralTypo
-
-                var request = new HttpRequestMessage(HttpMethod.Post, "coursesearch")
-                {
-                    Content = new StringContent(testQueryString,
-                        Encoding.UTF8,
-                        contentType)
-                };
-                //CONTENT-TYPE header
-
-                // ReSharper disable StringLiteralTypo
-                //var ncsContent = await _httpClient.PostAsJson("coursesearch", testQueryString);
-                var response = await _httpClient.PostAsync("coursesearch",
-                    new StringContent(testQueryString,
-                        Encoding.UTF8,
-                        contentType));
-                // ReSharper restore StringLiteralTypo
-
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    //_logger.LogError($"API call failed with {response.StatusCode} - {response.ReasonPhrase}");
-                }
-
-                response.EnsureSuccessStatusCode();
-
-                var jsonResult = await response.Content.ReadAsStringAsync();
-
-                return new Employer
-                {
-                    AccountId = Guid.NewGuid(),
-                    CompanyName = searchRequest.CompanyName
-                };
-            }
-
             var requestQueryString = JsonSerializer.Serialize(searchRequest, JsonExtensions.DefaultJsonSerializerOptions);
 
             var content = await _httpClient.PostAsJson($"employerSearch", searchRequest);
@@ -88,13 +40,23 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                     JsonExtensions.DefaultJsonSerializerOptions);
         }
 
+        //public async Task<bool> GetAccount(Guid accountId)
+        //{
+        //    var request = new HttpRequestMessage(HttpMethod.Get, $"accounts({accountId})");
+        //    request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+        //    request.Headers.Add("Ocp-Apim-Trace", "true");
+
+        //    var response = await _httpClient.SendAsync(request);
+
+        //    return response.StatusCode == HttpStatusCode.OK;
+        //}
+
         public async Task<bool> GetHeartbeat()
         {
-            //req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var request = new HttpRequestMessage(HttpMethod.Get, "HeartBeat");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"HeartBeat");
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
             request.Headers.Add("Ocp-Apim-Trace", "true");
+            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             var response = await _httpClient.SendAsync(request);
 

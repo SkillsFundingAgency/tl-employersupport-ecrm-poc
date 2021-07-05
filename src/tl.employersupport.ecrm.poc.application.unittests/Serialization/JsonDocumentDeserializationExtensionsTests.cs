@@ -15,7 +15,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         public void Deserialize_DeserializeTicketFields_Returns_Expected_Value()
         {
             var jsonDocument = JsonDocument.Parse(
-                JsonBuilder.BuildTicketFieldsResponse());
+                JsonBuilder.BuildZendeskTicketFieldsResponse());
 
             var fields = jsonDocument.DeserializeTicketFields();
 
@@ -34,11 +34,11 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         public void Deserialize_ToEmployerContactTicket_Returns_Expected_Value()
         {
             var fieldDefinitions = JsonDocument.Parse(
-                    JsonBuilder.BuildTicketFieldsResponse())
+                    JsonBuilder.BuildZendeskTicketFieldsResponse())
                 .DeserializeTicketFields();
 
             var jsonDocument = JsonDocument.Parse(
-                JsonBuilder.BuildTicketWithSideloadsResponse());
+                JsonBuilder.BuildZendeskTicketWithSideloadsResponse());
 
             var ticket = jsonDocument.ToEmployerContactTicket(fieldDefinitions);
             ticket.Should().NotBeNull();
@@ -90,7 +90,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         public void Deserialize_ToOrganisationDetailList_Returns_Expected_Value()
         {
             var jsonDocument = JsonDocument.Parse(
-                JsonBuilder.BuildTicketWithSideloadsResponse());
+                JsonBuilder.BuildZendeskTicketWithSideloadsResponse());
 
             var organisations = jsonDocument.DeserializeOrganisationDetails();
             organisations.Should().NotBeNullOrEmpty();
@@ -105,7 +105,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         public void Deserialize_ToTicketSearchResultList_Returns_Expected_Value()
         {
             var jsonDocument = JsonDocument.Parse(
-                JsonBuilder.BuildTicketSearchResultsResponse());
+                JsonBuilder.BuildZendeskTicketSearchResultsResponse());
 
             var searchResults = jsonDocument.ToTicketSearchResultList();
             searchResults.Should().NotBeNull();
@@ -124,7 +124,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         public void Deserialize_ToUserDetailList_Returns_Expected_Value()
         {
             var jsonDocument = JsonDocument.Parse(
-                JsonBuilder.BuildTicketWithSideloadsResponse());
+                JsonBuilder.BuildZendeskTicketWithSideloadsResponse());
 
             var users = jsonDocument.DeserializeUserDetails();
             users.Should().NotBeNull();
@@ -140,7 +140,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         public void Deserialize_ExtractTicketSafeTags_Returns_Expected_Value()
         {
             var jsonDocument = JsonDocument.Parse(
-                JsonBuilder.BuildTicketResponse());
+                JsonBuilder.BuildZendeskTicketResponse());
 
             var safeTags = jsonDocument.ExtractTicketSafeTags();
 

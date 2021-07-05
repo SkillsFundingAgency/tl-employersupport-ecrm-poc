@@ -13,7 +13,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void Deserializes_Zendesk_Comments_Should_Return_Comments()
         {
-            var json = JsonBuilder.BuildTicketCommentsResponse();
+            var json = JsonBuilder.BuildZendeskTicketCommentsResponse();
 
             var result = json.DeserializeZendeskComments();
 
@@ -23,7 +23,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Comments_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildTicketCommentsResponse();
+            var json = JsonBuilder.BuildZendeskTicketCommentsResponse();
 
             var result = json.DeserializeZendeskComments();
 
@@ -46,7 +46,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Comments_Attachments_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildTicketCommentsResponse();
+            var json = JsonBuilder.BuildZendeskTicketCommentsResponse();
 
             var result = json.DeserializeZendeskComments();
 
@@ -75,7 +75,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Serialization
         [Fact]
         public void SerializationExtensions_Deserialize_Zendesk_Comments_Via_Should_Have_Expected_Members()
         {
-            var json = JsonBuilder.BuildTicketCommentsResponse();
+            var json = JsonBuilder.BuildZendeskTicketCommentsResponse();
 
             var result = json.DeserializeZendeskComments();
 

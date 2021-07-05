@@ -18,28 +18,28 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         private readonly Uri _ecrmApiBaseUri = new(EcrmApiBaseUrl);
 
         [Fact]
-        public void CrmApiClient_Constructor_Succeeds_With_Valid_Parameters()
+        public void EcrmApiClient_Constructor_Succeeds_With_Valid_Parameters()
         {
             var _ = new EcrmApiClientBuilder().Build();
             //Test passes if no exceptions thrown
         }
 
         [Fact]
-        public void CrmApiClient_Constructor_Guards_Against_NullParameters()
+        public void EcrmApiClient_Constructor_Guards_Against_NullParameters()
         {
             typeof(EcrmApiClient)
                 .ShouldNotAcceptNullConstructorArguments();
         }
 
         [Fact]
-        public void CrmApiClient_Constructor_Guards_Against_BadParameters()
+        public void EcrmApiClient_Constructor_Guards_Against_BadParameters()
         {
             typeof(EcrmApiClient)
                 .ShouldNotAcceptNullOrBadConstructorArguments();
         }
 
         [Fact]
-        public async Task CrmApiClient_GetHeartbeat_Returns_Expected_Value()
+        public async Task EcrmApiClient_GetHeartbeat_Returns_Expected_Value()
         {
             var httpClient =
                 new TestHttpClientFactory()
@@ -60,7 +60,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         }
 
         [Fact]
-        public async Task CrmApiClient_GetTicketJsonDocument_Returns_Expected_Value()
+        public async Task EcrmApiClient_GetEmployer_Returns_Expected_Value()
         {
             var searchRequest = new EmployerSearchRequestBuilder()
                 .Build();

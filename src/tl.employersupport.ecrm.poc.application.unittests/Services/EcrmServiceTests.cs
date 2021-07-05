@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.Interfaces;
@@ -61,6 +62,45 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
 
             searchResult.Should().NotBeNull();
             searchResult.Should().Be(employer);
+        }
+
+        [Fact]
+        public async Task EcrmService_Heartbeat_Returns_Expected_Value()
+        {
+            var apiClient = Substitute.For<IEcrmApiClient>();
+            apiClient.GetHeartbeat()
+                .Returns(true);
+
+            var service = new EcrmServiceBuilder().Build(apiClient);
+
+            var result = await service.Heartbeat();
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task EcrmService_WhoAmI_Returns_Expected_Value()
+        {
+            var apiClient = Substitute.For<IEcrmODataApiClient>();
+
+            var whoIAm = new WhoAmIResponse
+            {
+                BusinessUnitId = Guid.Parse("eed747ad-6aba-4af9-b92a-9843e506c28e"),
+                UserId = Guid.Parse("92f7f5e5-dfb6-4833-8b21-da22e1ecdb1a"),
+                OrganizationId = Guid.Parse("3c8902ef-83cc-4d22-a083-0d0f1e8fcf83")
+            };
+
+            apiClient.GetWhoAmI()
+                .Returns(whoIAm);
+
+            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+
+            var result = await service.WhoAmI();
+
+            result.Should().NotBeNull();
+            result.BusinessUnitId.Should().Be(whoIAm.BusinessUnitId);
+            result.UserId.Should().Be(whoIAm.UserId);
+            result.OrganizationId.Should().Be(whoIAm.OrganizationId);
         }
     }
 }

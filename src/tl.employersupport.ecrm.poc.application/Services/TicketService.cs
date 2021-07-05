@@ -45,6 +45,8 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             if (jsonDocument != null)
             {
+                var temp = jsonDocument.PrettifyJsonDocument();
+
                 var fieldDefinitions = await GetTicketFields();
 
                 var ticket = jsonDocument.ToEmployerContactTicket(fieldDefinitions);
@@ -147,7 +149,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             if (jsonDocument != null)
             {
-                //var temp =jsonDoc.PrettifyJsonDocument();
+                //var temp =jsonDocument.PrettifyJsonDocument();
                 //TODO: Worry about paging? Or only get recent ones?
                 var count = jsonDocument.RootElement.GetProperty("count");
                 var nextPage = jsonDocument.RootElement.GetProperty("next_page");

@@ -364,7 +364,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
         {
             var ecrmService = Substitute.For<IEcrmService>();
             ecrmService
-                .GetHeartbeat()
+                .Heartbeat()
                 .Returns(true);
 
             var request = FunctionObjectsBuilder
@@ -387,7 +387,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
         {
             var ecrmService = Substitute.For<IEcrmService>();
             ecrmService
-                .GetHeartbeat()
+                .Heartbeat()
                 .Returns(false);
 
             var request = FunctionObjectsBuilder

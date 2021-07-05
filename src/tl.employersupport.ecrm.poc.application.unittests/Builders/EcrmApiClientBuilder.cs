@@ -13,7 +13,6 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Builders
             ILogger<EcrmApiClient> logger = null)
         {
             logger ??= Substitute.For<ILogger<EcrmApiClient>>();
-
             httpClient ??= Substitute.For<HttpClient>();
 
             return new EcrmApiClient(httpClient, logger);

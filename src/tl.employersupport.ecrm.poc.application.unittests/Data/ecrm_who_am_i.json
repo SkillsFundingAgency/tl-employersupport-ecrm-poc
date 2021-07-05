@@ -1,0 +1,6 @@
+{
+  "@odata.context": "https://esfa-cs-dev.api.crm4.dynamics.com/api/data/v9.2/$metadata#Microsoft.Dynamics.CRM.WhoAmIResponse",
+  "BusinessUnitId": "7598e91e-ac1b-4794-8517-bd8455a4f79a",
+  "UserId": "435a4592-5b99-4848-81dd-a4890dc82475",
+  "OrganizationId": "ed2aad10-69f1-452b-8f1f-bfa17564e8bc"
+}

@@ -5,7 +5,8 @@
       //"commandLineArgs": "--getTicketFields --searchTickets --getTicket --updateTicket ticketId:4485 --pause",
       //"commandLineArgs": "--getContactTicket ticketId:4604",
       //"commandLineArgs": "--pollyTest minTimeout:1 maxTimeout:60 clientTimeout:5",
-      "commandLineArgs": "--ecrmHeartbeat",
+      //"commandLineArgs": "--ecrmHeartbeat",
+      "commandLineArgs": "--ecrmWhoAmI",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }

@@ -13,12 +13,16 @@ namespace tl.employersupport.ecrm.poc.application.Services
     {
         private readonly ILogger _logger;
         private readonly IEcrmApiClient _ecrmApiClient;
+        private readonly IEcrmODataApiClient _ecrmODataApiClient;
 
         public EcrmService(
             IEcrmApiClient ecrmApiClient,
+            IEcrmODataApiClient ecrmODataApiClient,
             ILogger<EcrmService> logger)
         {
             _ecrmApiClient = ecrmApiClient ?? throw new ArgumentNullException(nameof(ecrmApiClient));
+            _ecrmODataApiClient = ecrmODataApiClient;
+            _ecrmODataApiClient = ecrmODataApiClient ?? throw new ArgumentNullException(nameof(ecrmODataApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         
@@ -31,9 +35,14 @@ namespace tl.employersupport.ecrm.poc.application.Services
             return employer;
         }
 
-        public async Task<bool> GetHeartbeat()
+        public async Task<bool> Heartbeat()
         {
             return await _ecrmApiClient.GetHeartbeat();
+        }
+
+        public async Task<WhoAmIResponse> WhoAmI()
+        {
+            return await _ecrmODataApiClient.GetWhoAmI();
         }
     }
 }

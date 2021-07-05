@@ -6,6 +6,7 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
     public interface IEcrmService
     {
         Task<Employer> FindEmployer(EmployerSearchRequest searchRequest);
-        Task<bool> GetHeartbeat();
+        Task<bool> Heartbeat();
+        Task<WhoAmIResponse> WhoAmI();
     }
 }

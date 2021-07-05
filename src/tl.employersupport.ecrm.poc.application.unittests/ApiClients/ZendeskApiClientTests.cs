@@ -43,10 +43,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         {
             const int ticketId = 4485;
 
-            var ticketJson = JsonBuilder.BuildTicketWithSideloadsResponse();
-            var ticketCommentsJson = JsonBuilder.BuildTicketCommentsResponse();
-            var ticketAuditsJson = JsonBuilder.BuildTicketAuditsResponse();
-            var ticketFieldJson = JsonBuilder.BuildTicketFieldsResponse();
+            var ticketJson = JsonBuilder.BuildZendeskTicketWithSideloadsResponse();
+            var ticketCommentsJson = JsonBuilder.BuildZendeskTicketCommentsResponse();
+            var ticketAuditsJson = JsonBuilder.BuildZendeskTicketAuditsResponse();
+            var ticketFieldJson = JsonBuilder.BuildZendeskTicketFieldsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -89,7 +89,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         {
             const int ticketId = 4485;
 
-            var ticketJson = JsonBuilder.BuildTicketWithSideloadsResponse();
+            var ticketJson = JsonBuilder.BuildZendeskTicketWithSideloadsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -117,7 +117,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         {
             const int ticketId = 4485;
 
-            var ticketCommentsJson = JsonBuilder.BuildTicketCommentsResponse();
+            var ticketCommentsJson = JsonBuilder.BuildZendeskTicketCommentsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -144,7 +144,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         {
             const int ticketId = 4485;
 
-            var ticketAuditsJson = JsonBuilder.BuildTicketAuditsResponse();
+            var ticketAuditsJson = JsonBuilder.BuildZendeskTicketAuditsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -169,7 +169,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         [Fact]
         public async Task ZendeskApiClient_GetTicketFieldsJsonDocument_Returns_Expected_Value()
         {
-            var ticketFieldsJson = JsonBuilder.BuildTicketFieldsResponse();
+            var ticketFieldsJson = JsonBuilder.BuildZendeskTicketFieldsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -193,7 +193,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
             const string query = "type:ticket status:new brand:tlevelsemployertest";
             var ticketSearchUriFragment = $"search.json?query={WebUtility.UrlEncode(query)}";
 
-            var ticketSearchResultsJson = JsonBuilder.BuildTicketSearchResultsResponse();
+            var ticketSearchResultsJson = JsonBuilder.BuildZendeskTicketSearchResultsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -217,7 +217,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
             const int ticketId = 4485;
 
             var postTagsUriFragment = $"tickets/{ticketId}/tags.json";
-            var tagsJson = JsonBuilder.BuildTagsResponse();
+            var tagsJson = JsonBuilder.BuildZendeskTagsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -247,7 +247,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
             const int ticketId = 4485;
 
             var postTagsUriFragment = $"tickets/{ticketId}/tags.json";
-            var tagsJson = JsonBuilder.BuildTagsResponse();
+            var tagsJson = JsonBuilder.BuildZendeskTagsResponse();
 
             var httpClient =
                 new TestHttpClientFactory()
