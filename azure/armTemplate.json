@@ -252,23 +252,23 @@
               "value": "[parameters('ecrmApiKey')]"
             },
             {
-              "name": "EcrmConfiguration:EcrmODataApiUri",
+              "name": "EcrmConfiguration:ODataApiUri",
+              "value": "[parameters('ecrmODataApiUri')]"
+            },
+            {
+              "name": "EcrmConfiguration:ODataApiVersion",
               "value": "[parameters('ecrmODataApiVersion')]"
             },
             {
-              "name": "EcrmConfiguration:EcrmODataApiVersion",
-              "value": "[parameters('ecrmODataApiVersion')]"
-            },
-            {
-              "name": "EcrmConfiguration:EcrmClientId",
+              "name": "EcrmConfiguration:ClientId",
               "value": "[parameters('ecrmClientId')]"
             },
             {
-              "name": "EcrmConfiguration:EcrmClientSecret",
+              "name": "EcrmConfiguration:ClientSecret",
               "value": "[parameters('ecrmClientSecret')]"
             },
             {
-              "name": "EcrmConfiguration:EcrmTenant",
+              "name": "EcrmConfiguration:Tenant",
               "value": "[parameters('ecrmTenant')]"
             }
           ]
