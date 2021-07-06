@@ -52,6 +52,11 @@ Add a file `local.settings.json` to the functions project. This file is gitignor
     "ZendeskConfiguration:ApiToken": "<api-token>",
     "EcrmConfiguration:ApiBaseUri": "<api-url>",
     "EcrmConfiguration:ApiKey": "<api-key>"
+    "EcrmConfiguration:ClientId": "<client-id>",
+    "EcrmConfiguration:ClientSecret": "<client-secret>",
+    "EcrmConfiguration:Tenant": "<tenant>",
+    "EcrmConfiguration:ODataApiUri": "<api-uri>",
+    "EcrmConfiguration:ODataApiVersion": "<api-version>"
   }
 }
 ```
@@ -111,31 +116,36 @@ The pipeline uses YAML multi-line strings to make it more readable. See https://
 
 The pipeline requires the following variable groups to be set up in the Library:
 
-    - **Group name** `tl-zd-ecrm-poc-deployment`
-    - **Values** as below
-        - note no hyphens in resource identifier, to avoid invalid resource group name
+  - **Group name** `tl-zd-ecrm-poc-deployment`
+  - **Values** as below -       note no hyphens in resource identifier, to avoid invalid resource group name
 
-        | Name                                | Sample Value   |
-        | ----                                | ------------   |
-        | ResourceLocation                    | UK South       |
-        | ResourceIdentifier                  | tlzdecrmpoc    |
-        | ResourceEnvironmentName             | dev            |
+
+    | Name                                | Sample Value   |
+    | ----                                | ------------   |
+    | ResourceLocation                    | UK South       |
+    | ResourceIdentifier                  | tlzdecrmpoc    |
+    | ResourceEnvironmentName             | dev            |
 
     - **Group name** `tl-zd-ecrm-poc-arm`
     - **Values** as below
 
-        | Name                                | Sample Value |
-        | ----                                | ------------ |
-        | GovNotifyApiKey                     | ********     |
-        | SupportEmailAddress                 | ********     |
-        | EcrmApiBaseUri                      | https://dev.api.crm.org.uk/directory/apiname/ |
-        | EcrmApiKey                          | ********     |
-        | ZendeskApiBaseUri                   | https://tlevelsemployertest.zendesk.com/api/v2 |
-        | ZendeskApiToken                     | ********     |
-        | ZendeskAuthenticationMethod         | BasicWithApiToken |
-        | ZendeskPassword                     | NA           |
-        | ZendeskTicketCreatedEmailTemplateId | ********     |
-        | ZendeskUser                         | ********     |
+    | Name                                | Sample Value      |
+    | ----                                | ------------      |
+    | GovNotifyApiKey                     | ********          |
+    | SupportEmailAddress                 | ********          |
+    | EcrmApiBaseUri                      | https://dev.api.crm.org.uk/directory/apiname/ |
+    | EcrmApiKey                          | ********          |
+    | EcrmODataApiUri                     | ********          |
+    | EcrmODataApiVersion                 |  9.2              |
+    | EcrmClientId                        | ********          |
+    | EcrmClientSecret": "",              | ********          |
+    | EcrmTenant": ""                     | ********          |
+    | ZendeskApiBaseUri                   | https://tlevelsemployertest.zendesk.com/api/v2 |
+    | ZendeskApiToken                     | ********          |
+    | ZendeskAuthenticationMethod         | BasicWithApiToken |
+    | ZendeskPassword                     | NA                |
+    | ZendeskTicketCreatedEmailTemplateId | ********          |
+    | ZendeskUser                         | ********          |
 
 ### Connecting to Azure for the ARM subscription
 
@@ -203,5 +213,17 @@ Comparison of a single Zendesk with and without compression in an API response:
 
 This is only implemented for Zendesk calls so far.
 
+
+## MSAL
+
+MSAL (Microsoft Authentication Library) is used to generate access tokens. Some useful links:
+
+- https://stackoverflow.com/questions/38494279/how-do-i-get-an-oauth-2-0-authentication-token-in-c-sharp
+- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki#conceptual-documentation
+- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Client-credential-flows
+- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/AcquireTokenSilentAsync-using-a-cached-token
+
+ 
+- 
 
 

@@ -77,7 +77,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
 
             var deserializedTicket = JsonSerializer
                 .Deserialize<EmployerContactTicket>(responseJson,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
 
             CheckEmployerContactTicket(deserializedTicket, ticketId);
 
@@ -106,7 +106,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
             };
 
             var requestJson = JsonSerializer.Serialize(notification,
-                JsonExtensions.DefaultJsonSerializerOptions);
+                JsonExtensions.CamelCaseJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
@@ -131,7 +131,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
 
             var deserializedTicket = JsonSerializer
                 .Deserialize<EmployerContactTicket>(responseJson,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
 
             CheckEmployerContactTicket(deserializedTicket, ticketId);
 
@@ -230,7 +230,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
             };
             
             var requestJson = JsonSerializer.Serialize(notification,
-                JsonExtensions.DefaultJsonSerializerOptions);
+                JsonExtensions.CamelCaseJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
@@ -308,7 +308,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
             };
 
             var requestJson = JsonSerializer.Serialize(modifyTagsRequest,
-                JsonExtensions.DefaultJsonSerializerOptions);
+                JsonExtensions.CamelCaseJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
@@ -341,7 +341,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
             };
 
             var requestJson = JsonSerializer.Serialize(notification,
-                JsonExtensions.DefaultJsonSerializerOptions);
+                JsonExtensions.CamelCaseJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
@@ -406,6 +406,68 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
         }
 
         [Fact]
+        public async Task TicketWorkflowFunctions_GetEcrmWhoAmI_Returns_Ok_Result()
+        {
+            var whoIAm = new EcrmObjectsBuilder().BuildWhoAmIResponse();
+
+            var ecrmService = Substitute.For<IEcrmService>();
+            ecrmService
+                .WhoAmI()
+                .Returns(whoIAm);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Get,
+                    "https://api-crm.gov.uk/v1/crm/WhoAmIBeat");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ecrmService: ecrmService);
+
+            var result = await functions.GetEcrmWhoAmI(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+            result.Should().NotBeNull();
+            
+            result.Body.Seek(0, SeekOrigin.Begin);
+            using var reader = new StreamReader(result.Body);
+            var responseJson = await reader.ReadToEndAsync();
+
+            var deserializedResult = JsonSerializer
+                .Deserialize<WhoAmIResponse>(responseJson,
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
+
+            deserializedResult.Should().NotBeNull();
+            deserializedResult!.BusinessUnitId.Should().Be(whoIAm.BusinessUnitId);
+            deserializedResult.UserId.Should().Be(whoIAm.UserId);
+            deserializedResult.OrganizationId.Should().Be(whoIAm.OrganizationId);
+        }
+
+        [Fact]
+        public async Task TicketWorkflowFunctions_GetEcrmWhoAmI_Not_Found_Returns_Error_Result()
+        {
+            var ecrmService = Substitute.For<IEcrmService>();
+            ecrmService
+                .WhoAmI()
+                .Returns(null as Task<WhoAmIResponse>);
+
+            var request = FunctionObjectsBuilder
+                .BuildHttpRequestData(
+                    HttpMethod.Get,
+                    "https://api-crm.gov.uk/v1/crm/WhoAmI");
+
+            var functionContext = FunctionObjectsBuilder.BuildFunctionContext();
+
+            var functions = new TicketWorkflowFunctionsBuilder()
+                .Build(ecrmService: ecrmService);
+
+            var result = await functions.GetEcrmWhoAmI(request, functionContext);
+
+            result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        }
+
+        [Fact]
         public async Task TicketWorkflowFunctions_SearchEcrmEmployer_Returns_Expected_Result()
         {
             var searchRequest =  new EmployerSearchRequestBuilder()
@@ -421,7 +483,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
                 .Returns(employer);
 
             var requestJson = JsonSerializer.Serialize(searchRequest,
-                JsonExtensions.DefaultJsonSerializerOptions);
+                JsonExtensions.CamelCaseJsonSerializerOptions);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(
@@ -446,7 +508,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
 
             var deserializedEmployer = JsonSerializer
                 .Deserialize<Employer>(responseJson,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
             
             CheckEmployer(deserializedEmployer);
 

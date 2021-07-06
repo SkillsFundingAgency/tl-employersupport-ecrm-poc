@@ -79,6 +79,21 @@
     },
     "ecrmApiKey": {
       "type": "string"
+    },
+    "ecrmODataApiUri": {
+      "type": "string"
+    },
+    "ecrmODataApiVersion": {
+      "type": "string"
+    },
+    "ecrmClientId": {
+      "type": "string"
+    },
+    "ecrmClientSecret": {
+      "type": "string"
+    },
+    "ecrmTenant": {
+      "type": "string"
     }
   },
   "variables": {
@@ -235,6 +250,30 @@
             {
               "name": "EcrmConfiguration:ApiKey",
               "value": "[parameters('ecrmApiKey')]"
+            },
+            {
+              "name": "EcrmConfiguration:EcrmODataApiUri",
+              "value": "[parameters('ecrmODataApiVersion')]"
+            },
+            {
+              "name": "EcrmConfiguration:EcrmODataApiVersion",
+              "value": "[parameters('ecrmODataApiVersion')]"
+            },
+            {
+              "name": "EcrmConfiguration:EcrmClientId",
+              "value": "[parameters('ecrmClientId')]"
+            },
+            {
+              "name": "EcrmConfiguration:EcrmClientSecret",
+              "value": "[parameters('ecrmClientSecret')]"
+            },
+            {
+              "name": "EcrmConfiguration:EcrmTenant",
+              "value": "[parameters('ecrmTenant')]"
+            },
+            {
+              "name": "EcrmConfiguration:",
+              "value": "[parameters('')]"
             }
           ]
         }

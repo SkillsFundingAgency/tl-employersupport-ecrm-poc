@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -28,16 +27,16 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         public async Task<Employer> GetEmployer(EmployerSearchRequest searchRequest)
         {
-            var requestQueryString = JsonSerializer.Serialize(searchRequest, JsonExtensions.DefaultJsonSerializerOptions);
+            var requestQueryString = JsonSerializer.Serialize(searchRequest, JsonExtensions.CamelCaseJsonSerializerOptions);
 
-            var content = await _httpClient.PostAsJson($"employerSearch", searchRequest);
+            var content = await _httpClient.PostAsJson("employerSearch", searchRequest);
 
             var json = await content.ReadAsStringAsync();
 
             return JsonSerializer
                 .Deserialize<Employer>(
                     json,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
         }
 
         //public async Task<bool> GetAccount(Guid accountId)
@@ -53,7 +52,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         public async Task<bool> GetHeartbeat()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"HeartBeat");
+            var request = new HttpRequestMessage(HttpMethod.Get, "HeartBeat");
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
             request.Headers.Add("Ocp-Apim-Trace", "true");
             //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");

@@ -150,7 +150,7 @@ namespace tl.employersupport.ecrm.poc.functions
 
                 var tagsMessage = JsonSerializer
                     .Deserialize<ModifyTagsMessage>(body,
-                        JsonExtensions.DefaultJsonSerializerOptions);
+                        JsonExtensions.CamelCaseJsonSerializerOptions);
 
                 var ticketId = tagsMessage?.TicketId ?? 0;
 
@@ -270,6 +270,39 @@ namespace tl.employersupport.ecrm.poc.functions
             }
         }
 
+        [Function("GetEcrmWhoAmI")]
+        public async Task<HttpResponseData> GetEcrmWhoAmI(
+            [HttpTrigger(AuthorizationLevel.Function, "get")]
+            HttpRequestData request,
+            FunctionContext executionContext)
+        {
+            var logger = executionContext.GetLogger("CheckEcrmHeartbeat");
+
+            try
+            {
+                logger.LogInformation($"{nameof(GetEcrmWhoAmI)} HTTP function called via {request.Method}.");
+
+                var whoAmI = await _ecrmService.WhoAmI();
+
+                var response = request.CreateResponse(HttpStatusCode.OK);
+
+                //var json = JsonSerializer.Serialize(ticket,
+                //    JsonExtensions.DefaultJsonSerializerOptions);
+                //await response.WriteStringAsync(json);
+
+                await response.WriteAsJsonAsync(whoAmI, "application/json");
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                var errorMessage = $"Error in {nameof(SendTicketCreatedNotification)}. Internal Error Message {e}";
+                logger.LogError(errorMessage);
+
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+        }
+
         [Function("SearchEcrmEmployer")]
         public async Task<HttpResponseData> SearchEcrmEmployer(
             [HttpTrigger(AuthorizationLevel.Function, "post")]
@@ -346,7 +379,7 @@ namespace tl.employersupport.ecrm.poc.functions
                 {
                     var notification = JsonSerializer
                         .Deserialize<NotifyTicket>(body,
-                            JsonExtensions.DefaultJsonSerializerOptions);
+                            JsonExtensions.CamelCaseJsonSerializerOptions);
 
                     ticketId = notification?.Id ?? 0;
                 }
@@ -378,7 +411,7 @@ namespace tl.employersupport.ecrm.poc.functions
                 {
                     var employerSearchRequest = JsonSerializer
                         .Deserialize<EmployerSearchRequest>(body,
-                            JsonExtensions.DefaultJsonSerializerOptions);
+                            JsonExtensions.CamelCaseJsonSerializerOptions);
 
                     return employerSearchRequest;
                 }

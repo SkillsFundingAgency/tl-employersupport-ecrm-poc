@@ -69,7 +69,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
                 .Build();
 
             var responseJson = JsonSerializer.Serialize(response,
-                JsonExtensions.DefaultJsonSerializerOptions);
+                JsonExtensions.CamelCaseJsonSerializerOptions);
 
             var httpClient =
                 new TestHttpClientFactory()

@@ -13,7 +13,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             var ticketResponse = JsonSerializer
                 .Deserialize<TicketResponse>(
                     json,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
 
             return ticketResponse?.Ticket;
         }
@@ -23,7 +23,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             return JsonSerializer
                 .Deserialize<TicketResponse>(
                     json,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
         }
 
         public static IEnumerable<Audit> DeserializeZendeskAudits(this string json)
@@ -31,7 +31,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             var auditResponse = JsonSerializer
                 .Deserialize<AuditResponse>(
                     json,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
 
             return auditResponse != null
                 ? auditResponse.Audits
@@ -43,7 +43,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
             var commentResponse = JsonSerializer
                 .Deserialize<CommentResponse>(
                     json,
-                    JsonExtensions.DefaultJsonSerializerOptions);
+                    JsonExtensions.CamelCaseJsonSerializerOptions);
 
             return commentResponse != null 
                 ? commentResponse.Comments 

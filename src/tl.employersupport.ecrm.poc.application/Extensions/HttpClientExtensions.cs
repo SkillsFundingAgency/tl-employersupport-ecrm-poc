@@ -39,7 +39,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
         {
             //_logger.LogInformation($"Calling API {_httpClient.BaseAddress} endpoint {requestUri}");
 
-            var response = await httpClient.PostAsJsonAsync(requestUri, value, JsonExtensions.DefaultJsonSerializerOptions);
+            var response = await httpClient.PostAsJsonAsync(requestUri, value, JsonExtensions.CamelCaseJsonSerializerOptions);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -55,7 +55,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
         {
             //_logger.LogInformation($"Calling API {_httpClient.BaseAddress} endpoint {requestUri}");
 
-            var response = await httpClient.PutAsJsonAsync(requestUri, value, JsonExtensions.DefaultJsonSerializerOptions);
+            var response = await httpClient.PutAsJsonAsync(requestUri, value, JsonExtensions.CamelCaseJsonSerializerOptions);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {

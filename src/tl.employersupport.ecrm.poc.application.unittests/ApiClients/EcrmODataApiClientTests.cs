@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using NSubstitute;
 using tl.employersupport.ecrm.poc.application.ApiClients;
-using tl.employersupport.ecrm.poc.application.Extensions;
+using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using tl.employersupport.ecrm.poc.tests.common.HttpClient;
@@ -54,7 +54,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
                             }
                         });
 
-            var client = new EcrmODataApiClientBuilder().Build(httpClient);
+            var authenticationService = Substitute.For<IAuthenticationService>();
+            authenticationService.GetAccessToken().Returns("token");
+
+            var client = new EcrmODataApiClientBuilder().Build(httpClient, authenticationService);
 
             var response = await client.GetWhoAmI();
 

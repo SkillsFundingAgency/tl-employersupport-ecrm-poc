@@ -7,7 +7,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 {
     public static class JsonExtensions
     {
-        public static JsonSerializerOptions DefaultJsonSerializerOptions =>
+        public static JsonSerializerOptions CamelCaseJsonSerializerOptions =>
             new()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -15,6 +15,9 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
                 //PropertyNamingPolicy = JsonNamingPolicy.SnakeCase
             };
 
+        public static JsonSerializerOptions DefaultJsonSerializerOptions =>
+            new();
+        
         public static string PrettifyJsonString(this string json)
         {
             if (string.IsNullOrWhiteSpace(json))

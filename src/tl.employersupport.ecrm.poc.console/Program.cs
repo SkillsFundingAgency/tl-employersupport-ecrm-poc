@@ -90,8 +90,7 @@ await Host.CreateDefaultBuilder(args)
             );
 
         services
-            .AddHttpClient<IEcrmApiClient, EcrmApiClient>(
-                (serviceProvider, client) =>
+            .AddHttpClient<IEcrmApiClient, EcrmApiClient>((_, client) =>
                 {
                     client.BaseAddress =
                         ecrmOptions.ApiBaseUri.EndsWith("/")
@@ -121,8 +120,50 @@ await Host.CreateDefaultBuilder(args)
                     TimeSpan.FromSeconds(10),
                 }))
             ;
+
+        services
+            .AddHttpClient<IEcrmODataApiClient, EcrmODataApiClient>((_, client) =>
+                {
+                    var uri = ecrmOptions.ODataApiUri.EndsWith("/")
+                        ? ecrmOptions.ODataApiUri
+                        : $"{ecrmOptions.ODataApiUri}/";
+
+                    client.BaseAddress = 
+                        new Uri($"{uri}api/data/v{ecrmOptions.ODataApiVersion}/");
+
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
+                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                }
+            )
+            .ConfigurePrimaryHttpMessageHandler(_ =>
+            {
+                var handler = new HttpClientHandler();
+                if (handler.SupportsAutomaticDecompression)
+                {
+                    handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                }
+                return handler;
+            })
+            .AddTransientHttpErrorPolicy(policy =>
+                policy.WaitAndRetryAsync(new[] {
+                    TimeSpan.FromMilliseconds(200),
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromSeconds(10),
+                }))
+            ;
+
         services
             .AddHostedService<ConsoleHostedService>()
+            .AddSingleton<IAuthenticationService, AuthenticationService>(_
+                => new AuthenticationService(new AuthenticationConfiguration
+                {
+                    Audience = ecrmOptions.ODataApiUri,
+                    ClientId = ecrmOptions.ClientId,
+                    ClientSecret = ecrmOptions.ClientSecret,
+                    Tenant = ecrmOptions.Tenant
+                }))
             .AddSingleton<IDateTimeService, DateTimeService>()
             .AddTransient<IEmailService, EmailService>()
             .AddTransient<ITicketService, TicketService>()

@@ -67,7 +67,7 @@ namespace tl.employersupport.ecrm.poc.console
                             if (pause) WaitForUserInput();
                         }
                         
-                        if (args.HasArgument("----ecrmHeartbeat"))
+                        if (args.HasArgument("--ecrmWhoAmI"))
                         {
                             await CheckEcrmWhoAmI();
                             if (pause) WaitForUserInput();
@@ -171,11 +171,11 @@ namespace tl.employersupport.ecrm.poc.console
             }
             else
             {
-                _logger.LogInformation($"Ecrm WhoAmI:");
+                _logger.LogInformation("Ecrm WhoAmI:");
                 var whoAmIBuilder = new StringBuilder();
-                whoAmIBuilder.AppendLine($"    Business unit: ({whoAmI.BusinessUnitId})");
-                whoAmIBuilder.AppendLine($"    Organisation:  ({whoAmI.UserId})");
-                whoAmIBuilder.AppendLine($"    User:          ({whoAmI.OrganizationId})");
+                whoAmIBuilder.AppendLine($"    Business unit: {whoAmI.BusinessUnitId}");
+                whoAmIBuilder.AppendLine($"    Organisation:  {whoAmI.UserId}");
+                whoAmIBuilder.AppendLine($"    User:          {whoAmI.OrganizationId}");
                 _logger.LogInformation(whoAmIBuilder.ToString());
             }
         }

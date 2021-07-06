@@ -27,7 +27,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests.Builders
             var workerOptions = Options.Create(new WorkerOptions
             {
                 Serializer = new JsonObjectSerializer(
-                    JsonExtensions.DefaultJsonSerializerOptions)
+                    JsonExtensions.CamelCaseJsonSerializerOptions)
             });
 
             var serviceProvider = new ServiceCollection()

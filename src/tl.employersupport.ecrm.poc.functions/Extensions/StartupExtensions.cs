@@ -55,6 +55,28 @@ namespace tl.employersupport.ecrm.poc.functions.Extensions
             return services;
         }
 
+
+        public static IServiceCollection AddAuthenticationService(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<IAuthenticationService, AuthenticationService>(serviceProvider =>
+                {
+                    var ecrmOptions = serviceProvider
+                        .GetRequiredService<IOptions<EcrmConfiguration>>()
+                        .Value;
+
+                    return new AuthenticationService(new AuthenticationConfiguration
+                    {
+                        Audience = ecrmOptions.ODataApiUri,
+                        ClientId = ecrmOptions.ClientId,
+                        ClientSecret = ecrmOptions.ClientSecret,
+                        Tenant = ecrmOptions.Tenant
+                    });
+                });
+
+            return services;
+        }
+
         public static IServiceCollection AddEmailServices(this IServiceCollection services)
         {
             services
@@ -109,6 +131,48 @@ namespace tl.employersupport.ecrm.poc.functions.Extensions
                     }))
                 ;
 
+            return services;
+        }
+
+        public static IServiceCollection AddEcrmODataHttpClient(this IServiceCollection services)
+        {
+            services
+                .AddHttpClient<IEcrmODataApiClient, EcrmODataApiClient>(
+                    (serviceProvider, client) =>
+                    {
+                        var ecrmOptions = serviceProvider
+                            .GetRequiredService<IOptions<EcrmConfiguration>>()
+                            .Value;
+
+                        var uri = ecrmOptions.ODataApiUri.EndsWith("/")
+                            ? ecrmOptions.ODataApiUri
+                            : $"{ecrmOptions.ODataApiUri}/";
+
+                        client.BaseAddress =
+                            new Uri($"{uri}api/data/v{ecrmOptions.ODataApiVersion}/");
+
+                        client.DefaultRequestHeaders.Add("Accept", "application/json");
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+                    }
+                )
+                .ConfigurePrimaryHttpMessageHandler(_ =>
+                {
+                    var handler = new HttpClientHandler();
+                    if (handler.SupportsAutomaticDecompression)
+                    {
+                        handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                    }
+                    return handler;
+                })
+                .AddTransientHttpErrorPolicy(policy =>
+                    policy.WaitAndRetryAsync(new[] {
+                        TimeSpan.FromMilliseconds(200),
+                        TimeSpan.FromSeconds(1),
+                        TimeSpan.FromSeconds(5),
+                        TimeSpan.FromSeconds(10),
+                    }))
+                ;
             return services;
         }
 

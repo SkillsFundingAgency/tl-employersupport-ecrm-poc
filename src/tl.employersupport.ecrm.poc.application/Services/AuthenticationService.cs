@@ -1,39 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Configuration;
 
 namespace tl.employersupport.ecrm.poc.application.Services
 {
-    //https://stackoverflow.com/questions/38494279/how-do-i-get-an-oauth-2-0-authentication-token-in-c-sharp
-    //https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki#conceptual-documentation
-    //  https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Client-credential-flows
-    //  https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/AcquireTokenSilentAsync-using-a-cached-token
-    //
     public class AuthenticationService : IAuthenticationService
     {
         private readonly List<string> _scopes;
-        //private readonly IConfidentialClientApplication _app;
+        private readonly IConfidentialClientApplication _app;
 
-        //public AuthenticationService(AuthenticationConfiguration authentication)
-        //{
-        //    _app = ConfidentialClientApplicationBuilder
-        //        .Create(authentication.ClientId)
-        //        .WithClientSecret(authentication.ClientSecret)
-        //        .WithAuthority(authentication.Authority)
-        //        .Build();
+        public AuthenticationService(AuthenticationConfiguration authentication)
+        {
+            //Can this be done at startup using https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-provide-httpclient
+            _app = ConfidentialClientApplicationBuilder
+                //.CreateWithApplicationOptions(new ConfidentialClientApplicationOptions { ClientId = ....})
+                .Create(authentication.ClientId)
+                .WithClientSecret(authentication.ClientSecret)
+                .WithTenantId(authentication.Tenant)
+                .Build();
 
-        //    _scopes = new List<string> { $"{authentication.Audience}/.default" };
-        //}
+            _scopes = new List<string> { $"{authentication.Audience}/.default" };
+        }
 
         public async Task<string> GetAccessToken()
         {
-            //var authenticationResult = await _app.AcquireTokenForClient(_scopes)
-            //    .ExecuteAsync();
-            //return authenticationResult.AccessToken;
-            return null;
+            var authenticationResult = await _app.AcquireTokenForClient(_scopes)
+                .ExecuteAsync();
+            return authenticationResult.AccessToken;
         }
     }
 }

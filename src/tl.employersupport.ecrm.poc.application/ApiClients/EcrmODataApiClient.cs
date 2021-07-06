@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -31,33 +29,23 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         public async Task<WhoAmIResponse> GetWhoAmI()
         {
-            var accessToken = _authenticationService.GetAccessToken();
-
+            var accessToken = await _authenticationService.GetAccessToken();
+            
             var request = new HttpRequestMessage(HttpMethod.Get, "WhoAmI");
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            //request.Headers.Add("Ocp-Apim-Trace", "true");
-            //Authorization $"Bearer {accessToken}");
-            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer",  accessToken );
 
             var response = await _httpClient.SendAsync(request);
-
-            /*
-{
-    "@odata.context": "https://esfa-cs-dev.api.crm4.dynamics.com/api/data/v9.2/$metadata#Microsoft.Dynamics.CRM.WhoAmIResponse",
-    "BusinessUnitId": "0736860e-34ff-e811-a990-000d3a2cd74d",
-    "UserId": "8cca658d-59da-eb11-bacb-0022487fdd4b",
-    "OrganizationId": "ea5a0e24-b412-47f1-b726-efd241f0d9f3"
-}
-            */
 
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer
+            var whoAmI = JsonSerializer
                 .Deserialize<WhoAmIResponse>(
                     json,
                     JsonExtensions.DefaultJsonSerializerOptions);
+            return whoAmI;
         }
     }
 }

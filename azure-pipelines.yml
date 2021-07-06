@@ -106,6 +106,12 @@ stages:
                 -zendeskUser "$(ZendeskUser)"
                 -ecrmApiBaseUri "$(EcrmApiBaseUri)"
                 -ecrmApiKey "$(EcrmApiKey)"
+                -ecrmODataApiUri "$(EcrmODataApiUri)"
+                -ecrmODataApiVersion "$(EcrmODataApiVersion)"
+                -ecrmClientId" "$(EcrmClientId)"
+                -ecrmClientSecret" "$(EcrmClientSecret)"
+                -ecrmTenant" "$(EcrmTenant)"
+
               deploymentOutputs: DeploymentOutputs
           
           - bash: | 
