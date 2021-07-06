@@ -270,10 +270,6 @@
             {
               "name": "EcrmConfiguration:EcrmTenant",
               "value": "[parameters('ecrmTenant')]"
-            },
-            {
-              "name": "EcrmConfiguration:",
-              "value": "[parameters('')]"
             }
           ]
         }
