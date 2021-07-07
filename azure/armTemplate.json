@@ -104,6 +104,7 @@
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb-ns')]",
+    "serviceBusConnectionName": "[concat(variables('resourceNamePrefix'), 'sb-cn')]",
     "defaultSASKeyName": "RootManageSharedAccessKey",
     "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespaceName'), variables('defaultSASKeyName'))]",
     "sbVersion": "2018-01-01-preview",
@@ -286,6 +287,21 @@
       "properties": {
         "ApplicationId": "[variables('applicationInsightsName')]",
         "Request_Source": "IbizaWebAppExtensionCreate"
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('serviceBusConnectionName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/servicebus')]"
+        },
+        "displayName": "Azure Servicebus connection",
+        "parameterValues": {
+          "connectionString": "[listkeys(variables('authRuleResourceId'), variables('authRuleVersion')).primaryConnectionString]"
+        }
       }
     }
   ],
