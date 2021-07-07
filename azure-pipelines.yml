@@ -108,9 +108,9 @@ stages:
                 -ecrmApiKey "$(EcrmApiKey)"
                 -ecrmODataApiUri "$(EcrmODataApiUri)"
                 -ecrmODataApiVersion "$(EcrmODataApiVersion)"
-                -ecrmClientId" "$(EcrmClientId)"
-                -ecrmClientSecret" "$(EcrmClientSecret)"
-                -ecrmTenant" "$(EcrmTenant)"
+                -ecrmClientId "$(EcrmClientId)"
+                -ecrmClientSecret "$(EcrmClientSecret)"
+                -ecrmTenant "$(EcrmTenant)"
 
               deploymentOutputs: DeploymentOutputs
           
