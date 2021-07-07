@@ -79,16 +79,32 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         }
 
         [Fact]
+        public async Task EcrmService_GetAccount_Returns_Expected_Value()
+        {
+            var apiClient = Substitute.For<IEcrmODataApiClient>();
+
+            var accountId = Guid.Parse("63b6baf5-3f74-4ac3-8e9a-3a7afad9ad4d");
+
+            var account = new AccountBuilder().Build(accountId);
+
+            apiClient.GetAccount(accountId)
+                .Returns(account);
+
+            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+
+            var result = await service.GetAccount(accountId);
+
+            result.Should().NotBeNull();
+            result.AccountId.Should().Be(accountId);
+            result.Name.Should().Be(account.Name);
+        }
+
+        [Fact]
         public async Task EcrmService_WhoAmI_Returns_Expected_Value()
         {
             var apiClient = Substitute.For<IEcrmODataApiClient>();
 
-            var whoIAm = new WhoAmIResponse
-            {
-                BusinessUnitId = Guid.Parse("eed747ad-6aba-4af9-b92a-9843e506c28e"),
-                UserId = Guid.Parse("92f7f5e5-dfb6-4833-8b21-da22e1ecdb1a"),
-                OrganizationId = Guid.Parse("3c8902ef-83cc-4d22-a083-0d0f1e8fcf83")
-            };
+            var whoIAm = new WhoAmIResponseBuilder().Build();
 
             apiClient.GetWhoAmI()
                 .Returns(whoIAm);

@@ -57,6 +57,8 @@ namespace tl.employersupport.ecrm.poc.console
                         }
 
                         var ticketId = args.GetLongFromArgument("ticketId", ":");
+                        var ecrmAccountId = args.GetStringFromArgument("ecrmAccountId", ":");
+
                         CombinedTicket ticket = null;
 
                         var pause = args.HasArgument("--pause");
@@ -70,6 +72,12 @@ namespace tl.employersupport.ecrm.poc.console
                         if (args.HasArgument("--ecrmWhoAmI"))
                         {
                             await CheckEcrmWhoAmI();
+                            if (pause) WaitForUserInput();
+                        }
+                        
+                        if (args.HasArgument("--ecrmGetAccount"))
+                        {
+                            await GetEcrmAccount(ecrmAccountId);
                             if (pause) WaitForUserInput();
                         }
 
@@ -156,6 +164,29 @@ namespace tl.employersupport.ecrm.poc.console
             return Task.CompletedTask;
         }
 
+        private async Task GetEcrmAccount(string ecrmAccountId)
+        {
+            if (!Guid.TryParse(ecrmAccountId, out var accountId))
+            {
+                Console.WriteLine("Invalid ECRM Account Id");
+                return;
+            }
+             
+            var account = await _ecrmService.GetAccount(accountId);
+            if (account is null)
+            {
+                _logger.LogInformation($"Ecrm Account {ecrmAccountId} not found");
+            }
+            else
+            {
+                _logger.LogInformation("Ecrm Account:");
+                var whoAmIBuilder = new StringBuilder();
+                whoAmIBuilder.AppendLine($"    Account id: {account.AccountId}");
+                whoAmIBuilder.AppendLine($"    Name:       {account.Name}");
+                _logger.LogInformation(whoAmIBuilder.ToString());
+            }
+        }
+
         private async Task CheckEcrmHeartBeat()
         {
             var heartbeat = await _ecrmService.Heartbeat();
@@ -179,6 +210,7 @@ namespace tl.employersupport.ecrm.poc.console
                 _logger.LogInformation(whoAmIBuilder.ToString());
             }
         }
+        
         private async Task SendTicketCreatedEmail()
         {
             var random = new Random();
@@ -398,6 +430,7 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("Zendesk - ECRM Demo");
             Console.WriteLine("  --ecrmHeartbeat          - test ECRM API heartbeat");
             Console.WriteLine("  --ecrmWhoAmI             - test ECRM API WhoAmI");
+            Console.WriteLine("  --ecrmGetAccount         - test ECRM API account query");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
             Console.WriteLine("  --getContactTicket       - get a ticket with contact details from Zendesk (requires ticketId)");
@@ -408,6 +441,7 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("  --pause                  - pauses between steps");
             Console.WriteLine("  --help                   - shows this help text");
             Console.WriteLine("  ticketId:n               - ticket id for steps that use it");
+            Console.WriteLine("  ecrmAccountId:n          - account id in ECRM (guid)");
             Console.WriteLine("  clientTimeout:n          - the time to HTTP client timeout in seconds; used by --pollyTest");
             Console.WriteLine("  minTimeout:n             - minimum function timeout in seconds; used by --pollyTest");
             Console.WriteLine("  maxTimeout:n             - maximum function timeout in seconds; used by --pollyTest");

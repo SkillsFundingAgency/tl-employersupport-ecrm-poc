@@ -7,6 +7,10 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Builders
     {
         private static string GetRootPath() => Assembly.GetExecutingAssembly().GetName().Name;
 
+        public static string BuildEcrmAccount() =>
+            $"{GetRootPath()}.Data.ecrm_account.json"
+                .ReadManifestResourceStreamAsString();
+
         public static string BuildEcrmWhoAmIResponse() =>
             $"{GetRootPath()}.Data.ecrm_who_am_i.json"
                 .ReadManifestResourceStreamAsString();

@@ -57,9 +57,39 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
             var authenticationService = Substitute.For<IAuthenticationService>();
             authenticationService.GetAccessToken().Returns("token");
 
-            var client = new EcrmODataApiClientBuilder().Build(httpClient, authenticationService);
+            var client = new EcrmODataApiClientBuilder().Build(
+                httpClient,
+                new AuthenticationServiceBuilder().Build());
 
             var response = await client.GetWhoAmI();
+
+            response.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task EcrmODataApiClient_GetAccount_Returns_Expected_Value()
+        {
+            var accountJson = JsonBuilder.BuildEcrmAccount();
+            var accountId = Guid.Parse("7e82dc4d-e846-4560-bb76-b5255c18fc59");
+            var query =
+                $"$select=accountid,name,accountnumber,address1_primarycontactname,address1_line1,address1_line2,address1_line3,address1_postalcode,address1_city,telephone1,customersizecode&$orderby=name desc&$filter=accountid eq '{accountId:D}'";
+
+            var httpClient =
+                new TestHttpClientFactory()
+                    .CreateHttpClient(
+                        _ecrmODataApiBaseUri,
+                        new Dictionary<Uri, string>
+                        {
+                            {
+                                new Uri(_ecrmODataApiBaseUri, $"accounts?{query}"), accountJson
+                            }
+                        });
+
+            var client = new EcrmODataApiClientBuilder().Build(
+                httpClient, 
+                new AuthenticationServiceBuilder().Build());
+
+            var response = await client.GetAccount(accountId);
 
             response.Should().NotBeNull();
         }

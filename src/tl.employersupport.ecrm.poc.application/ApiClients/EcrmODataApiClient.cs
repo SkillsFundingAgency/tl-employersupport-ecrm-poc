@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -27,13 +29,32 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        public async Task<Account> GetAccount(Guid accountId)
+        {
+            var query =
+                $"$select=accountid,name,accountnumber,address1_primarycontactname,address1_line1,address1_line2,address1_line3,address1_postalcode,address1_city,telephone1,customersizecode&$orderby=name desc&$filter=accountid eq '{accountId:D}'";
+
+            var request = await CreateRequest(HttpMethod.Get, $"accounts?{query}");
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            
+            _logger.LogDebug($"ECRM Account response json: \n{json.PrettifyJsonString()}");
+
+            var accounts = JsonSerializer
+                .Deserialize<AccountResponse>(
+                    json,
+                    JsonExtensions.DefaultJsonSerializerOptions);
+
+            return accounts.Accounts.FirstOrDefault();
+        }
+
         public async Task<WhoAmIResponse> GetWhoAmI()
         {
-            var accessToken = await _authenticationService.GetAccessToken();
-            
-            var request = new HttpRequestMessage(HttpMethod.Get, "WhoAmI");
-            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer",  accessToken );
+            var request = await CreateRequest(HttpMethod.Get, "WhoAmI");
 
             var response = await _httpClient.SendAsync(request);
 
@@ -41,11 +62,21 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
             var json = await response.Content.ReadAsStringAsync();
 
-            var whoAmI = JsonSerializer
+            return JsonSerializer
                 .Deserialize<WhoAmIResponse>(
                     json,
                     JsonExtensions.DefaultJsonSerializerOptions);
-            return whoAmI;
+        }
+
+        private async Task<HttpRequestMessage> CreateRequest(HttpMethod method, string requestUri)
+        {
+            var accessToken = await _authenticationService.GetAccessToken();
+
+            var request = new HttpRequestMessage(method, requestUri);
+            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            return request;
         }
     }
 }

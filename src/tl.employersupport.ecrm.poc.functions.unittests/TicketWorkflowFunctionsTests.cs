@@ -406,7 +406,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
         }
 
         [Fact]
-        public async Task TicketWorkflowFunctions_GetEcrmWhoAmI_Returns_Ok_Result()
+        public async Task TicketWorkflowFunctions_GetEcrmWhoAmI_Returns_Expected_Result()
         {
             var whoIAm = new EcrmObjectsBuilder().BuildWhoAmIResponse();
 

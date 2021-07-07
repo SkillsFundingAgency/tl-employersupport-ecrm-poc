@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\ecrm_account.json" />
     <None Remove="Data\ecrm_who_am_i.json" />
     <None Remove="Data\zendesk_tags.json" />
     <None Remove="Data\zendesk_ticket.json" />
@@ -18,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Data\ecrm_account.json" />
     <EmbeddedResource Include="Data\ecrm_who_am_i.json" />
     <EmbeddedResource Include="Data\zendesk_ticket_search_result.json" />
     <EmbeddedResource Include="Data\zendesk_tags.json" />

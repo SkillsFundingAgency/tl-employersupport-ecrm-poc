@@ -6,7 +6,8 @@
       //"commandLineArgs": "--getContactTicket ticketId:4604",
       //"commandLineArgs": "--pollyTest minTimeout:1 maxTimeout:60 clientTimeout:5",
       //"commandLineArgs": "--ecrmHeartbeat",
-      "commandLineArgs": "--ecrmWhoAmI",
+      //"commandLineArgs": "--ecrmWhoAmI",
+      "commandLineArgs": "--ecrmWhoAmI --ecrmGetAccount ecrmAccountId:eb76ac5f-12f7-e911-a813-000d3a4aa7f7",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }
