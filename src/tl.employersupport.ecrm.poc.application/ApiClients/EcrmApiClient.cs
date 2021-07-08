@@ -41,26 +41,31 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         //public async Task<bool> GetAccount(Guid accountId)
         //{
-        //    var request = new HttpRequestMessage(HttpMethod.Get, $"accounts({accountId})");
-        //    request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        //    request.Headers.Add("Ocp-Apim-Trace", "true");
-
+        //    var request = CreateRequest(HttpMethod.Get, "HeartBeat");
+        //
         //    var response = await _httpClient.SendAsync(request);
-
+        //
         //    return response.StatusCode == HttpStatusCode.OK;
         //}
 
         public async Task<bool> GetHeartbeat()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "HeartBeat");
-            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            request.Headers.Add("Ocp-Apim-Trace", "true");
-            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            var request = CreateRequest(HttpMethod.Get, "HeartBeat");
 
             var response = await _httpClient.SendAsync(request);
 
             //var response = await _httpClient.GetAsync("HeartBeat");
             return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        private static HttpRequestMessage CreateRequest(HttpMethod method, string requestUri, bool trace = true)
+        {
+            var request = new HttpRequestMessage(method, requestUri);
+            request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            if (trace)
+                request.Headers.Add("Ocp-Apim-Trace", "true");
+
+            return request;
         }
     }
 }

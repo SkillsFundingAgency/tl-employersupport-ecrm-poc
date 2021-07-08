@@ -1,0 +1,19 @@
+{
+  "@odata.context": "https://esfa-cs-dev.api.crm4.dynamics.com/api/data/v9.2/$metadata#accounts(accountid,name,accountnumber,address1_line1,address1_line2,address1_line3,address1_postalcode,address1_city,telephone1,sfa_aupa,customersizecode)",
+  "value": [
+    {
+      "@odata.etag": "W/\"8480800\"",
+      "accountid": "7e82dc4d-e846-4560-bb76-b5255c18fc59",
+      "name": "Test Account",
+      "accountnumber": null,
+      "address1_primarycontactname": null,
+      "address1_line1": "Q A",
+      "address1_line2": "25 Any Street",
+      "address1_line3": null,
+      "address1_postalcode": "CV1 2DT",
+      "address1_city": "Coventry",
+      "telephone1": null,
+      "customersizecode": 1
+    }
+  ]
+}

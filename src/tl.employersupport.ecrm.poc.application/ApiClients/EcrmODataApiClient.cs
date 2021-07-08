@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -29,12 +31,29 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        public async Task<Guid> CreateAccount(Account account)
+        {
+            var request = await CreateRequestWithToken(HttpMethod.Post, "accounts");
+            var requestJson = JsonSerializer.Serialize(
+                account, 
+                JsonExtensions.DefaultJsonSerializerOptions);
+
+            request.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            _logger.LogDebug($"ECRM Create account response json: \n{json.PrettifyJsonString()}");
+
+            return account.AccountId!.Value;
+        }
+
         public async Task<Account> GetAccount(Guid accountId)
         {
-            var query =
-                $"$select=accountid,name,accountnumber,address1_primarycontactname,address1_line1,address1_line2,address1_line3,address1_postalcode,address1_city,telephone1,customersizecode&$orderby=name desc&$filter=accountid eq '{accountId:D}'";
-
-            var request = await CreateRequest(HttpMethod.Get, $"accounts?{query}");
+            var request = await CreateRequestWithToken(HttpMethod.Get, $"accounts({accountId:D})");
 
             var response = await _httpClient.SendAsync(request);
 
@@ -45,16 +64,38 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             _logger.LogDebug($"ECRM Account response json: \n{json.PrettifyJsonString()}");
 
             var accounts = JsonSerializer
+                .Deserialize<Account>(
+                    json,
+                    JsonExtensions.DefaultJsonSerializerOptions);
+
+            return accounts;
+        }
+
+        public async Task<Account> SearchAccounts(Guid accountId)
+        {
+            var query = CreateAccountQuery($"accountid eq '{accountId:D}'");
+
+            var request = await CreateRequestWithToken(HttpMethod.Get, $"accounts?{query}");
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            _logger.LogDebug($"ECRM Account response json: \n{json.PrettifyJsonString()}");
+
+            var accounts = JsonSerializer
                 .Deserialize<AccountResponse>(
                     json,
                     JsonExtensions.DefaultJsonSerializerOptions);
 
-            return accounts.Accounts.FirstOrDefault();
+            return accounts?.Accounts.FirstOrDefault();
         }
 
         public async Task<WhoAmIResponse> GetWhoAmI()
         {
-            var request = await CreateRequest(HttpMethod.Get, "WhoAmI");
+            var request = await CreateRequestWithToken(HttpMethod.Get, "WhoAmI");
 
             var response = await _httpClient.SendAsync(request);
 
@@ -68,7 +109,16 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                     JsonExtensions.DefaultJsonSerializerOptions);
         }
 
-        private async Task<HttpRequestMessage> CreateRequest(HttpMethod method, string requestUri)
+        [SuppressMessage("ReSharper", "CommentTypo")]
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
+        private string CreateAccountQuery(string filter)
+        {
+            return "$select=accountid,name,accountnumber,address1_primarycontactname,address1_line1,address1_line2,address1_line3,address1_postalcode,address1_city,telephone1,customersizecode" +
+                   "&$orderby=name desc" +
+                   $"&$filter={filter}";
+        }
+
+        private async Task<HttpRequestMessage> CreateRequestWithToken(HttpMethod method, string requestUri)
         {
             var accessToken = await _authenticationService.GetAccessToken();
 

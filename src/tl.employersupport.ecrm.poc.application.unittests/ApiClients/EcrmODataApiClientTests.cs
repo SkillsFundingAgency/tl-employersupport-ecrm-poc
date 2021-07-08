@@ -71,8 +71,12 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
         {
             var accountJson = JsonBuilder.BuildEcrmAccount();
             var accountId = Guid.Parse("7e82dc4d-e846-4560-bb76-b5255c18fc59");
+
+            //TODO: Move to query builder class
+            // ReSharper disable StringLiteralTypo
             var query =
                 $"$select=accountid,name,accountnumber,address1_primarycontactname,address1_line1,address1_line2,address1_line3,address1_postalcode,address1_city,telephone1,customersizecode&$orderby=name desc&$filter=accountid eq '{accountId:D}'";
+            // ReSharper restore StringLiteralTypo
 
             var httpClient =
                 new TestHttpClientFactory()
@@ -81,7 +85,8 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
                         new Dictionary<Uri, string>
                         {
                             {
-                                new Uri(_ecrmODataApiBaseUri, $"accounts?{query}"), accountJson
+                                //new Uri(_ecrmODataApiBaseUri, $"accounts?{query}"), accountJson
+                                new Uri(_ecrmODataApiBaseUri, $"accounts({accountId:D})"), accountJson
                             }
                         });
 

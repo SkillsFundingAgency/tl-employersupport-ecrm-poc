@@ -6,6 +6,7 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
 {
     public interface IEcrmODataApiClient
     {
+        Task<Guid> CreateAccount(Account account);
         Task<WhoAmIResponse> GetWhoAmI();
         Task<Account> GetAccount(Guid accountId);
     }

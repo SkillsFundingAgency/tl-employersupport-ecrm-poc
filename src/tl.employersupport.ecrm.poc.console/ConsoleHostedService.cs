@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Extensions;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 using tl.employersupport.ecrm.poc.application.Model.ZendeskTicket;
 
 namespace tl.employersupport.ecrm.poc.console
@@ -78,6 +79,12 @@ namespace tl.employersupport.ecrm.poc.console
                         if (args.HasArgument("--ecrmGetAccount"))
                         {
                             await GetEcrmAccount(ecrmAccountId);
+                            if (pause) WaitForUserInput();
+                        }
+
+                        if (args.HasArgument("--ecrmCreateAccount"))
+                        {
+                            await CreateEcrmAccount();
                             if (pause) WaitForUserInput();
                         }
 
@@ -164,6 +171,25 @@ namespace tl.employersupport.ecrm.poc.console
             return Task.CompletedTask;
         }
 
+        private async Task CreateEcrmAccount()
+        {
+            var account = new Account
+            {
+                AccountId = Guid.NewGuid(),
+                Name = "T Levels Test 2",
+                AddressLine = "155 Lime Road",
+                Postcode = "OX2 9EG",
+                AddressCity = "Oxford",
+                EmailAddress = "mike@mike.test.com",
+                AddressPrimaryContact = "Mike Wild",
+                Phone = "0771234567"
+            };
+
+            var result = await _ecrmService.CreateAccount(account);
+
+            _logger.LogInformation($"ECRM create account result: {result:D}");
+        }
+
         private async Task GetEcrmAccount(string ecrmAccountId)
         {
             if (!Guid.TryParse(ecrmAccountId, out var accountId))
@@ -175,22 +201,28 @@ namespace tl.employersupport.ecrm.poc.console
             var account = await _ecrmService.GetAccount(accountId);
             if (account is null)
             {
-                _logger.LogInformation($"Ecrm Account {ecrmAccountId} not found");
+                _logger.LogInformation($"ECRM Account {ecrmAccountId} not found");
             }
             else
             {
-                _logger.LogInformation("Ecrm Account:");
-                var whoAmIBuilder = new StringBuilder();
-                whoAmIBuilder.AppendLine($"    Account id: {account.AccountId}");
-                whoAmIBuilder.AppendLine($"    Name:       {account.Name}");
-                _logger.LogInformation(whoAmIBuilder.ToString());
+                _logger.LogInformation("ECRM Account:");
+                var accountInfoBuilder = new StringBuilder();
+                accountInfoBuilder.AppendLine($"    Account id:      {account.AccountId}");
+                accountInfoBuilder.AppendLine($"    Name:            {account.Name}");
+                accountInfoBuilder.AppendLine($"    Address line 1:  { account.AddressLine}");
+                accountInfoBuilder.AppendLine($"    Postcode:        {account.Postcode}");
+                accountInfoBuilder.AppendLine($"    City:            {account.AddressCity}");
+                accountInfoBuilder.AppendLine($"    Primary Contact: {account.AddressPrimaryContact}");
+                accountInfoBuilder.AppendLine($"    EmailAddress:    {account.EmailAddress}");
+                accountInfoBuilder.AppendLine($"    Phone:           {account.Phone}");
+                _logger.LogInformation(accountInfoBuilder.ToString());
             }
         }
 
         private async Task CheckEcrmHeartBeat()
         {
             var heartbeat = await _ecrmService.Heartbeat();
-            _logger.LogInformation($"Ecrm Heartbeat result: {(heartbeat ? "Alive" : "Goner")}");
+            _logger.LogInformation($"ECRM Heartbeat result: {(heartbeat ? "Alive" : "Goner")}");
         }
 
         private async Task CheckEcrmWhoAmI()
@@ -198,11 +230,11 @@ namespace tl.employersupport.ecrm.poc.console
             var whoAmI = await _ecrmService.WhoAmI();
             if (whoAmI is null)
             {
-                _logger.LogInformation("Ecrm WhoAmI returned null");
+                _logger.LogInformation("ECRM WhoAmI returned null");
             }
             else
             {
-                _logger.LogInformation("Ecrm WhoAmI:");
+                _logger.LogInformation("ECRM WhoAmI:");
                 var whoAmIBuilder = new StringBuilder();
                 whoAmIBuilder.AppendLine($"    Business unit: {whoAmI.BusinessUnitId}");
                 whoAmIBuilder.AppendLine($"    Organisation:  {whoAmI.UserId}");
@@ -431,6 +463,7 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("  --ecrmHeartbeat          - test ECRM API heartbeat");
             Console.WriteLine("  --ecrmWhoAmI             - test ECRM API WhoAmI");
             Console.WriteLine("  --ecrmGetAccount         - test ECRM API account query");
+            Console.WriteLine("  --ecrmCreateAccount      - test ECRM API account creation");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
             Console.WriteLine("  --getContactTicket       - get a ticket with contact details from Zendesk (requires ticketId)");
