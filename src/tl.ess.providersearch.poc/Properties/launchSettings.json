@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "ess_providersearch_poc": {
+    "tl.ess.providersearch.poc": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
