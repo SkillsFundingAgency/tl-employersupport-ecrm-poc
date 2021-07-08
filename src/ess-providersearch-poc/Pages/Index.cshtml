@@ -1,0 +1,31 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Search for T Levels</h1>
+
+    <div>
+        <button id="tl-search-providers">Search</button>
+        <span id="tl-provider-search-status" class="tl-search-status tl-hidden"></span>
+    </div>
+</div>
+
+    <div>
+        <details>
+            <summary>Raw json:</summary>
+            <pre>
+            <code id="tl-provider-search-results-json">                
+                </code>
+            </pre>
+        </details>
+    </div>
+
+    <div id="tl-provider-search-results">
+    </div>
+
+@section Scripts {
+<script src="/js/site.js" asp-append-version="true"></script>
+    }
