@@ -15,7 +15,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Builders
         {
             logger ??= Substitute.For<ILogger<EcrmODataApiClient>>();
             httpClient ??= Substitute.For<HttpClient>();
-            authenticationService ??= Substitute.For<IAuthenticationService>();
+            authenticationService ??= new AuthenticationServiceBuilder().Build();
 
             return new EcrmODataApiClient(httpClient, authenticationService, logger);
         }

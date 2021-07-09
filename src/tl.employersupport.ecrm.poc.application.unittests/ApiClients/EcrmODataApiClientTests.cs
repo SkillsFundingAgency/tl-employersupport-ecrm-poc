@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NSubstitute;
 using tl.employersupport.ecrm.poc.application.ApiClients;
-using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
 using tl.employersupport.ecrm.poc.tests.common.HttpClient;
@@ -14,8 +14,8 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
 {
     public class EcrmODataApiClientTests
     {
-        private const string EcrmODataApiBaseUrl = "https://test.api.crm4.dynamics.com/api/data/v9.2/";
-        private readonly Uri _ecrmODataApiBaseUri = new(EcrmODataApiBaseUrl);
+        private const string EcrmApiBaseUrl = "https://test.api.crm4.dynamics.com/api/data/v9.2/";
+        private readonly Uri _ecrmApiBaseUri = new(EcrmApiBaseUrl);
 
         [Fact]
         public void EcrmODataApiClient_Constructor_Succeeds_With_Valid_Parameters()
@@ -46,24 +46,26 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        _ecrmODataApiBaseUri,
+                        _ecrmApiBaseUri,
                         new Dictionary<Uri, string>
                         {
                             {
-                                new Uri(_ecrmODataApiBaseUri, "WhoAmI"), whoAmIJson
+                                new Uri(_ecrmApiBaseUri, "WhoAmI"), whoAmIJson
                             }
                         });
 
-            var authenticationService = Substitute.For<IAuthenticationService>();
-            authenticationService.GetAccessToken().Returns("token");
-
             var client = new EcrmODataApiClientBuilder().Build(
-                httpClient,
-                new AuthenticationServiceBuilder().Build());
+                httpClient);
+
+            var whoAmIExpected = JsonSerializer
+                .Deserialize<WhoAmIResponse>(whoAmIJson);
 
             var response = await client.GetWhoAmI();
 
             response.Should().NotBeNull();
+            response.BusinessUnitId.Should().Be(whoAmIExpected!.BusinessUnitId);
+            response.OrganizationId.Should().Be(whoAmIExpected.OrganizationId);
+            response.UserId.Should().Be(whoAmIExpected.UserId);
         }
 
         [Fact]
@@ -81,18 +83,17 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
             var httpClient =
                 new TestHttpClientFactory()
                     .CreateHttpClient(
-                        _ecrmODataApiBaseUri,
+                        _ecrmApiBaseUri,
                         new Dictionary<Uri, string>
                         {
                             {
                                 //new Uri(_ecrmODataApiBaseUri, $"accounts?{query}"), accountJson
-                                new Uri(_ecrmODataApiBaseUri, $"accounts({accountId:D})"), accountJson
+                                new Uri(_ecrmApiBaseUri, $"accounts({accountId:D})"), accountJson
                             }
                         });
 
             var client = new EcrmODataApiClientBuilder().Build(
-                httpClient, 
-                new AuthenticationServiceBuilder().Build());
+                httpClient);
 
             var response = await client.GetAccount(accountId);
 
