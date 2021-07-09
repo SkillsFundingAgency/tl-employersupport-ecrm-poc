@@ -6,10 +6,13 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
 {
     public interface IEcrmService
     {
-        Task<Guid> CreateAccount(Account account);
         Task<Employer> FindEmployer(EmployerSearchRequest searchRequest);
+
         Task<bool> Heartbeat();
         Task<WhoAmIResponse> WhoAmI();
+
         Task<Account> GetAccount(Guid accountId);
+        Task<Guid> CreateAccount(Account account);
+        Task<Guid> CreateContact(Contact contact);
     }
 }

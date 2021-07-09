@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -33,12 +33,12 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         public async Task<Guid> CreateAccount(Account account)
         {
-            var request = await CreateRequestWithToken(HttpMethod.Post, "accounts");
-            var requestJson = JsonSerializer.Serialize(
-                account, 
-                JsonExtensions.DefaultJsonSerializerOptions);
-
-            request.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            var request = await CreateRequestWithToken(
+                HttpMethod.Post, 
+                "accounts",
+                JsonSerializer.Serialize(
+                    account, 
+                    JsonExtensions.DefaultJsonSerializerOptions));
 
             var response = await _httpClient.SendAsync(request);
 
@@ -49,6 +49,42 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             _logger.LogDebug($"ECRM Create account response json: \n{json.PrettifyJsonString()}");
 
             return account.AccountId!.Value;
+        }
+
+        public async Task<Guid> CreateContact(Contact contact)
+        {
+            var request = await CreateRequestWithToken(
+                HttpMethod.Post,
+                "contacts",
+                JsonSerializer.Serialize(
+                    contact,
+                    JsonExtensions.IgnoreNullJsonSerializerOptions));
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            _logger.LogDebug($"ECRM Create contact response json: \n{json.PrettifyJsonString()}");
+
+            var newId = contact.ContactId!.Value;
+            
+            foreach (var header in response.Headers)
+            {
+                Debug.WriteLine($"{header.Key} - {header.Value}");
+                foreach (var value in header.Value)
+                {
+                    Debug.WriteLine($"{header.Key} - {header.Value}");
+                }
+
+                if (header.Key == "OData-EntityId")
+                {
+                     var found = Guid.TryParse(header.Value.First(), out newId);
+                }
+            }
+
+            return newId; 
         }
 
         public async Task<Account> GetAccount(Guid accountId)
@@ -63,14 +99,14 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             
             _logger.LogDebug($"ECRM Account response json: \n{json.PrettifyJsonString()}");
 
-            var accounts = JsonSerializer
+            var account = JsonSerializer
                 .Deserialize<Account>(
                     json,
                     JsonExtensions.DefaultJsonSerializerOptions);
 
-            return accounts;
+            return account;
         }
-
+        
         public async Task<Account> SearchAccounts(Guid accountId)
         {
             var query = CreateAccountQuery($"accountid eq '{accountId:D}'");
@@ -118,13 +154,18 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                    $"&$filter={filter}";
         }
 
-        private async Task<HttpRequestMessage> CreateRequestWithToken(HttpMethod method, string requestUri)
+        private async Task<HttpRequestMessage> CreateRequestWithToken(HttpMethod method, string requestUri, string body = null)
         {
             var accessToken = await _authenticationService.GetAccessToken();
 
             var request = new HttpRequestMessage(method, requestUri);
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            if (body != null)
+            {
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+            }
 
             return request;
         }

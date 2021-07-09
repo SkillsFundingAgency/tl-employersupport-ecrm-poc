@@ -79,13 +79,52 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         }
 
         [Fact]
+        public async Task EcrmService_CreateAccount_Returns_Expected_Value()
+        {
+            var apiClient = Substitute.For<IEcrmODataApiClient>();
+
+            var accountId = Guid.Parse("63b6baf5-3f74-4ac3-8e9a-3a7afad9ad4d");
+
+            var account = new EcrmAccountBuilder().Build(accountId);
+
+            apiClient.CreateAccount(account)
+                .Returns(accountId);
+
+            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+
+            var result = await service.CreateAccount(account);
+
+            result.Should().Be(accountId);
+        }
+
+        [Fact]
+        public async Task EcrmService_CreateContact_Returns_Expected_Value()
+        {
+            var apiClient = Substitute.For<IEcrmODataApiClient>();
+
+            var accountId = Guid.Parse("63b6baf5-3f74-4ac3-8e9a-3a7afad9ad4d");
+            var contactId = Guid.Parse("3dd08977-43c7-473a-b565-5d1cc6540700");
+
+            var contact = new EcrmContactBuilder().Build(null, accountId);
+
+            apiClient.CreateContact(contact)
+                .Returns(contactId);
+
+            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+
+            var result = await service.CreateContact(contact);
+
+            result.Should().Be(contactId);
+        }
+
+        [Fact]
         public async Task EcrmService_GetAccount_Returns_Expected_Value()
         {
             var apiClient = Substitute.For<IEcrmODataApiClient>();
 
             var accountId = Guid.Parse("63b6baf5-3f74-4ac3-8e9a-3a7afad9ad4d");
 
-            var account = new AccountBuilder().Build(accountId);
+            var account = new EcrmAccountBuilder().Build(accountId);
 
             apiClient.GetAccount(accountId)
                 .Returns(account);

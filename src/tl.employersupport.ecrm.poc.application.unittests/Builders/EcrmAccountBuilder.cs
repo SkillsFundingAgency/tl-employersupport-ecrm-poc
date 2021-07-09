@@ -3,12 +3,12 @@ using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 
 namespace tl.employersupport.ecrm.poc.application.unittests.Builders
 {
-    public class AccountBuilder
+    public class EcrmAccountBuilder
     {
         public Account Build() => 
-            Build(Guid.Parse("80B7D3DC-D54E-4277-8B25-D8891ADA4DC4"));
+            Build(Guid.Parse("3fe7a4a8-83a0-49cc-872f-927d71654b86"));
 
-        public Account Build(Guid accountId) =>
+        public Account Build(Guid? accountId) =>
             new()
             {
                 AccountId = accountId,

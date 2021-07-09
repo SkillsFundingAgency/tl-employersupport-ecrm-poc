@@ -17,7 +17,13 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
 
         public static JsonSerializerOptions DefaultJsonSerializerOptions =>
             new();
-        
+
+        public static JsonSerializerOptions IgnoreNullJsonSerializerOptions =>
+            new()
+            {
+                IgnoreNullValues = true
+            };
+
         public static string PrettifyJsonString(this string json)
         {
             if (string.IsNullOrWhiteSpace(json))

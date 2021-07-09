@@ -47,6 +47,11 @@ namespace tl.employersupport.ecrm.poc.application.Services
             return await _ecrmODataApiClient.CreateAccount(account);
         }
 
+        public async Task<Guid> CreateContact(Contact contact)
+        {
+            return await _ecrmODataApiClient.CreateContact(contact);
+        }
+
         public async Task<Account> GetAccount(Guid accountId)
         {
             return await _ecrmODataApiClient.GetAccount(accountId);
