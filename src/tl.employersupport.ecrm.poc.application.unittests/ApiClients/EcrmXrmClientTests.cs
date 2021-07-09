@@ -1,14 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using NSubstitute;
 using tl.employersupport.ecrm.poc.application.ApiClients;
-using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.unittests.Builders;
 using tl.employersupport.ecrm.poc.tests.common.Extensions;
-using tl.employersupport.ecrm.poc.tests.common.HttpClient;
 using Xunit;
 
 namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients

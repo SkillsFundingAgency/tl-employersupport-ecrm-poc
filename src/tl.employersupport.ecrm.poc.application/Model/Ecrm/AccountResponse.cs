@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Microsoft.Identity.Client;
 
 namespace tl.employersupport.ecrm.poc.application.Model.Ecrm
 {
