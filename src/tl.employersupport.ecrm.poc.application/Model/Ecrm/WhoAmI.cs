@@ -2,7 +2,7 @@
 
 namespace tl.employersupport.ecrm.poc.application.Model.Ecrm
 {
-    public class WhoAmIResponse
+    public class WhoAmI
     {
         public Guid BusinessUnitId { get; init; }
         public Guid UserId { get; init; }

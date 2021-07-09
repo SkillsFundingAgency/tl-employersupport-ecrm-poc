@@ -435,7 +435,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
             var responseJson = await reader.ReadToEndAsync();
 
             var deserializedResult = JsonSerializer
-                .Deserialize<WhoAmIResponse>(responseJson,
+                .Deserialize<WhoAmI>(responseJson,
                     JsonExtensions.CamelCaseJsonSerializerOptions);
 
             deserializedResult.Should().NotBeNull();
@@ -450,7 +450,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests
             var ecrmService = Substitute.For<IEcrmService>();
             ecrmService
                 .WhoAmI()
-                .Returns(null as Task<WhoAmIResponse>);
+                .Returns(null as Task<WhoAmI>);
 
             var request = FunctionObjectsBuilder
                 .BuildHttpRequestData(

@@ -142,13 +142,16 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         public async Task EcrmService_WhoAmI_Returns_Expected_Value()
         {
             var apiClient = Substitute.For<IEcrmODataApiClient>();
+            var xrmClient = Substitute.For<IEcrmXrmClient>();
 
-            var whoIAm = new WhoAmIResponseBuilder().Build();
+            var whoIAm = new WhoAmIBuilder().Build();
 
-            apiClient.GetWhoAmI()
-                .Returns(whoIAm);
+            apiClient.GetWhoAmI().Returns(whoIAm);
+            xrmClient.WhoAmI().Returns(whoIAm);
 
-            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+            var service = new EcrmServiceBuilder().Build(
+                ecrmODataApiClient: apiClient,
+                ecrmXrmClient: xrmClient);
 
             var result = await service.WhoAmI();
 

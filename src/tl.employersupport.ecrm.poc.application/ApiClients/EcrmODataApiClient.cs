@@ -129,7 +129,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             return accounts?.Accounts.FirstOrDefault();
         }
 
-        public async Task<WhoAmIResponse> GetWhoAmI()
+        public async Task<WhoAmI> GetWhoAmI()
         {
             var request = await CreateRequestWithToken(HttpMethod.Get, "WhoAmI");
 
@@ -140,7 +140,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             var json = await response.Content.ReadAsStringAsync();
 
             return JsonSerializer
-                .Deserialize<WhoAmIResponse>(
+                .Deserialize<WhoAmI>(
                     json,
                     JsonExtensions.DefaultJsonSerializerOptions);
         }

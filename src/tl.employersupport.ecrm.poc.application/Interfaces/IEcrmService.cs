@@ -9,7 +9,7 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
         Task<Employer> FindEmployer(EmployerSearchRequest searchRequest);
 
         Task<bool> Heartbeat();
-        Task<WhoAmIResponse> WhoAmI();
+        Task<WhoAmI> WhoAmI();
 
         Task<Account> GetAccount(Guid accountId);
         Task<Guid> CreateAccount(Account account);

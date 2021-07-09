@@ -225,8 +225,8 @@ namespace tl.employersupport.ecrm.poc.console
             _logger.LogInformation($"ECRM create contact result: {newId:D}");
 
             return newId;
-
         }
+
         private async Task GetEcrmAccount(Guid accountId)
         {
             var account = await _ecrmService.GetAccount(accountId);

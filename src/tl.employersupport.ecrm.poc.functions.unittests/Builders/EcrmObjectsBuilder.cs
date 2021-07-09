@@ -5,7 +5,7 @@ namespace tl.employersupport.ecrm.poc.functions.unittests.Builders
 {
     public class EcrmObjectsBuilder
     {
-        public WhoAmIResponse BuildWhoAmIResponse() =>
+        public WhoAmI BuildWhoAmIResponse() =>
             new()
             {
                 BusinessUnitId = Guid.Parse("cc4d685a-cb20-40a6-99b9-656e793addeb"),

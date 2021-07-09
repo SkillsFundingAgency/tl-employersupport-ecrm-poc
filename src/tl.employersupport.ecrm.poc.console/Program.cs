@@ -7,6 +7,8 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.PowerPlatform.Dataverse.Client;
+using Microsoft.Xrm.Sdk;
 using Notify.Client;
 using Notify.Interfaces;
 using Polly;
@@ -164,11 +166,18 @@ await Host.CreateDefaultBuilder(args)
                     ClientSecret = ecrmOptions.ClientSecret,
                     Tenant = ecrmOptions.Tenant
                 }))
+            .AddTransient<IOrganizationService>(_ =>
+                new ServiceClient(
+                        "AuthType=ClientSecret;" +
+                        $"url={ecrmOptions.ODataApiUri};" +
+                        $"ClientId={ecrmOptions.ClientId};" +
+                        $"ClientSecret={ecrmOptions.ClientSecret}"))
             .AddSingleton<IDateTimeService, DateTimeService>()
             .AddTransient<IEmailService, EmailService>()
             .AddTransient<ITicketService, TicketService>()
             .AddTransient<IMonitorService, MonitorService>()
             .AddTransient<IEcrmService, EcrmService>()
+            .AddTransient<IEcrmXrmClient, EcrmXrmClient>()
             .AddTransient<IAsyncNotificationClient, NotificationClient>(
                 _ => new NotificationClient(emailOptions.GovNotifyApiKey));
     })

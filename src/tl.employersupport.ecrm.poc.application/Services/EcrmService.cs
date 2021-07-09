@@ -11,15 +11,17 @@ namespace tl.employersupport.ecrm.poc.application.Services
         private readonly ILogger _logger;
         private readonly IEcrmApiClient _ecrmApiClient;
         private readonly IEcrmODataApiClient _ecrmODataApiClient;
+        private readonly IEcrmXrmClient _ecrmXrmClient;
 
         public EcrmService(
             IEcrmApiClient ecrmApiClient,
             IEcrmODataApiClient ecrmODataApiClient,
+            IEcrmXrmClient ecrmXrmClient,
             ILogger<EcrmService> logger)
         {
             _ecrmApiClient = ecrmApiClient ?? throw new ArgumentNullException(nameof(ecrmApiClient));
-            _ecrmODataApiClient = ecrmODataApiClient;
             _ecrmODataApiClient = ecrmODataApiClient ?? throw new ArgumentNullException(nameof(ecrmODataApiClient));
+            _ecrmXrmClient = ecrmXrmClient ?? throw new ArgumentNullException(nameof(ecrmXrmClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         
@@ -37,9 +39,11 @@ namespace tl.employersupport.ecrm.poc.application.Services
             return await _ecrmApiClient.GetHeartbeat();
         }
 
-        public async Task<WhoAmIResponse> WhoAmI()
+        public async Task<WhoAmI> WhoAmI()
         {
-            return await _ecrmODataApiClient.GetWhoAmI();
+            //var result = await _ecrmODataApiClient.GetWhoAmI();
+            var result = await _ecrmXrmClient.WhoAmI();
+            return result;
         }
 
         public async Task<Guid> CreateAccount(Account account)

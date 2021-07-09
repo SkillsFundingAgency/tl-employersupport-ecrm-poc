@@ -6,9 +6,9 @@
       //"commandLineArgs": "--getContactTicket ticketId:4604",
       //"commandLineArgs": "--pollyTest minTimeout:1 maxTimeout:60 clientTimeout:5",
       //"commandLineArgs": "--ecrmHeartbeat",
-      //"commandLineArgs": "--ecrmWhoAmI",
+      "commandLineArgs": "--ecrmWhoAmI",
       //"commandLineArgs": "--ecrmGetAccount --ecrmCreateAccount ecrmAccountId:eb76ac5f-12f7-e911-a813-000d3a4aa7f7",
-      "commandLineArgs": "--ecrmGetAccount --ecrmCreateContact ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796",
+      //"commandLineArgs": "--ecrmGetAccount --ecrmCreateContact ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }

@@ -58,14 +58,14 @@ namespace tl.employersupport.ecrm.poc.application.unittests.ApiClients
                 httpClient);
 
             var whoAmIExpected = JsonSerializer
-                .Deserialize<WhoAmIResponse>(whoAmIJson);
+                .Deserialize<WhoAmI>(whoAmIJson);
 
-            var response = await client.GetWhoAmI();
+            var whoAmI = await client.GetWhoAmI();
 
-            response.Should().NotBeNull();
-            response.BusinessUnitId.Should().Be(whoAmIExpected!.BusinessUnitId);
-            response.OrganizationId.Should().Be(whoAmIExpected.OrganizationId);
-            response.UserId.Should().Be(whoAmIExpected.UserId);
+            whoAmI.Should().NotBeNull();
+            whoAmI.BusinessUnitId.Should().Be(whoAmIExpected!.BusinessUnitId);
+            whoAmI.OrganizationId.Should().Be(whoAmIExpected.OrganizationId);
+            whoAmI.UserId.Should().Be(whoAmIExpected.UserId);
         }
 
         [Fact]

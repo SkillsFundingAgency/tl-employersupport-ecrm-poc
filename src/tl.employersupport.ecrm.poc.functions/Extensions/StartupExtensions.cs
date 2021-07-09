@@ -5,6 +5,8 @@ using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.PowerPlatform.Dataverse.Client;
+using Microsoft.Xrm.Sdk;
 using Notify.Client;
 using Notify.Interfaces;
 using Polly;
@@ -54,8 +56,7 @@ namespace tl.employersupport.ecrm.poc.functions.Extensions
                 });
             return services;
         }
-
-
+        
         public static IServiceCollection AddAuthenticationService(this IServiceCollection services)
         {
             services
@@ -75,6 +76,30 @@ namespace tl.employersupport.ecrm.poc.functions.Extensions
                 });
 
             return services;
+        }
+
+        public static IServiceCollection AddXrmOrganizationServices(this IServiceCollection services)
+        {
+            services
+                .AddTransient<IOrganizationService>(serviceProvider =>
+                {
+                    var ecrmOptions = serviceProvider
+                        .GetRequiredService<IOptions<EcrmConfiguration>>()
+                        .Value;
+
+                    var connectionString =
+                        "AuthType=ClientSecret;" +
+                        $"url={ecrmOptions.ODataApiUri};" +
+                        $"ClientId={ecrmOptions.ClientId};" +
+                        $"ClientSecret={ecrmOptions.ClientSecret}";
+
+                    return new ServiceClient(connectionString);
+                })
+                .AddTransient<IEcrmXrmClient, EcrmXrmClient>()
+                ;
+
+            return services;
+
         }
 
         public static IServiceCollection AddEmailServices(this IServiceCollection services)
