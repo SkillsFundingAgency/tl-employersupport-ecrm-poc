@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 
@@ -16,5 +18,6 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
         Task<Guid> CreateContact(Contact contact);
         Task<Guid> CreateNote(Note note);
         Task UpdateAccountCustomerType(Guid accountId, int customerType);
+        Task<IEnumerable<Account>> FindDuplicateAccounts(Account account);
     }
 }

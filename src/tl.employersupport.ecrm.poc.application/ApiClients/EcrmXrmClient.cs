@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Extensions.Logging;
@@ -90,7 +91,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
             return (null, null);
         }
-        
+
         public async Task UpdateAccountCustomerType(Guid accountId, int customerType)
         {
             try
@@ -124,17 +125,17 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
         }
 
-        public async Task<Account> CheckForDuplicateAccount(Account account)
+        public async Task<IEnumerable<Account>> FindDuplicateAccounts(Account account)
         {
             //TODO: Create specific entities and extensions to convert or map them
             var entity = //new Account()
                 AccountToEntity(account);
 
-            var request = new RetrieveDuplicatesRequest()
+            var request = new RetrieveDuplicatesRequest
             {
                 BusinessEntity = entity,
                 MatchingEntityName = entity.LogicalName,
-                PagingInfo = new PagingInfo() { PageNumber = 1, Count = 50 }
+                PagingInfo = new PagingInfo { PageNumber = 1, Count = 50 }
             };
 
             var response = (RetrieveDuplicatesResponse)_organizationService.Execute(request);
@@ -142,10 +143,10 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             if (response.DuplicateCollection.Entities.Count >= 1)
             {
                 _logger.LogInformation("{0} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
-                return EntityToAccount(response.DuplicateCollection.Entities[0]);
+                return response.DuplicateCollection.Entities.Select(EntityToAccount);
             }
 
-            return null;
+            return new List<Account>();
         }
 
         public async Task<Guid> CreateContact(Contact contact)
@@ -238,9 +239,9 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                 ["address1_line1"] = account.AddressLine,
                 ["address1_postalcode"] = account.Postcode,
                 ["address1_city"] = account.AddressCity,
-        //["customertypecode"] = 200008,
-        //["customersizecode"] = ,
-        ["emailaddress1"] = account.EmailAddress,
+                //["customertypecode"] = 200008,
+                //["customersizecode"] = ,
+                ["emailaddress1"] = account.EmailAddress,
                 ["telephone1"] = account.Phone
             };
 
@@ -252,9 +253,9 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                 AddressLine = entity["address1_line1"] as string,
                 Postcode = entity["address1_postalcode"] as string,
                 AddressCity = entity["address1_city"] as string,
-        //CustomerTypeCode = entity["customertypecode"] != null ? ,
-        //CustomerSizeCode = =entity["customersizecode"],
-        EmailAddress = entity["emailaddress1"] as string,
+                //CustomerTypeCode = entity["customertypecode"] != null ? ,
+                //CustomerSizeCode = =entity["customersizecode"],
+                EmailAddress = entity["emailaddress1"] as string,
                 Phone = entity["telephone1"] as string
             };
     }

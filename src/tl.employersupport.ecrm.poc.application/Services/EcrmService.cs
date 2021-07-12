@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using tl.employersupport.ecrm.poc.application.Interfaces;
@@ -66,9 +67,14 @@ namespace tl.employersupport.ecrm.poc.application.Services
             await _ecrmXrmClient.UpdateAccountCustomerType(accountId, customerType);
         }
 
+        public async Task<IEnumerable<Account>> FindDuplicateAccounts(Account account)
+        {
+            return await _ecrmXrmClient.FindDuplicateAccounts(account);
+        }
+
         public async Task<Account> GetAccount(Guid accountId)
         {
-            var x =  await _ecrmApiClient.GetEmployer(new EmployerSearchRequest());
+            //var x =  await _ecrmApiClient.GetEmployer(new EmployerSearchRequest());
             return await _ecrmODataApiClient.GetAccount(accountId);
         }
     }

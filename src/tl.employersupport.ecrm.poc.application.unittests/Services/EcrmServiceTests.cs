@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -187,13 +189,24 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         {
             var xrmClient = Substitute.For<IEcrmXrmClient>();
 
+            var account = new EcrmAccountBuilder().Build();
+            var duplicatesList = new EcrmAccountBuilder().BuildList();
+
+            xrmClient.FindDuplicateAccounts(account)
+                .Returns(duplicatesList);
+
             var service = new EcrmServiceBuilder().Build(ecrmXrmClient: xrmClient);
 
-            throw new NotImplementedException();
+            var results = await service.FindDuplicateAccounts(account);
+
+            var enumerable = results as Account[] ?? results.ToArray();
+            enumerable.Should().NotBeNull();
+            enumerable.Should().BeEmpty();
+            enumerable.Should().BeEquivalentTo(duplicatesList);
         }
-        
+
         [Fact]
-        public async Task EcrmService_SetAccountCustomerType_Returns_Expected_Value()
+        public async Task EcrmService_UpdateAccountCustomerType_Returns_Expected_Value()
         {
             var xrmClient = Substitute.For<IEcrmXrmClient>();
 
@@ -204,7 +217,9 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
 
             await service.UpdateAccountCustomerType(accountId, newCustomerTypeCode);
 
-            throw new NotImplementedException();
+            await xrmClient
+                .Received(1)
+                .UpdateAccountCustomerType(accountId, newCustomerTypeCode);
         }
     }
 }
