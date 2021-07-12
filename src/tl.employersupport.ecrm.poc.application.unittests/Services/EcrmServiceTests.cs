@@ -100,17 +100,17 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         [Fact]
         public async Task EcrmService_CreateContact_Returns_Expected_Value()
         {
-            var apiClient = Substitute.For<IEcrmODataApiClient>();
+            var xrmClient = Substitute.For<IEcrmXrmClient>();
 
             var accountId = Guid.Parse("63b6baf5-3f74-4ac3-8e9a-3a7afad9ad4d");
             var contactId = Guid.Parse("3dd08977-43c7-473a-b565-5d1cc6540700");
 
             var contact = new EcrmContactBuilder().Build(null, accountId);
 
-            apiClient.CreateContact(contact)
+            xrmClient.CreateContact(contact)
                 .Returns(contactId);
 
-            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+            var service = new EcrmServiceBuilder().Build(ecrmXrmClient: xrmClient);
 
             var result = await service.CreateContact(contact);
 
@@ -159,6 +159,52 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
             result.BusinessUnitId.Should().Be(whoIAm.BusinessUnitId);
             result.UserId.Should().Be(whoIAm.UserId);
             result.OrganizationId.Should().Be(whoIAm.OrganizationId);
+        }
+
+        [Fact]
+        public async Task EcrmService_CreateNote_Returns_Expected_Value()
+        {
+            var xrmClient = Substitute.For<IEcrmXrmClient>();
+
+            var accountId = Guid.Parse("ecd8b105-38be-4fcf-95da-dc7c3b8a612c");
+            var contactId = Guid.Parse("51d955f9-7c19-4604-91bc-a488569ca6de");
+            var noteId = Guid.Parse("b818eb40-6d2d-4e02-af05-3ed0c7862aae");
+
+            var note = new EcrmNoteBuilder().Build(noteId, contactId, accountId);
+
+            xrmClient.CreateNote(note)
+                .Returns(noteId);
+
+            var service = new EcrmServiceBuilder().Build(ecrmXrmClient: xrmClient);
+
+            var result = await service.CreateNote(note);
+
+            result.Should().Be(noteId);
+        }
+
+        [Fact]
+        public async Task EcrmService_CheckForDuplicateAccount_Returns_Expected_Value()
+        {
+            var xrmClient = Substitute.For<IEcrmXrmClient>();
+
+            var service = new EcrmServiceBuilder().Build(ecrmXrmClient: xrmClient);
+
+            throw new NotImplementedException();
+        }
+        
+        [Fact]
+        public async Task EcrmService_SetAccountCustomerType_Returns_Expected_Value()
+        {
+            var xrmClient = Substitute.For<IEcrmXrmClient>();
+
+            var service = new EcrmServiceBuilder().Build(ecrmXrmClient: xrmClient);
+
+            var accountId = Guid.Parse("c6d61f27-e0c5-4bc8-8788-1a5bcb4e1946");
+            var newCustomerTypeCode = 200008;
+
+            await service.UpdateAccountCustomerType(accountId, newCustomerTypeCode);
+
+            throw new NotImplementedException();
         }
     }
 }

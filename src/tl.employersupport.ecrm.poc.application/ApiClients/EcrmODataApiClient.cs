@@ -87,6 +87,11 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             return newId; 
         }
 
+        public Task<Guid> CreateNote(Note note)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Account> GetAccount(Guid accountId)
         {
             var request = await CreateRequestWithToken(HttpMethod.Get, $"accounts({accountId:D})");

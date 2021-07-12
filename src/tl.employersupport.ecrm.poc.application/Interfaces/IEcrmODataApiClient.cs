@@ -10,5 +10,6 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
         Task<WhoAmI> GetWhoAmI();
         Task<Account> GetAccount(Guid accountId);
         Task<Guid> CreateContact(Contact contact);
+        Task<Guid> CreateNote(Note note);
     }
 }

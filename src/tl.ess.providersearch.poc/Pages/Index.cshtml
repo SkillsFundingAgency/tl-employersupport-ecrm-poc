@@ -4,28 +4,69 @@
     ViewData["Title"] = "Home page";
 }
 
+<style>
+    pre {
+        color: blue;
+        text-align: left;
+        border-width: 5px;
+        border-color: red;
+    }
+
+    code {
+        border-width: 5px;
+        border-color: green;
+    }
+
+    summary {
+        font-weight: bold;
+    }
+
+    .tl-hidden {
+        display: none;
+    }
+
+    .tl-search-status {
+        font-style: oblique;
+        color: green;
+    }
+
+    .tl-results-box {
+        border: solid 1px;
+        border-color: black;
+    }
+
+    .tl-results-box--distance {
+        font-size: 18px;
+        color: darkblue;
+    }
+</style>
+
 <div class="text-center">
     <h1 class="display-4">Search for T Levels</h1>
 
     <div>
+
+        <input type="hidden" id="searchApiUrlValue" value=@Model.SearchApiUrl>
+
         <button id="tl-search-providers">Search</button>
         <span id="tl-provider-search-status" class="tl-search-status tl-hidden"></span>
+
     </div>
 </div>
 
-    <div>
-        <details>
-            <summary>Raw json:</summary>
-            <pre>
-            <code id="tl-provider-search-results-json">                
+<div>
+    <details>
+        <summary>Raw json:</summary>
+        <pre>
+        <code id="tl-provider-search-results-json">                
                 </code>
             </pre>
-        </details>
-    </div>
+    </details>
+</div>
 
-    <div id="tl-provider-search-results">
-    </div>
+<div id="tl-provider-search-results">
+</div>
 
 @section Scripts {
-<script src="/js/site.js" asp-append-version="true"></script>
-    }
+    <!--<script src="/js/site.js" asp-append-version="true"></script>-->
+}

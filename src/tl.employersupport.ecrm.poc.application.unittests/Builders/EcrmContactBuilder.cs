@@ -18,7 +18,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Builders
             new()
             {
                 //Id = contactId,
-                ParentCustomerId = parentAccountId,
+                ParentAccountId = parentAccountId,
                 FirstName = "Test",
                 LastName = "Contact"
             };

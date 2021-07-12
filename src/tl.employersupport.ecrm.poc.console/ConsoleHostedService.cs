@@ -60,7 +60,7 @@ namespace tl.employersupport.ecrm.poc.console
                         var ticketId = args.GetLongFromArgument("ticketId", ":");
 
                         if (!Guid.TryParse(
-                            args.GetStringFromArgument("ecrmAccountId", ":"), 
+                            args.GetStringFromArgument("ecrmAccountId", ":"),
                             out var ecrmAccountId))
                         {
                             Console.WriteLine("Missing or invalid ECRM Account Id");
@@ -94,10 +94,27 @@ namespace tl.employersupport.ecrm.poc.console
                             if (pause) WaitForUserInput();
                         }
 
+                        if (args.HasArgument("--ecrmUpdateCustomerType"))
+                        {
+                            //parse ecrmCustomerType
+                            var ecrmCustomerType = args.GetIntFromArgument("customerType", ":");
+                            if (ecrmCustomerType > 0)
+                            {
+                                await UpdateEcrmAccountCustomerType(ecrmAccountId, ecrmCustomerType);
+                            }
+                        }
+
                         if (args.HasArgument("--ecrmCreateContact"))
                         {
                             //TODO: If account created with id in previous step, use that
                             await CreateEcrmContact(ecrmAccountId);
+                            if (pause) WaitForUserInput();
+                        }
+
+                        if (args.HasArgument("--ecrmCreateNote"))
+                        {
+                            //TODO: If account created with id in previous step, use that
+                            await CreateEcrmNote(ecrmAccountId);
                             if (pause) WaitForUserInput();
                         }
 
@@ -205,11 +222,16 @@ namespace tl.employersupport.ecrm.poc.console
             return newId;
         }
 
+        private async Task UpdateEcrmAccountCustomerType(Guid accountId, int customerType)
+        {
+            await _ecrmService.UpdateAccountCustomerType(accountId, customerType);
+        }
+
         private async Task<Guid> CreateEcrmContact(Guid accountId)
         {
             var contact = new Contact
             {
-                ParentCustomerId = accountId,
+                ParentAccountId = accountId,
                 CustomerTypeCode = 1,
                 FirstName = "Mikey",
                 LastName = "Mike",
@@ -227,6 +249,21 @@ namespace tl.employersupport.ecrm.poc.console
             return newId;
         }
 
+        private async Task<Guid> CreateEcrmNote(Guid accountId)
+        {
+            var note = new Note
+            {
+                ParentAccountId = accountId,
+                Subject = "Test note",
+                NoteText = "Hello notes world"
+            };
+
+            var newId = await _ecrmService.CreateNote(note);
+
+            _logger.LogInformation($"ECRM create note result: {newId:D}");
+
+            return newId;
+        }
         private async Task GetEcrmAccount(Guid accountId)
         {
             var account = await _ecrmService.GetAccount(accountId);
@@ -493,9 +530,11 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("Zendesk - ECRM Demo");
             Console.WriteLine("  --ecrmHeartbeat          - test ECRM API heartbeat");
             Console.WriteLine("  --ecrmWhoAmI             - test ECRM API WhoAmI");
-            Console.WriteLine("  --ecrmGetAccount         - test ECRM API account query (requires accointId)");
+            Console.WriteLine("  --ecrmGetAccount         - test ECRM API account query (requires accountId)");
             Console.WriteLine("  --ecrmCreateAccount      - test ECRM API account creation");
-            Console.WriteLine("  --ecrmCreateContact      - test ECRM API contact creations query (requires accointId)");
+            Console.WriteLine("  --ecrmCreateContact      - test ECRM API contact creation (requires accountId)");
+            Console.WriteLine("  --ecrmCreateNote         - test ECRM API contact creation (requires accountId)");
+            Console.WriteLine("  --ecrmUpdateCustomerType - test ECRM API account type update (requires accountId and customer type)");
             Console.WriteLine("  --getTicket              - get a ticket from Zendesk (requires ticketId)");
             Console.WriteLine("  --getTicketFields        - get all ticket fields (requires ticketId)");
             Console.WriteLine("  --getContactTicket       - get a ticket with contact details from Zendesk (requires ticketId)");
@@ -507,6 +546,7 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("  --help                   - shows this help text");
             Console.WriteLine("  ticketId:n               - ticket id for steps that use it");
             Console.WriteLine("  ecrmAccountId:n          - account id in ECRM (guid)");
+            Console.WriteLine("  ecrmCustomerType:n          - customer type code for ECRM (int)");
             Console.WriteLine("  clientTimeout:n          - the time to HTTP client timeout in seconds; used by --pollyTest");
             Console.WriteLine("  minTimeout:n             - minimum function timeout in seconds; used by --pollyTest");
             Console.WriteLine("  maxTimeout:n             - maximum function timeout in seconds; used by --pollyTest");

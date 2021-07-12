@@ -53,11 +53,22 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
         public async Task<Guid> CreateContact(Contact contact)
         {
-            return await _ecrmODataApiClient.CreateContact(contact);
+            return await _ecrmXrmClient.CreateContact(contact);
+        }
+
+        public async Task<Guid> CreateNote(Note note)
+        {
+            return await _ecrmXrmClient.CreateNote(note);
+        }
+
+        public async Task UpdateAccountCustomerType(Guid accountId, int customerType)
+        {
+            await _ecrmXrmClient.UpdateAccountCustomerType(accountId, customerType);
         }
 
         public async Task<Account> GetAccount(Guid accountId)
         {
+            var x =  await _ecrmApiClient.GetEmployer(new EmployerSearchRequest());
             return await _ecrmODataApiClient.GetAccount(accountId);
         }
     }

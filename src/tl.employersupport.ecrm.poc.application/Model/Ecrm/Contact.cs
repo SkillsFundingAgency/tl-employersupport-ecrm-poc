@@ -24,9 +24,10 @@ namespace tl.employersupport.ecrm.poc.application.Model.Ecrm
 
         // ReSharper disable once StringLiteralTypo
         //[JsonPropertyName("parentcustomerid")]
-        [JsonPropertyName("new_cpf")]
+        //[JsonPropertyName("new_cpf")]
         //public ParentCustomerId ParentCustomerId { get; init; }
-        public Guid ParentCustomerId { get; init; }
+        [JsonIgnore]
+        public Guid ParentAccountId { get; init; }
 
         // ReSharper disable once StringLiteralTypo
         [JsonPropertyName("customertypecode")]

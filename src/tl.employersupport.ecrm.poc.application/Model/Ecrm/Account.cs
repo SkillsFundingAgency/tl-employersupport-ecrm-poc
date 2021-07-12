@@ -26,9 +26,10 @@ namespace tl.employersupport.ecrm.poc.application.Model.Ecrm
         [JsonPropertyName("address1_city")]
         public string AddressCity { get; set; }
 
-        //[JsonPropertyName("customertypecode")]
-        //public CustomerTypeCode CustomerTypeCode { get; set; }
-        
+        [JsonPropertyName("customertypecode")]
+        //200008 = "customertypecode@OData.Community.Display.V1.FormattedValue": "Employer",
+        public CustomerTypeCode CustomerTypeCode { get; set; }
+
         //[JsonPropertyName("customersizecode")]
         //public CustomerTypeCode CustomerTypeCode { get; set; }
 

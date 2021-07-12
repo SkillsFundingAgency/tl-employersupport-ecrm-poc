@@ -8,10 +8,12 @@ namespace tl.ess.providersearch.poc
     {
         private readonly ILogger<IndexModel> _logger;
 
+        public string SearchApiUrl { get; init; }
+
         public IndexModel(ILogger<IndexModel> logger, IConfiguration config)
         {
             _logger = logger;
-            var url = config["SearchApiUrl"];
+            SearchApiUrl = config["SearchApiUrl"];
         }
 
         public void OnGet()

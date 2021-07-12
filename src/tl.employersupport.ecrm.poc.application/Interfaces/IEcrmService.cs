@@ -14,5 +14,7 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
         Task<Account> GetAccount(Guid accountId);
         Task<Guid> CreateAccount(Account account);
         Task<Guid> CreateContact(Contact contact);
+        Task<Guid> CreateNote(Note note);
+        Task UpdateAccountCustomerType(Guid accountId, int customerType);
     }
 }
