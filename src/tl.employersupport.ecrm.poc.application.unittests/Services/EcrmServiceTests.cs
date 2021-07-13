@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -122,16 +121,17 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         [Fact]
         public async Task EcrmService_GetAccount_Returns_Expected_Value()
         {
-            var apiClient = Substitute.For<IEcrmODataApiClient>();
+            //var apiClient = Substitute.For<IEcrmODataApiClient>();
+            var xrmClient = Substitute.For<IEcrmXrmClient>();
 
             var accountId = Guid.Parse("63b6baf5-3f74-4ac3-8e9a-3a7afad9ad4d");
 
             var account = new EcrmAccountBuilder().Build(accountId);
 
-            apiClient.GetAccount(accountId)
+            xrmClient.GetAccount(accountId)
                 .Returns(account);
 
-            var service = new EcrmServiceBuilder().Build(ecrmODataApiClient: apiClient);
+            var service = new EcrmServiceBuilder().Build(ecrmXrmClient: xrmClient);
 
             var result = await service.GetAccount(accountId);
 
@@ -201,7 +201,6 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
 
             var enumerable = results as Account[] ?? results.ToArray();
             enumerable.Should().NotBeNull();
-            enumerable.Should().BeEmpty();
             enumerable.Should().BeEquivalentTo(duplicatesList);
         }
 

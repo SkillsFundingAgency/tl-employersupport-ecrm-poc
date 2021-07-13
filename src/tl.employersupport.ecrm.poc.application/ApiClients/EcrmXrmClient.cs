@@ -7,7 +7,6 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using tl.employersupport.ecrm.poc.application.Interfaces;
 using tl.employersupport.ecrm.poc.application.Model.Ecrm;
@@ -57,9 +56,33 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             }
         }
 
-        public Task<Account> GetAccount(Guid accountId)
+        public async Task<Account> GetAccount(Guid accountId)
         {
-            throw new NotImplementedException();
+            var cols = new ColumnSet(
+                new[]
+                { 
+                    "accountid",
+                    "name",
+                    "address1_primarycontactname",
+                    "address1_line1",
+                    "address1_postalcode",
+                    "address1_city",
+                    "customertypecode",
+                    "lsc_noofemployees",
+                    "emailaddress1",
+                    "telephone1"
+                });
+
+            var entity = _organizationService.Retrieve("account", accountId, cols);
+            if (entity != null)
+            {
+                foreach (var attr in entity.Attributes)
+                {
+                    Debug.WriteLine($"{attr.Key} = {attr.Value}");
+                }
+            }
+
+            return entity != null ? EntityToAccount(entity) : null;
         }
 
         public (string displayValue, IList<(int, string)> itemList) GetPicklistMetadata(string entityName, string attributeName)
@@ -104,10 +127,13 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
                 // Retrieve the account containing several of its attributes.
                 var cols = new ColumnSet(
-                    new String[] { "name",
-                    "address1_postalcode",
-                    "customertypecode",
-                    "versionnumber" });
+                    new[]
+                    {
+                        "name",
+                        "address1_postalcode",
+                        "customertypecode",
+                        "versionnumber"
+                    });
                 var account = _organizationService.Retrieve("account", accountId, cols);
 
                 if (account != null)
@@ -122,14 +148,95 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
                 _logger.LogError(ex, $"Failed to read and update account {accountId:D}");
                 throw;
             }
-
         }
 
         public async Task<IEnumerable<Account>> FindDuplicateAccounts(Account account)
         {
+            //https://www.inogic.com/blog/2015/11/use-retrieveduplicaterequest-in-dynamics-crm/
+            //https://stackoverflow.com/questions/54647279/retrieve-all-duplicate-records-of-any-specific-entity-using-console-application
             //TODO: Create specific entities and extensions to convert or map them
-            var entity = //new Account()
-                AccountToEntity(account);
+            var entity = AccountToEntity(account);
+                //new Entity("account")
+                //{
+                //    ["name"] = account.Name,
+                //};
+
+            var request = new RetrieveDuplicatesRequest
+            {
+                BusinessEntity = entity,
+                MatchingEntityName = entity.LogicalName,
+                PagingInfo = new PagingInfo { PageNumber = 1, Count = 50 },
+            };
+
+            var response = (RetrieveDuplicatesResponse)_organizationService.Execute(request);
+
+            if (response.DuplicateCollection.Entities.Count >= 1)
+            {
+                _logger.LogInformation("{0} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
+                return response.DuplicateCollection.Entities.Select(EntityToAccount);
+            }
+            else
+            {
+                return new List<Account>();
+
+                //https://stackoverflow.com/questions/54647279/retrieve-all-duplicate-records-of-any-specific-entity-using-console-application
+                var entityLogicalName = "account";
+                var duplicatedColumn = "name";
+
+                var query = new QueryExpression(entityLogicalName)
+                {
+                    ColumnSet = new ColumnSet(duplicatedColumn)
+                };
+                query.PageInfo = new PagingInfo
+                {
+                    PageNumber = 1
+                };
+                query.AddOrder(duplicatedColumn, 0);
+
+                var results = _organizationService.RetrieveMultiple(query);
+                //.GroupBy(e => e.GetAttributeValue<string>(duplicatedColumn), e => e);
+                foreach (var r in results.Entities)
+                {
+                    if (r.Attributes.TryGetValue("name", out var n) && (string)n == account.Name)
+                    {
+                    }
+                }
+
+                //Try with bulk request
+                var bulkQuery = new QueryExpression
+                {
+                    EntityName = "account"
+                };
+
+                // Create the request (do not send an e-mail).
+                var bulkRequest = new BulkDetectDuplicatesRequest();
+                bulkRequest.JobName = "Detect Duplicate Accounts";
+                bulkRequest.Query = bulkQuery;
+                bulkRequest.RecurrencePattern = string.Empty;
+                //bulkRequest.RecurrenceStartTime = new CrmDateTime();
+                bulkRequest.RecurrenceStartTime = DateTime.Now;
+                bulkRequest.SendEmailNotification = false;
+                bulkRequest.ToRecipients = new Guid[0];
+                bulkRequest.CCRecipients = new Guid[0];
+                bulkRequest.TemplateId = Guid.Empty;
+
+                // Execute the request.
+                //var bulkResponse = (BulkDetectDuplicatesResponse)_organizationService.Execute(bulkRequest);
+                //Guid jobId = bulkResponse.JobId;
+            }
+            
+            return new List<Account>();
+        }
+
+        public async Task<IEnumerable<Contact>> FindDuplicateContacts(Contact contact)
+        {
+            //https://www.inogic.com/blog/2015/11/use-retrieveduplicaterequest-in-dynamics-crm/
+            var entity = new Entity("contact")
+            {
+                ["firstname"] = contact.FirstName,
+                ["lastname"] = contact.LastName,
+                ["emailaddress1"] = contact.EmailAddress
+            };
 
             var request = new RetrieveDuplicatesRequest
             {
@@ -143,12 +250,11 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             if (response.DuplicateCollection.Entities.Count >= 1)
             {
                 _logger.LogInformation("{0} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
-                return response.DuplicateCollection.Entities.Select(EntityToAccount);
+                return response.DuplicateCollection.Entities.Select(EntityToContact);
             }
 
-            return new List<Account>();
+            return new List<Contact>();
         }
-
         public async Task<Guid> CreateContact(Contact contact)
         {
             //https://www.crmug.com/communities/community-home/digestviewer/viewthread?MessageKey=2eb2e7e4-ebe2-4411-b8c5-2cf9bd19728f&CommunityKey=dc83c23b-ede0-4070-ae7a-dd90859148a6&tab=digestviewer
@@ -234,13 +340,18 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
         private static Entity AccountToEntity(Account account) =>
             new("account")
             {
+                //ignoring accountid for now
                 ["name"] = account.Name,
                 ["address1_primarycontactname"] = account.AddressPrimaryContact,
                 ["address1_line1"] = account.AddressLine,
                 ["address1_postalcode"] = account.Postcode,
                 ["address1_city"] = account.AddressCity,
-                //["customertypecode"] = 200008,
-                //["customersizecode"] = ,
+                ["customertypecode"] = account.CustomerTypeCode.HasValue 
+                    ? new OptionSetValue(account.CustomerTypeCode.Value)
+                    : null,
+                ["lsc_noofemployees"] = account.NumberOfEmployees.HasValue
+                    ? new OptionSetValue(account.NumberOfEmployees.Value)
+                    : null,
                 ["emailaddress1"] = account.EmailAddress,
                 ["telephone1"] = account.Phone
             };
@@ -248,13 +359,25 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
         private static Account EntityToAccount(Entity entity) =>
             new()
             {
+                AccountId = (Guid)entity["accountid"],
                 Name = entity["name"] as string,
                 AddressPrimaryContact = entity["address1_primarycontactname"] as string,
                 AddressLine = entity["address1_line1"] as string,
                 Postcode = entity["address1_postalcode"] as string,
                 AddressCity = entity["address1_city"] as string,
-                //CustomerTypeCode = entity["customertypecode"] != null ? ,
-                //CustomerSizeCode = =entity["customersizecode"],
+                CustomerTypeCode = ((OptionSetValue)entity["customertypecode"])?.Value,
+                NumberOfEmployees = ((OptionSetValue)entity["lsc_noofemployees"])?.Value,
+                EmailAddress = entity["emailaddress1"] as string,
+                Phone = entity["telephone1"] as string
+            };
+
+        private static Contact EntityToContact(Entity entity) =>
+            new()
+            {
+                FirstName = entity["firstname"] as string,
+                LastName = entity["lastname"] as string,
+                AddressLine1 = entity["address1_line1"] as string,
+                Postcode = entity["address1_postalcode"] as string,
                 EmailAddress = entity["emailaddress1"] as string,
                 Phone = entity["telephone1"] as string
             };

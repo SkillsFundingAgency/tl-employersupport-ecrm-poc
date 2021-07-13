@@ -8,7 +8,8 @@ namespace tl.employersupport.ecrm.poc.application.Interfaces
     public interface IEcrmXrmClient
     {
         Task<IEnumerable<Account>> FindDuplicateAccounts(Account account);
-
+        Task<IEnumerable<Contact>> FindDuplicateContacts(Contact contact);
+        
         Task<Guid> CreateAccount(Account account);
         Task<Account> GetAccount(Guid accountId);
         Task UpdateAccountCustomerType(Guid accountId, int customerType);

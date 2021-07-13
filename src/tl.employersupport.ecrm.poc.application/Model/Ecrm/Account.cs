@@ -28,10 +28,10 @@ namespace tl.employersupport.ecrm.poc.application.Model.Ecrm
 
         [JsonPropertyName("customertypecode")]
         //200008 = "customertypecode@OData.Community.Display.V1.FormattedValue": "Employer",
-        public CustomerTypeCode CustomerTypeCode { get; set; }
+        public int? CustomerTypeCode { get; set; }
 
-        //[JsonPropertyName("customersizecode")]
-        //public CustomerTypeCode CustomerTypeCode { get; set; }
+        [JsonPropertyName("lsc_noofemployees")]
+        public int? NumberOfEmployees { get; set; }
 
         [JsonPropertyName("emailaddress1")]
         public object EmailAddress { get; set; }

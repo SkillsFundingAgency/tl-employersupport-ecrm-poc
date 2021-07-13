@@ -12,7 +12,9 @@
       //"commandLineArgs": "--ecrmGetAccount --ecrmCreateContact ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796",
       //"commandLineArgs": "--ecrmCreateNote ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796",
       //"commandLineArgs": "--ecrmGetAccount ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796 customerType:200008",
-      "commandLineArgs": "--ecrmUpdateCustomerType ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796 customerType:200008",
+      //"commandLineArgs": "--ecrmUpdateCustomerType ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796 customerType:200008",
+      "commandLineArgs": "--ecrmGetAccount --ecrmFindDuplicates ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796",
+      //"commandLineArgs": "--ecrmGetAccount ecrmAccountId:02cebe3e-cddf-eb11-bacb-000d3a29b796 customerType:200008",
 
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"

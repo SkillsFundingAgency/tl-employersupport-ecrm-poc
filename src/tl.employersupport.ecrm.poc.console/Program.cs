@@ -32,8 +32,8 @@ await Host.CreateDefaultBuilder(args)
         emailConfiguration.Bind(emailOptions);
 
         var ecrmOptions = new EcrmConfiguration();
-        var crmConfiguration = hostContext.Configuration.GetSection(nameof(EcrmConfiguration));
-        crmConfiguration.Bind(ecrmOptions);
+        var ecrmConfiguration = hostContext.Configuration.GetSection(nameof(EcrmConfiguration));
+        ecrmConfiguration.Bind(ecrmOptions);
 
         var zendeskOptions = new ZendeskConfiguration();
         var zendeskConfiguration = hostContext.Configuration.GetSection(nameof(ZendeskConfiguration));
@@ -45,6 +45,9 @@ await Host.CreateDefaultBuilder(args)
         services
             .AddOptions<EmailConfiguration>()
             .Bind(emailConfiguration);
+        services
+            .AddOptions<EcrmConfiguration>()
+            .Bind(ecrmConfiguration);
 
         services
             .Configure<ZendeskConfiguration>(zendeskConfiguration)
@@ -94,33 +97,33 @@ await Host.CreateDefaultBuilder(args)
         services
             .AddHttpClient<IEcrmApiClient, EcrmApiClient>((_, client) =>
                 {
-                    client.BaseAddress =
-                        ecrmOptions.ApiBaseUri.EndsWith("/")
-                            ? new Uri(ecrmOptions.ApiBaseUri)
-                            : new Uri(ecrmOptions.ApiBaseUri + "/");
+                    //client.BaseAddress =
+                    //    ecrmOptions.ApiBaseUri.EndsWith("/")
+                    //        ? new Uri(ecrmOptions.ApiBaseUri)
+                    //        : new Uri(ecrmOptions.ApiBaseUri + "/");
 
-                    client.DefaultRequestHeaders.Add("Accept", "application/json");
-                    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ecrmOptions.ApiKey);
+                    //client.DefaultRequestHeaders.Add("Accept", "application/json");
+                    //client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ecrmOptions.ApiKey);
                     //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
                     //client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
                 }
             )
-            .ConfigurePrimaryHttpMessageHandler(_ =>
-            {
-                var handler = new HttpClientHandler();
-                if (handler.SupportsAutomaticDecompression)
-                {
-                    //handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-                }
-                return handler;
-            })
-            .AddTransientHttpErrorPolicy(policy =>
-                policy.WaitAndRetryAsync(new[] {
-                    TimeSpan.FromMilliseconds(200),
-                    TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(5),
-                    TimeSpan.FromSeconds(10),
-                }))
+            //.ConfigurePrimaryHttpMessageHandler(_ =>
+            //{
+            //    var handler = new HttpClientHandler();
+            //    if (handler.SupportsAutomaticDecompression)
+            //    {
+            //        //handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            //    }
+            //    return handler;
+            //})
+            //.AddTransientHttpErrorPolicy(policy =>
+            //    policy.WaitAndRetryAsync(new[] {
+            //        TimeSpan.FromMilliseconds(200),
+            //        TimeSpan.FromSeconds(1),
+            //        TimeSpan.FromSeconds(5),
+            //        TimeSpan.FromSeconds(10),
+            //    }))
             ;
 
         services

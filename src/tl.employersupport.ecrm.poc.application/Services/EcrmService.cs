@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using tl.employersupport.ecrm.poc.application.Interfaces;
+using tl.employersupport.ecrm.poc.application.Model.Configuration;
 using tl.employersupport.ecrm.poc.application.Model.Ecrm;
 
 namespace tl.employersupport.ecrm.poc.application.Services
@@ -25,7 +27,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _ecrmXrmClient = ecrmXrmClient ?? throw new ArgumentNullException(nameof(ecrmXrmClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-        
+
         public async Task<Employer> FindEmployer(EmployerSearchRequest searchRequest)
         {
             _logger.LogInformation($"Getting employer {searchRequest.CompanyName}");
@@ -72,10 +74,17 @@ namespace tl.employersupport.ecrm.poc.application.Services
             return await _ecrmXrmClient.FindDuplicateAccounts(account);
         }
 
+        public async Task<IEnumerable<Contact>> FindDuplicateContacts(Contact contact)
+        {
+            return await _ecrmXrmClient.FindDuplicateContacts(contact);
+        }
+        
         public async Task<Account> GetAccount(Guid accountId)
         {
-            //var x =  await _ecrmApiClient.GetEmployer(new EmployerSearchRequest());
-            return await _ecrmODataApiClient.GetAccount(accountId);
+            //var testAccount =  await _ecrmApiClient.GetAccount(accountId);
+            //var testAccount2 =  await _ecrmODataApiClient.GetAccount(accountId);
+            var account =  await _ecrmXrmClient.GetAccount(accountId);
+            return account;
         }
     }
 }

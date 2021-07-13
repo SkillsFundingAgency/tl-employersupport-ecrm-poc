@@ -88,6 +88,12 @@ namespace tl.employersupport.ecrm.poc.console
                             if (pause) WaitForUserInput();
                         }
 
+                        if (args.HasArgument("--ecrmFindDuplicates"))
+                        {
+                            await FindDuplicates();
+                            if (pause) WaitForUserInput();
+                        }
+
                         if (args.HasArgument("--ecrmCreateAccount"))
                         {
                             ecrmAccountId = await CreateEcrmAccount();
@@ -203,17 +209,7 @@ namespace tl.employersupport.ecrm.poc.console
 
         private async Task<Guid> CreateEcrmAccount()
         {
-            var account = new Account
-            {
-                AccountId = Guid.NewGuid(),
-                Name = "T Levels Test 2",
-                AddressLine = "155 Lime Road",
-                Postcode = "OX2 9EG",
-                AddressCity = "Oxford",
-                EmailAddress = "mike@mike.test.com",
-                AddressPrimaryContact = "Mike Wild",
-                Phone = "0771234567"
-            };
+            var account = BuildTestAccount();
 
             var newId = await _ecrmService.CreateAccount(account);
 
@@ -287,6 +283,22 @@ namespace tl.employersupport.ecrm.poc.console
             }
         }
 
+        private async Task FindDuplicates()
+        {
+            var account = BuildTestAccount();
+            var contact = BuildTestContact();
+
+            var duplicateAccounts = 
+                await _ecrmService.FindDuplicateAccounts(account);
+
+            _logger.LogInformation($"Found {duplicateAccounts?.Count()} duplicate accounts");
+
+            var duplicateContacts =
+                await _ecrmService.FindDuplicateContacts(contact);
+
+            _logger.LogInformation($"Found {duplicateContacts?.Count()} duplicate contacts");
+        }
+
         private async Task CheckEcrmHeartBeat()
         {
             var heartbeat = await _ecrmService.Heartbeat();
@@ -310,6 +322,32 @@ namespace tl.employersupport.ecrm.poc.console
                 _logger.LogInformation(whoAmIBuilder.ToString());
             }
         }
+
+        private Account BuildTestAccount() => 
+            new()
+            {
+                //AccountId = Guid.NewGuid(),
+                Name = "T Levels Test",
+                AddressLine = "155 Lime Road",
+                Postcode = "OX2 9EG",
+                AddressCity = "Oxford",
+                EmailAddress = "mike@mike.test.com",
+                AddressPrimaryContact = "Mike Wild",
+                Phone = "0771234567",
+                CustomerTypeCode = 200008, //new CustomerTypeCode {Value = 200008 },
+                NumberOfEmployees = 7
+            };
+
+        private Contact BuildTestContact() =>
+            new()
+            {
+                FirstName = "Mikey",
+                LastName = "Mike",
+                AddressLine1 = "155 Lime Road",
+                Postcode = "OX2 9EG",
+                EmailAddress = "mikey.mike@mike.test.com",
+                Phone = "0771234568"
+            };
 
         private async Task SendTicketCreatedEmail()
         {
@@ -530,6 +568,7 @@ namespace tl.employersupport.ecrm.poc.console
             Console.WriteLine("Zendesk - ECRM Demo");
             Console.WriteLine("  --ecrmHeartbeat          - test ECRM API heartbeat");
             Console.WriteLine("  --ecrmWhoAmI             - test ECRM API WhoAmI");
+            Console.WriteLine("  --ecrmFindDuplicates     - test ECRM API duplicate account query");
             Console.WriteLine("  --ecrmGetAccount         - test ECRM API account query (requires accountId)");
             Console.WriteLine("  --ecrmCreateAccount      - test ECRM API account creation");
             Console.WriteLine("  --ecrmCreateContact      - test ECRM API contact creation (requires accountId)");
