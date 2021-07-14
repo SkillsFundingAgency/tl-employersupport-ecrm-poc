@@ -293,3 +293,7 @@ local.settings.development.json
 
 # Benchmark.Net folder
 BenchmarkDotNet.Artifacts/
+
+# Don't exclude js or style files for provider search poc
+!**/tl.ess.providersearch.poc/wwwroot/css
+!**/tl.ess.providersearch.poc/wwwroot/js
