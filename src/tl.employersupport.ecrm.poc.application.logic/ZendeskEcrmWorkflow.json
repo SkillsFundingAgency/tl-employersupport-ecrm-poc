@@ -2,6 +2,18 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "resourceEnvironmentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment Designation"
+      }
+    },
+    "resourceIdentifier": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource identifier used as a prefix for all resources"
+      }
+    },
     "logicAppName": {
       "type": "string",
       "minLength": 1,
@@ -10,7 +22,7 @@
         "description": "Name of the Logic App."
       }
     },
-    "logicAppLocation": {
+    "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
@@ -18,12 +30,14 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "resourceNamePrefix": "[toLower(concat(parameters('resourceIdentifier') , parameters('resourceEnvironmentName')))]"
+  },
   "resources": [
     {
-      "name": "[parameters('logicAppName')]",
+      "name": "[toLower(concat(variables('resourceNamePrefix'), '-', parameters('logicAppName')))]",
       "type": "Microsoft.Logic/workflows",
-      "location": "[parameters('logicAppLocation')]",
+      "location": "[parameters('location')]",
       "tags": {
         "displayName": "LogicApp"
       },
@@ -37,7 +51,7 @@
               "inputs": {
                 "body": "@triggerBody()",
                 "function": {
-                  "id": "/subscriptions/9a7620ed-46c4-475f-b7ac-a6502e490e88/resourceGroups/tlzdecrmpoc-rg/providers/Microsoft.Web/sites/tlzdecrmpocdev-func/functions/SendTicketCreatedNotification"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('resourceNamePrefix'), '-func/functions/SendTicketCreatedNotification')]"
                 }
               },
               "runAfter": {
@@ -151,7 +165,7 @@
               "inputs": {
                 "body": "@outputs('Compose_modify_tags_request')",
                 "function": {
-                  "id": "/subscriptions/9a7620ed-46c4-475f-b7ac-a6502e490e88/resourceGroups/tlzdecrmpoc-rg/providers/Microsoft.Web/sites/tlzdecrmpocdev-func/functions/ModifyZendeskTicketTags"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('resourceNamePrefix'), '-func/functions/ModifyZendeskTicketTags')]"
                 }
               },
               "runAfter": {
@@ -167,7 +181,7 @@
                   "id": "@variables('TicketId')"
                 },
                 "function": {
-                  "id": "/subscriptions/9a7620ed-46c4-475f-b7ac-a6502e490e88/resourceGroups/tlzdecrmpoc-rg/providers/Microsoft.Web/sites/tlzdecrmpocdev-func/functions/RetrieveEmployerContactTicket"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('resourceNamePrefix'), '-func/functions/RetrieveEmployerContactTicket')]"
                 }
               },
               "runAfter": {

@@ -159,6 +159,20 @@ stages:
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/tl.employersupport.ecrm.poc.application.logic/ServiceBusTriggerredWorkflow.json'
               overrideParameters: >-
-                -resourceNamePrefix "$(resourceNamePrefix)"
+                -resourceIdentifier "$(ResourceIdentifier)" 
+                -resourceEnvironmentName "$(ResourceEnvironmentName)" 
                 -logicAppName "zd-servicebus-workflow"
                 -servicebus_1_Connection_Name "$(serviceBusConnectionName)"
+
+          - task: AzureResourceGroupDeployment@2
+            displayName: 'Deploy Zendesk-ECRM workflow Logic App'
+            inputs:
+              azureSubscription: 'ARM Subscription'
+              location: $(ResourceLocation)
+              resourceGroupName: '$(ResourceIdentifier)-rg'
+              action: 'Create Or Update Resource Group'
+              csmFile: '$(Pipeline.Workspace)/**/tl.employersupport.ecrm.poc.application.logic/ZendeskEcrmWorkflow.json'
+              overrideParameters: >-
+                -resourceIdentifier "$(ResourceIdentifier)" 
+                -resourceEnvironmentName "$(ResourceEnvironmentName)" 
+                -logicAppName "zd-ecrm-workflow"

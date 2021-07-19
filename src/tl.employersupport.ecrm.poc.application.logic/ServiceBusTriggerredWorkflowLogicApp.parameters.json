@@ -2,16 +2,17 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "resourceNamePrefix": {
-      "value": "tlzdecrmpocdev"
+    "resourceIdentifier": {
+      "value": "tlzdecrmpoc"
+    },
+    "resourceEnvironmentName": {
+      "value": "dev"
     },
     "logicAppName": {
       "value": "zd-servicebus-workflow"
     },
     "servicebus_1_Connection_Name": {
-      "type": "string",
-      "defaultValue": "tlzdecrmpocdevsb-cn",
-      "value": "tlzdecrmpocdevsb-cn"
+      "value": "tlzdecrmpocdev-sb-cn"
     }
   }
 }
