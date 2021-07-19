@@ -104,7 +104,7 @@
     "functionWorkerRuntime": "[parameters('runtime')]",
     "applicationInsightsName": "[concat(variables('resourceNamePrefix'), '-func')]",
     "serviceBusNamespaceName": "[concat(variables('resourceNamePrefix'), '-sb-ns')]",
-    "serviceBusConnectionName": "[concat(variables('resourceNamePrefix'), 'sb-cn')]",
+    "serviceBusConnectionName": "[concat(variables('resourceNamePrefix'), '-sb-cn')]",
     "defaultSASKeyName": "RootManageSharedAccessKey",
     "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespaceName'), variables('defaultSASKeyName'))]",
     "sbVersion": "2018-01-01-preview",
