@@ -35,20 +35,20 @@ stages:
       displayName: Restore
       inputs:
         command: restore
-        projects: '**/*.csproj'
+        projects: **/tl.ess.providersearch.poc*.csproj
         noCache: true
 
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
-        projects: '**/*.csproj'
+        projects: **/tl.ess.providersearch.poc*.csproj
         arguments: '--configuration $(buildConfiguration)  --no-restore'        
 
     - task: DotNetCoreCLI@2
       displayName: 'Run unit tests'
       inputs:
         command: test
-        projects: '**/*.[uU]nit[tT]ests.csproj'
+        projects: **/*.[uU]nit[tT]ests.csproj
         arguments: '--configuration $(buildConfiguration) --no-restore'
 
     - task: DotNetCoreCLI@2
@@ -57,7 +57,7 @@ stages:
       inputs:
         command: publish
         publishWebProjects: false
-        projects: '**/*.[Ff]unctions.csproj'
+        projects: **/*.[Ff]unctions.csproj
         arguments: >-
           --configuration $(buildConfiguration) 
           --output $(build.artifactstagingdirectory)/publish 
