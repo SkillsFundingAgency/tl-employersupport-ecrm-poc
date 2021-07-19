@@ -306,6 +306,10 @@
     }
   ],
   "outputs": {
+    "ResourceNamePrefix": {
+      "type": "string",
+      "value": "[variables('resourceNamePrefix')]"
+    },
     "FunctionAppName": {
       "type": "string",
       "value": "[variables('functionAppName')]"

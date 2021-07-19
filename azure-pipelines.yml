@@ -123,6 +123,8 @@ stages:
               deploymentOutputs: DeploymentOutputs
           
           - bash: | 
+              ResourceNamePrefixValue="$(DeploymentOutputs.resourceNamePrefix.value)"
+              echo "##vso[task.setvariable variable=resourceNamePrefix]$ResourceNamePrefixValue"
               FunctionAppNameValue="$(DeploymentOutputs.functionAppName.value)"
               echo "##vso[task.setvariable variable=functionAppName]$FunctionAppNameValue"
               ServiceBusNamespaceNameValue="$(DeploymentOutputs.ServiceBusNamespaceName.value)"
@@ -131,6 +133,8 @@ stages:
               echo "##vso[task.setvariable variable=serviceBusConnectionName]$ServiceBusConnectionNameValue"
             displayName: 'Copy ARM output variables'
 
+          - script: echo "resourceNamePrefix=" $(resourceNamePrefix)
+            displayName: 'Show resourcen name prefix variable'
           - script: echo "functionAppName=" $(functionAppName)
             displayName: 'Show function app name variable'
           - script: echo "serviceBusNamespaceName=" $(serviceBusNamespaceName)
@@ -155,5 +159,6 @@ stages:
               action: 'Create Or Update Resource Group'
               csmFile: '$(Pipeline.Workspace)/**/tl.employersupport.ecrm.poc.application.logic/ServiceBusTriggerredWorkflow.json'
               overrideParameters: >-
-                -logicAppName "ServiceBus Logic App" 
+                -resourceNamePrefix "$(resourceNamePrefix)"
+                -logicAppName "zd-servicebus-workflow"
                 -servicebus_1_Connection_Name "$(serviceBusConnectionName)"
