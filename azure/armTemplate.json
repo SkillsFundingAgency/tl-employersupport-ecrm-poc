@@ -314,9 +314,9 @@
       "type": "string",
       "value": "[variables('serviceBusNamespaceName')]"
     },
-    "ServiceBusConnectionString": {
+    "ServiceBusConnectionName": {
       "type": "string",
-      "value": "[listkeys(variables('authRuleResourceId'), variables('authRuleVersion')).primaryConnectionString]"
+      "value": "[variables('serviceBusConnectionName')]"
     }
   }
 }

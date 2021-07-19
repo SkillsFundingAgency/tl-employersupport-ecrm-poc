@@ -4,6 +4,11 @@
   "parameters": {
     "logicAppName": {
       "value": "tlzdecrmpocdev-zd-servicebus-workflow"
+    },
+    "servicebus_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "tlzdecrmpocdevsb-cn",
+      "value": "tlzdecrmpocdevsb-cn"
     }
   }
 }
