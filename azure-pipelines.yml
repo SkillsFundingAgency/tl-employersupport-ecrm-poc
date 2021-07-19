@@ -70,9 +70,18 @@ stages:
         TargetFolder: '$(build.artifactstagingdirectory)'
         OverWrite: true
 
+    - task: CopyFiles@2
+      displayName: 'Copy Logic App deployment templates to: $(build.artifactstagingdirectory)'
+      inputs:
+        Contents: | 
+          **/tl.employersupport.ecrm.poc.application.logic/*.json
+          !**/*.parameters.json
+        TargetFolder: '$(build.artifactstagingdirectory)'
+        OverWrite: true
+
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+        pathtoPublish: '$(build.artifactstagingdirectory)' 
         artifactName: 'tl-emp-ecrm-poc'
 
 - stage: Deploy
@@ -111,7 +120,6 @@ stages:
                 -ecrmClientId "$(EcrmClientId)"
                 -ecrmClientSecret "$(EcrmClientSecret)"
                 -ecrmTenant "$(EcrmTenant)"
-
               deploymentOutputs: DeploymentOutputs
           
           - bash: | 
