@@ -1,4 +1,6 @@
-﻿$("#tl-search-providers").click(function () {
+﻿$(document).ready(function () {
+
+$("#tl-search-providers").click(function () {
     event.stopPropagation();
 
     $("#tl-provider-search-status").html("searching...");
@@ -89,3 +91,4 @@ function populateSearchResults(data) {
     $("#tl-provider-search-status").html("");
     $('#tl-provider-search-status').addClass("tl-hidden");
 }
+});
