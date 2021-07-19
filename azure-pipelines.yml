@@ -134,7 +134,7 @@ stages:
             displayName: 'Copy ARM output variables'
 
           - script: echo "resourceNamePrefix=" $(resourceNamePrefix)
-            displayName: 'Show resourcen name prefix variable'
+            displayName: 'Show resource name prefix variable'
           - script: echo "functionAppName=" $(functionAppName)
             displayName: 'Show function app name variable'
           - script: echo "serviceBusNamespaceName=" $(serviceBusNamespaceName)

@@ -31,7 +31,7 @@
   "variables": {},
   "resources": [
     {
-      "name": "[toLower(concat(parameters('resourceNamePrefix'), parameters('logicAppName'))]",
+      "name": "[toLower(concat(parameters('resourceNamePrefix'), parameters('logicAppName')))]",
       "type": "Microsoft.Logic/workflows",
       "location": "[parameters('logicAppLocation')]",
       "tags": {
