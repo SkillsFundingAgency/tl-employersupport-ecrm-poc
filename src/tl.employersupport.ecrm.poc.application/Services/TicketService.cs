@@ -27,14 +27,10 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _zendeskApiClient = zendeskApiClient ?? throw new ArgumentNullException(nameof(zendeskApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            //Note: check this last otherwise unit tests checking null ctor args will fail
-            if (zendeskConfiguration is null)
-                throw new ArgumentNullException(nameof(zendeskConfiguration));
-
-            _zendeskConfiguration = zendeskConfiguration.Value ??
+            _zendeskConfiguration = zendeskConfiguration?.Value ??
                                     throw new ArgumentNullException(
-                                        $"{nameof(zendeskConfiguration)}.{nameof(zendeskConfiguration.Value)}",
-                                        "Configuration value must not be null");
+                                        $"{nameof(zendeskConfiguration)}",
+                                        "Configuration or configuration value must not be null");
         }
 
         public async Task<EmployerContactTicket> GetEmployerContactTicket(long ticketId)
@@ -45,7 +41,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
 
             if (jsonDocument != null)
             {
-                var temp = jsonDocument.PrettifyJsonDocument();
+                //var temp = jsonDocument.PrettifyJsonDocument();
 
                 var fieldDefinitions = await GetTicketFields();
 
@@ -96,7 +92,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 var count = jsonDocument.RootElement.GetProperty("count");
                 var nextPage = jsonDocument.RootElement.GetProperty("next_page");
                 _logger.LogInformation($"GetTicketFields found {count} items. Next page is '{nextPage}'");
-                
+
                 return jsonDocument.DeserializeTicketFields();
             }
 
@@ -204,7 +200,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 UpdatedStamp = updatedAt!.Value,
                 SafeUpdate = true
             };
-            
+
             var jsonDocument = await _zendeskApiClient.PutTags(ticketId, tags);
 
             _logger.LogInformation($"Response from PUT tag: \n{jsonDocument.PrettifyJsonDocument()}");
@@ -219,7 +215,7 @@ namespace tl.employersupport.ecrm.poc.application.Services
                 _logger.LogWarning("No tags provided.");
                 return;
             }
-            
+
             var jsonDocument = await _zendeskApiClient.PostTags(ticketId, tags);
             _logger.LogInformation($"Response from POST tags: \n{jsonDocument.PrettifyJsonDocument()}");
         }

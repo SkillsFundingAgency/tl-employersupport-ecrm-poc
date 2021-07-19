@@ -20,13 +20,10 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
         {
             _httpClient = httpClient;
 
-            if (monitorConfiguration is null)
-                throw new ArgumentNullException(nameof(monitorConfiguration));
-
-            _configuration = monitorConfiguration.Value ??
+            _configuration = monitorConfiguration?.Value ??
                              throw new ArgumentNullException(
                                  $"{nameof(monitorConfiguration)}.{nameof(monitorConfiguration.Value)}",
-                                 "Configuration value must not be null");
+                                 "Configuration or configuration value must not be null");
 
             _httpClient.BaseAddress = new Uri(_configuration.ApiBaseUri);
             _httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, nameof(FunctionsApiClient));

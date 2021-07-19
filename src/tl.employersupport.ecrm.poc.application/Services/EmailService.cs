@@ -23,14 +23,10 @@ namespace tl.employersupport.ecrm.poc.application.Services
             _notificationClient = notificationClient ?? throw new ArgumentNullException(nameof(notificationClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            //Note: check this last otherwise unit tests checking null ctor args will fail
-            if (emailConfiguration is null)
-                throw new ArgumentNullException(nameof(emailConfiguration));
-
-            _configuration = emailConfiguration.Value ??
+            _configuration = emailConfiguration?.Value ??
                              throw new ArgumentNullException(
-                                 $"{nameof(emailConfiguration)}.{nameof(emailConfiguration.Value)}",
-                                 "Configuration value must not be null");
+                                 $"{nameof(emailConfiguration)}",
+                                 "Configuration or configuration value must not be null");
         }
 
         public async Task<bool> SendZendeskTicketCreatedEmail(

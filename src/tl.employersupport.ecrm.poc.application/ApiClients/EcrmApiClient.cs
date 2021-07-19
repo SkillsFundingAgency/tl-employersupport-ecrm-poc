@@ -28,13 +28,11 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            //if (configuration is null)
-            //    throw new ArgumentNullException(nameof(configuration));
 
             _configuration = configuration?.Value ??
                              throw new ArgumentNullException(
-                                 $"{nameof(configuration)}.{nameof(configuration.Value)}",
-                                 "Configuration value must not be null");
+                                 $"{nameof(configuration)}",
+                                 "Configuration or configuration value must not be null");
         }
 
         public async Task<Employer> GetEmployer(EmployerSearchRequest searchRequest)
@@ -79,7 +77,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Add("Ocp-Apim-Trace", "true");
             request.Headers.Add("Ocp-Apim-Subscription-Key", _configuration.ApiKey);
-            
+
             var response = await _httpClient.SendAsync(request);
 
             Debug.WriteLine($"Get account response status {response.StatusCode}");

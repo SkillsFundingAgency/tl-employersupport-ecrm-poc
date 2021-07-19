@@ -56,7 +56,7 @@ namespace tl.employersupport.ecrm.poc.application.unittests.Services
         public void TicketService_Constructor_Guards_Against_Bad_Configuration()
         {
             Assert.Throws<ArgumentNullException>(
-                "zendeskConfiguration.Value",
+                "zendeskConfiguration",
                 () => new TicketServiceBuilder().Build(
                     Substitute.For<IZendeskApiClient>(),
                     Substitute.For<ILogger<TicketService>>(),
