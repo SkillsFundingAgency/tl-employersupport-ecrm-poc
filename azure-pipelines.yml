@@ -35,13 +35,13 @@ stages:
       displayName: Restore
       inputs:
         command: restore
-        projects: '**/tl.ess.providersearch.poc*.csproj'
+        projects: '**/tl.employersupport.ecrm.poc.*.csproj'
         noCache: true
 
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
-        projects: '**/tl.ess.providersearch.poc*.csproj'
+        projects: '**/tl.employersupport.ecrm.poc.*.csproj'
         arguments: '--configuration $(buildConfiguration)  --no-restore'        
 
     - task: DotNetCoreCLI@2
