@@ -4,47 +4,67 @@
     ViewData["Title"] = "Home page";
 }
 
-<style>
-    pre {
-        color: blue;
-        text-align: left;
-        border-width: 5px;
-        border-color: red;
-    }
+<main id="main-content" role="main">
 
-    code {
-        border-width: 5px;
-        border-color: green;
-    }
 
-    summary {
-        font-weight: bold;
-    }
+    <div class="govuk-width-container govuk-main-wrapper govuk-!-padding-top-0">
 
-    .tl-hidden {
-        display: none;
-    }
+        <!-- Search Box -->
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="tl-card">
+                    <h1 class="govuk-heading-xl govuk-!-margin-top-2 govuk-!-margin-bottom-7">{{article.title}}</h1>
+                    <p class="govuk-body">Search for providers who are delivering T Levels</p>
+                    <input class="govuk-input govuk-input--width-10" id="event-name" name="event-name" type="text" placeholder="Enter a postcode">
+                    <select class="govuk-select " id="sort" name="sort">
+                        <option value="0">All T Level Courses</option>
+                    </select>
+                    <button class="govuk-button tl-button--blue" id="search-providers" data-module="govuk-button">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds govuk-!-margin-top-7" id="tl-fap--results">
 
-    .tl-search-status {
-        font-style: oblique;
-        color: green;
-    }
+                <!--<div class="tl-fap--noresult">
+                    <h2 class="govuk-heading-l">0 results</h2>
+                    <p class="govuk-body">Enter a postcode to search for providers offering T Levels.</p>
+                </div>-->
 
-    .tl-results-box {
-        border: solid 1px;
-        border-color: black;
-    }
 
-    .tl-results-box--distance {
-        font-size: 18px;
-        color: darkblue;
-    }
-</style>
+                <div class="tl-fap--result">
+                    <h3 class="govuk-heading-m">Warwickshire College <span class="tl-fap--distance">3 miles</span></h3>
+                    <p class="govuk-body">Leamington Spa | CV32 5JE <a href="#" class="govuk-link govuk-!-margin-left-4">How do I get there?</a></p>
+                    <div class="tl-fap--courses">
+                        <p class="govuk-body govuk-!-font-weight-bold">From September 2021 onwards:</p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>Digital Support Services</li>
+                        </ul>
+                    </div>
+                    <p class="govuk-body"><a href="#" class="govuk-link govuk-!-margin-right-4">info@warwickshire.ac.uk</a> Call on: 0300 456 0047</p>
+                    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+                </div>
+
+                <p class="govuk-body"><a class="govuk-link" id="next-results-link" href="#">Show 5 more results</a></p>
+            </div>
+        </div>
+    </div>
+    
+</main>
+
+<!-- Required when running in asp.net core -->
+<div>
+    <input type="hidden" id="searchApiUrlValue" value=@Model.SearchApiUrl>
+</div>
+
 
 <div class="text-center">
     <h1 class="display-4">Search for T Levels</h1>
     <div>
-        <input type="hidden" id="searchApiUrlValue" value=@Model.SearchApiUrl>
         <button id="tl-search-providers">Search</button>
         <span id="tl-provider-search-status" class="tl-search-status tl-hidden"></span>
     </div>
@@ -60,9 +80,99 @@
     </details>
 </div>
 
+<div>
+    <select name="tl-qualifications" id="tl-qualifications-select">
+    </select>
+</div>
+
 <div id="tl-provider-search-results">
 </div>
 
 @section Scripts {
-    <!--<script src="/js/site.js" asp-append-version="true"></script>-->
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            console.log('loading qualifications');
+
+            //TODO: Review ids - sort (dropdown), find-providers (button), event-name (postcode)
+            //TODO: Add api url to manifest 
+            //const findProvidersApiUrl = {{settings.find_providers_api_url}}
+            const findProvidersApiUrl = $('#searchApiUrlValue').val();
+            console.log(`findProvidersApiUrl is ${findProvidersApiUrl}`);
+
+            const qualificationsRequest = new Request(`${findProvidersApiUrl}/qualifications`);
+            fetch(qualificationsRequest)
+                .then(response => response.json())
+                .then(function(data) {
+                    console.log('Qualifications request succeeded with JSON response:', data);
+                    populateQualifications(data);
+                }).catch(function(error) {
+                    console.log('Qualifications request failed:', error.message);
+                });
+
+            function populateQualifications(data) {
+                const select = $("#sort");
+                select.find("option:not(:first)").remove();
+                $.each(data,
+                    function(_, item) {
+                        console.log(`${item.id} - ${item.name}`);
+                        select.append(new Option(item.name, item.id));
+                    });
+            }
+
+            $("#search-providers").click(function() {
+                event.stopPropagation();
+
+                //TODO: Validate non-empty
+                const postcode = $("#event-name").val();
+                const qualificationId = $("#sort").val();
+
+                if (!postcode) {
+                    console.log("No postcode");
+                    return;
+                }
+
+                console.log("Searching...");
+
+                console.log(`postcode = '${postcode}', qualificationId = ${qualificationId}`);
+
+                //TODO: Refactor - this should be a search method that takes 
+                //  (postcode, qualificationId, page, pageSize)
+                //TODO: Add a variable for the page size
+
+                //TODO: Get findProvidersApiUrl again? It should come from closure above
+                let requestUri = `${findProvidersApiUrl}/providers/${encodeURIComponent(postcode)}`;
+
+                //TODO: Build search params, add non-zero page, page size
+                if (qualificationId > 0) {
+                    const searchParams = new URLSearchParams({
+                        postcode: postcode,
+                    }).toString();
+                    requestUri += `?${searchParams}`;
+                }
+                console.log(`requestUri = '${requestUri}`);
+                const request = new Request(requestUri);
+
+                fetch(request)
+                    .then(response => response.json())
+                    .then(function(data) {
+                        console.log('Provider search request succeeded with JSON response:', data);
+                        populateProviderSearchResults(data);
+                    }).catch(function(error) {
+                        console.log('Provider search request failed:', error.message);
+                    });
+            });
+
+            function populateProviderSearchResults(data) {
+                console.log("Writing search results");
+            }
+
+            $("#next-results-link").click(function() {
+                event.stopPropagation();
+                console.log("Get next n results link clicked");
+                //This would call the provider search function, passing in the current page + 1
+            });
+        });
+    </script>
 }
