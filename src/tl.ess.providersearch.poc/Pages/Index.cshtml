@@ -6,7 +6,6 @@
 
 <main id="main-content" role="main">
 
-
 	<div class="govuk-width-container govuk-main-wrapper govuk-!-padding-top-0">
 
 		<!-- Search Box -->
@@ -97,7 +96,6 @@
 <script type="text/javascript">
 
 	$(document).ready(function() {
-		console.log('loading qualifications');
 
 		//TODO: Review ids - sort (dropdown), find-providers (button), event-name (postcode)
 		//TODO: Add api url to manifest
@@ -105,32 +103,41 @@
 		const findProvidersApiUrl = $('#searchApiUrlValue').val();
 		console.log(`findProvidersApiUrl is ${findProvidersApiUrl}`);
 
-		$.getJSON(`${findProvidersApiUrl}/qualifications`)
-			.then(function(data) {
-				console.log('Qualifications request succeeded with JSON response:', data);
-				populateQualifications(data);
-			})
-			.fail(function(jqxhr, error) {
-				console.log(`Call to get qualifications failed. ${error}`);
-			});
+		loadQualifications();
 
-		function populateQualifications(data) {
-			const select = $("#sort");
-			select.find("option:not(:first)").remove();
-			$.each(data,
-				function(_, item) {
-					console.log(`${item.id} - ${item.name}`);
-					select.append(new Option(item.name, item.id));
-				});
+		//Check for query param
+		const postcode = getUrlParameter("search");
+		console.log(`result from getUrlParameter=${postcode}`);
+		console.log(`    - decoded as ${decodeURIComponent(postcode)}`);
+		console.log(`    - decoded as ${urlDecode(postcode)}`);
+		if (postcode) {
+			console.log(`Have postcode to search for ${urlDecode(postcode)}`);
+			providerSearch(urlDecode(postcode));
 		}
 
 		$("#search-providers").click(function() {
-			//const postcode = $("#event-name").val().trim();
-			//const qualificationId = $("#sort").val();
 			return providerSearch($("#event-name").val().trim(), $("#sort").val(), 0, 5);
 		});
 
-		function providerSearch(postcode, qualificationId, page, pageSize) {
+		$("#next-results-link").click(function() {
+			event.stopPropagation();
+			console.log("Get next n results link clicked");
+			//This would call the provider search function, passing in the current page + 1
+		});
+
+		function loadQualifications() {
+			console.log('loading qualifications');
+			$.getJSON(`${findProvidersApiUrl}/qualifications`)
+				.then(function(data) {
+					console.log('Qualifications request succeeded with JSON response:', data);
+					populateQualifications(data);
+				})
+				.fail(function(jqxhr, error) {
+					console.log(`Call to get qualifications failed. ${error}`);
+				});
+		}
+
+		function providerSearch(postcode, qualificationId=null, page=0, pageSize=5) {
 			if (postcode === "") {
 				event.stopPropagation();
 				showPostcodeError("You must enter a postcode");
@@ -141,47 +148,23 @@
 
 			console.log("Searching...");
 
-
 			console.log(`postcode = '${postcode}', qualificationId = ${qualificationId}`);
 
 			//TODO: Get findProvidersApiUrl again? It should come from closure above
 			let requestUri = `${findProvidersApiUrl}/providers/${encodeURIComponent(postcode)}`;
 
-			//TODO: Build search params, add non-zero page, page size
 			if (qualificationId > 0) {
 				const searchParams = new URLSearchParams({
-					postcode: postcode,
+					qualificationId: qualificationId,
+					page: page,
+					pageSize: pageSize
 				}).toString();
 				requestUri += `?${searchParams}`;
 			}
 			console.log(`requestUri = '${requestUri}`);
-			//const request = new Request(requestUri);
 
-			/*
-			fetch(request)
-				.then(response => response.json())
-				.then(function(data) {
-					console.log('checking...');
-					console.log(data.ok);
-					console.log(data.message);
-
-					if (!data.ok) {
-						console.log('response was not ok');
-						console.log(data.message);
-					} else {
-						console.log('Provider search request succeeded with JSON response:', data);
-						populateProviderSearchResults(data);
-					}
-				}).catch(function(error) {
-					console.log('Provider search request failed:', error.message);
-				});
-			*/
 			$.getJSON(requestUri)
 				.then(function(data) {
-					console.log('checking...');
-					console.log(data.ok);
-					console.log(data.message);
-
 					console.log('Provider request succeeded with JSON response:', data);
 					populateProviderSearchResults(data);
 				})
@@ -208,52 +191,61 @@
 			//TODO: Remove all children
 			//resultsContainer.find(".tl-fap--result").remove();
 			resultsContainer.find(".tl-fap--result:not(:first)").remove();
-
-            //TODO: Won't need this when we remove all children
+			//TODO: Won't need this when we remove all children
 			resultsContainer.find("#next-results-link").closest("p").remove();
+			
+			$.each(data,
+				function(_, providerLocation) {
+					console.log(providerLocation);
 
-            $.each(data, function(_, item) {
+					//TODO: check for missing journeyToLink
+					let searchResult =
+						`<div class="tl-fap--result"> \
+						 <h3 class="govuk-heading-m">${providerLocation.providerName} <span class="tl-fap--distance">${providerLocation.distance.toFixed(0)} miles</span></h3> \
+						 <p class="govuk-body">${providerLocation.locationName} | ${providerLocation.postcode} \
+						 <a target="_blank" href="${providerLocation.journeyToLink}" class="govuk-link govuk-!-margin-left-4">How do I get there?</a></p> \
+							<div class="tl-fap--courses">`;
 
-				console.log(item);
+					$.each(providerLocation.deliveryYears,
+						function(_, deliveryYear) {
+                            const availability = deliveryYear.isAvailableNow
+                                ? 'Available now'
+                                : `From September ${deliveryYear.year} onwards`;
 
-				//TODO: Build journey link for href below - either here or in api
-				let searchResult =
-					`<div class="tl-fap--result"> \
-					 <h3 class="govuk-heading-m">${item.providerName} <span class="tl-fap--distance">${item.distance.toFixed(1)} miles</span></h3> \
-					 <p class="govuk-body">${item.locationName} | ${item.postcode} <a href="#" class="govuk-link govuk-!-margin-left-4">How do I get there?</a></p> \
-						<div class="tl-fap--courses">`;
+                            searchResult += `<p class="govuk-body govuk-!-font-weight-bold">${availability}:</p> \
+								<ul class="govuk-list govuk-list--bullet">`;
 
-				//TODO: calculate start date or available now:
-				//$.each(data.deliveryYears, )
+							$.each(deliveryYear.qualifications,
+								function(_, qualification) {
+									searchResult += `<li>${qualification.name}</li>`;
+								});
 
-				//const startDate = `From September 2021 onwards`;
-				//searchResult += `<p class="govuk-body govuk-!-font-weight-bold">${startDate}:</p>`;
+							searchResult += `</ul>`;
+						});
 
-				/*
-				<p class="govuk-body govuk-!-font-weight-bold">From September 2021 onwards:</p>
-				<ul class="govuk-list govuk-list--bullet">
-					<li>Digital Support Services</li>
-				</ul>
+					//TODO: Deal with no email or no phone, hide as appropriate
+					searchResult += `</div> \
+						<p class="govuk-body"><a href="mailto:${providerLocation.email}" class="govuk-link govuk-!-margin-right-4">${providerLocation.email}</a> Call on: ${providerLocation.telephone}</p> \
+						<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible"> \
+					</div>`;
 
-			</div>
-			<p class="govuk-body"><a href="#" class="govuk-link govuk-!-margin-right-4">info@warwickshire.ac.uk</a> Call on: 0300 456 0047</p>
-			<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
-				 */
-
-				//TODO: mailto link here?
-				//TODO: Deal with no email or no phone, hide as appropriate
-				searchResult += `</div> \
-					<p class="govuk-body"><a href="mailto:${item.email}" class="govuk-link govuk-!-margin-right-4">${item.email}</a> Call on: ${item.telephone}</p> \
-					<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible"> \
-				</div>`;
-
-				resultsContainer.append(searchResult);
-			});
+					resultsContainer.append(searchResult);
+				});
 
 			//If we want 5 more, add the link here
 			//TODO: Can include page number as query on the link
-            resultsContainer.append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="#">Show 5 more results</a></p>`);
-        }
+			resultsContainer.append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="#">Show 5 more results</a></p>`);
+		}
+
+		function populateQualifications(data) {
+			const select = $("#sort");
+			select.find("option:not(:first)").remove();
+			$.each(data,
+				function(_, item) {
+					//console.log(`${item.id} - ${item.name}`);
+					select.append(new Option(item.name, item.id));
+				});
+		}
 
 		function showPostcodeError(message) {
 			$("#tl-postcode-error").text(message);
@@ -261,11 +253,23 @@
 			$('#tl-postcode-error').removeClass("tl-hidden");
 		}
 
-		$("#next-results-link").click(function() {
-			event.stopPropagation();
-			console.log("Get next n results link clicked");
-			//This would call the provider search function, passing in the current page + 1
-		});
+		function urlDecode(str) {
+			return decodeURIComponent((str + '').replace(/\+/g, '%20'));
+		}
+
+		function getUrlParameter(key) {
+			const pageUrl = window.location.search.substring(1);
+			const urlVars = pageUrl.split('&');
+
+			for (let i = 0; i < urlVars.length; i++) {
+				const parameter = urlVars[i].split('=');
+				if (parameter[0] === key) {
+					return parameter[1];
+				}
+			}
+
+			return null;
+		}
 	});
 </script>
 }

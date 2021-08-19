@@ -1,0 +1,59 @@
+﻿@page
+@model tl.ess.providersearch.poc.Pages.SearchBoxPageModel
+@{
+	ViewData["Title"] = "Search Box";
+}
+
+<main id="main-content" role="main">
+
+	<div class="govuk-width-container govuk-main-wrapper govuk-!-padding-top-0">
+
+		<!-- Search Box -->
+		<div class="govuk-grid-row">
+			<div class="govuk-grid-column-full">
+				<div class="tl-card">
+					<h1 class="govuk-heading-xl govuk-!-margin-top-2 govuk-!-margin-bottom-7">{{article.title}}</h1>
+					<p class="govuk-body">Search for providers who are delivering T Levels</p>
+					<!-- TODO: Style error -->
+					<span class="tl-hidden" id="tl-postcode-error">You must enter a postcode</span>
+					<input class="govuk-input govuk-input--width-10" id="event-name" name="event-name" type="text" placeholder="Enter a postcode">
+                    <button class="govuk-button tl-button--blue" id="search-providers" data-module="govuk-button">
+						Search
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $("#search-providers").click(function() {
+                const postcode = $("#event-name").val().trim();
+
+                if (postcode === "") {
+                    event.stopPropagation();
+                    showPostcodeError("You must enter a postcode");
+                    return false;
+                }
+
+                const searchParams = new URLSearchParams({
+                    search: postcode
+                }).toString();
+                $(location).attr('href', `/Index?${searchParams}`);
+
+                return true;
+            });
+
+            function showPostcodeError(message) {
+                $("#tl-postcode-error").text(message);
+                //$(".tl-search--form").addClass("tl-validation--error");
+                $('#tl-postcode-error').removeClass("tl-hidden");
+            }
+        });
+
+    </script>
+}
