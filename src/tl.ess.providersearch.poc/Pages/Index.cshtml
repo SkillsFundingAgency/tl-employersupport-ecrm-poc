@@ -16,11 +16,11 @@
 					<p class="govuk-body">Search for providers who are delivering T Levels</p>
 					<!-- TODO: Style error -->
 					<span class="tl-hidden" id="tl-postcode-error">You must enter a postcode</span>
-					<input class="govuk-input govuk-input--width-10" id="event-name" name="event-name" type="text" placeholder="Enter a postcode">
-					<select class="govuk-select " id="sort" name="sort">
+					<input class="govuk-input govuk-input--width-10" id="tl-postcode" name="tl-postcode" type="text" placeholder="Enter a postcode">
+					<select class="govuk-select " id="tl-qualifications" name="qualifications">
 						<option value="0">All T Level Courses</option>
 					</select>
-					<button class="govuk-button tl-button--blue" id="search-providers" data-module="govuk-button">
+					<button class="govuk-button tl-button--blue" id="tl-search-providers" data-module="govuk-button">
 						Search
 					</button>
 				</div>
@@ -37,7 +37,7 @@
 				</div>-->
 
 				<div class="tl-fap--result">
-					<h3 class="govuk-heading-m">Warwickshire College <span class="tl-fap--distance">3 miles</span></h3>
+                    <h3 class="govuk-heading-m">Warwickshire College (SAMPLE)<span class="tl-fap--distance">3 miles</span></h3>
 					<p class="govuk-body">Leamington Spa | CV32 5JE <a href="#" class="govuk-link govuk-!-margin-left-4">How do I get there?</a></p>
 					<div class="tl-fap--courses">
 						<p class="govuk-body govuk-!-font-weight-bold">From September 2021 onwards:</p>
@@ -53,7 +53,6 @@
 			</div>
 		</div>
 	</div>
-
 </main>
 
 <!-- Required when running in asp.net core -->
@@ -62,11 +61,11 @@
 </div>
 
 <!-- Old code - hiding it -->
-<div class="tl-hidden">
+@*<div class="tl-hidden">
 	<div class="text-center">
 		<h1 class="display-4">Search for T Levels</h1>
 		<div>
-			<button id="tl-search-providers">Search</button>
+			<button id="tl-search-providers-old">Search</button>
 			<span id="tl-provider-search-status" class="tl-search-status tl-hidden"></span>
 		</div>
 	</div>
@@ -88,7 +87,7 @@
 
 	<div id="tl-provider-search-results">
 	</div>
-</div>
+</div>*@
 
 
 @section Scripts {
@@ -96,28 +95,31 @@
 <script type="text/javascript">
 
 	$(document).ready(function() {
-
-		//TODO: Review ids - sort (dropdown), find-providers (button), event-name (postcode)
-		//TODO: Add api url to manifest
-		//const findProvidersApiUrl = {{settings.find_providers_api_url}}
+        console.log("document ready");
+        //TODO: Use handlebarred setting here
+        //const findProvidersApiUrl = __handlebars__settings.find_provider_api__handlebars__
 		const findProvidersApiUrl = $('#searchApiUrlValue').val();
 		console.log(`findProvidersApiUrl is ${findProvidersApiUrl}`);
-
+		
 		loadQualifications();
 
 		//Check for query param
 		const postcode = getUrlParameter("search");
-		console.log(`result from getUrlParameter=${postcode}`);
-		console.log(`    - decoded as ${decodeURIComponent(postcode)}`);
-		console.log(`    - decoded as ${urlDecode(postcode)}`);
 		if (postcode) {
 			console.log(`Have postcode to search for ${urlDecode(postcode)}`);
 			providerSearch(urlDecode(postcode));
 		}
 
-		$("#search-providers").click(function() {
-			return providerSearch($("#event-name").val().trim(), $("#sort").val(), 0, 5);
+		$("#tl-search-providers").click(function() {
+			return providerSearch($("#tl-postcode").val().trim(), $("#tl-qualifications").val(), 0, 5);
 		});
+
+        $('#tl-postcode').keypress(function (e) {
+            if (e.which === 13) {
+                $("#tl-search-providers").click();
+                return false;
+            }
+        }); 
 
 		$("#next-results-link").click(function() {
 			event.stopPropagation();
@@ -150,18 +152,17 @@
 
 			console.log(`postcode = '${postcode}', qualificationId = ${qualificationId}`);
 
-			//TODO: Get findProvidersApiUrl again? It should come from closure above
-			let requestUri = `${findProvidersApiUrl}/providers/${encodeURIComponent(postcode)}`;
+			const searchParams = new URLSearchParams({
+				postcode: postcode,
+				qualificationId: qualificationId,
+				page: page,
+				pageSize: pageSize
+			}).toString();
 
-			if (qualificationId > 0) {
-				const searchParams = new URLSearchParams({
-					qualificationId: qualificationId,
-					page: page,
-					pageSize: pageSize
-				}).toString();
-				requestUri += `?${searchParams}`;
-			}
-			console.log(`requestUri = '${requestUri}`);
+            //TODO: Get findProvidersApiUrl again? It should come from closure above
+            /* /${encodeURIComponent(postcode)}`; */
+            const requestUri = `${findProvidersApiUrl}/providers?${searchParams}`;
+            console.log(`requestUri = '${requestUri}`);
 
 			$.getJSON(requestUri)
 				.then(function(data) {
@@ -238,7 +239,7 @@
 		}
 
 		function populateQualifications(data) {
-			const select = $("#sort");
+			const select = $("#tl-qualifications");
 			select.find("option:not(:first)").remove();
 			$.each(data,
 				function(_, item) {

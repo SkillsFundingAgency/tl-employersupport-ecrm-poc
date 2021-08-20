@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
 
-    $("#tl-search-providers").click(function () {
+    $("#tl-search-providers_old").click(function () {
         event.stopPropagation();
 
         $("#tl-provider-search-status").html("searching...");
