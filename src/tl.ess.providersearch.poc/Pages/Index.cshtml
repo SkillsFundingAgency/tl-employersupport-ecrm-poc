@@ -153,15 +153,15 @@
 			console.log(`postcode = '${postcode}', qualificationId = ${qualificationId}`);
 
 			const searchParams = new URLSearchParams({
-				postcode: postcode,
+				//postcode: postcode,
 				qualificationId: qualificationId,
 				page: page,
 				pageSize: pageSize
 			}).toString();
 
             //TODO: Get findProvidersApiUrl again? It should come from closure above
-            /* /${encodeURIComponent(postcode)}`; */
-            const requestUri = `${findProvidersApiUrl}/providers?${searchParams}`;
+            //const requestUri = `${findProvidersApiUrl}/providers/${encodeURIComponent(postcode)}?${searchParams}`;
+			const requestUri = `${findProvidersApiUrl}/providers?${searchParams}`;
             console.log(`requestUri = '${requestUri}`);
 
 			$.getJSON(requestUri)
