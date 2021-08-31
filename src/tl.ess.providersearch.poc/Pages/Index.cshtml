@@ -63,188 +63,241 @@
 <!-- Required when running in asp.net core -->
 <div>
 	<input type="hidden" id="searchApiUrlValue" value=@Model.SearchApiUrl>
+	<input type="hidden" id="find_provider_auth_token" value=@Model.BearerToken>
 </div>
 
 @section Scripts {
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
-        $(document).ready(function() {
-            let findProvidersApiUrl = $('#searchApiUrlValue').val();
-            if (findProvidersApiUrl.substr(-1) != '/') findProvidersApiUrl += '/'
+	$(document).ready(function() {
+		let findProvidersApiUrl = $('#searchApiUrlValue').val();
+		if (findProvidersApiUrl.substr(-1) !== '/') findProvidersApiUrl += '/';
 
-            console.log(`findProvidersApiUrl is ${findProvidersApiUrl}`);
+		console.log(`findProvidersApiUrl is ${findProvidersApiUrl}`);
 
-            loadQualifications();
+		loadQualifications();
 
-            //Check for search query param with postcode
-            let postcode = getUrlParameter("search");
-            if (postcode) {
-                postcode = urlDecode(postcode).toUpperCase();
-                console.log(`Found search query with postcode to search for '${postcode}'`);
-                $("#tl-postcode").val(postcode);
-                providerSearch(postcode);
-            }
+		//Check for search query param with postcode
+		let postcode = getUrlParameter("search");
+		if (postcode) {
+			postcode = urlDecode(postcode).toUpperCase();
+			console.log(`Found search query with postcode to search for '${postcode}'`);
+			$("#tl-postcode").val(postcode);
+			providerSearch(postcode);
+		}
 
-            $("#tl-search-providers").click(function() {
-                return providerSearch($("#tl-postcode").val().trim(), $("#tl-qualifications").val(), 0, 5);
-            });
+		$("#tl-search-providers").click(function() {
+			return providerSearch($("#tl-postcode").val().trim(), $("#tl-qualifications").val(), 0, 5);
+		});
 
-            $('#tl-postcode').keypress(function(e) {
-                if (e.which === 13) {
-                    $("#tl-search-providers").click();
-                    return false;
+		$('#tl-postcode').keypress(function(e) {
+			if (e.which === 13) {
+				$("#tl-search-providers").click();
+				return false;
+			}
+		});
+
+		$("#next-results-link").click(function() {
+			event.stopPropagation();
+			console.log("Get next n results link clicked");
+			//This would call the provider search function, passing in the current page + 1
+		});
+
+		function loadQualifications() {
+			console.log('loading qualifications');
+            $.ajax({
+				type: "GET",
+				url: `${findProvidersApiUrl}qualifications`,
+				contentType: "application/json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Authorization", `Bearer ${ $('#find_provider_auth_token').val() }`);
+					//xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
+				}
+			}).done(function (response) {
+				console.log('Qualifications request succeeded with JSON response:', response);
+				populateQualifications(response);
+			}).fail(function (error)  {
+				console.log(`Call to get qualifications failed. ${error}`);
+			});
+		}
+
+		function providerSearch(postcode, qualificationId=0, page=0, pageSize=5) {
+			if (postcode === "") {
+				event.stopPropagation();
+				showPostcodeError("Enter a postcode");
+				return false;
+			}
+
+			clearProviderSearchResults();
+
+			console.log(`Searching for postcode = '${postcode}', qualificationId = ${qualificationId}`);
+
+			const searchParams = new URLSearchParams({
+				postcode: postcode,
+				qualificationId: qualificationId,
+				page: page,
+				pageSize: pageSize
+			}).toString();
+
+            $.ajax({
+                type: "GET",
+                url: `${findProvidersApiUrl}providers?${searchParams}`,
+                contentType: "application/json",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", `Bearer ${ $('#find_provider_auth_token').val() }`);
+                    //xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
+                }
+            }).done(function (response) {
+                console.log('Provider request succeeded with JSON response:', response);
+                populateProviderSearchResults(response);
+            }).fail(function (jqxhr, textStatus, error)  {
+                if (jqxhr.status === 404) {
+                    showPostcodeError("Enter a valid postcode");
+                } else {
+                    console.log(`Call to get providers returned error - ${textStatus} ${error}`);
                 }
             });
 
-            $("#next-results-link").click(function() {
-                event.stopPropagation();
-                console.log("Get next n results link clicked");
-                //This would call the provider search function, passing in the current page + 1
-            });
+			return true;
+		}
 
-            function loadQualifications() {
-                console.log('loading qualifications');
-                $.getJSON(`${findProvidersApiUrl}qualifications`)
-                    .then(function(data) {
-                        console.log('Qualifications request succeeded with JSON response:', data);
-                        populateQualifications(data);
-                    })
-                    .fail(function(jqxhr, error) {
-                        console.log(`Call to get qualifications failed. ${error}`);
-                    });
-            }
+		function clearProviderSearchResults() {
+			$('#tl-postcode-error').addClass("tl-hidden");
+			$('.tl-fap--noresult').addClass("tl-hidden");
+			$("#tl-fap--results").find(".tl-fap--result").remove();
+		}
 
-            function providerSearch(postcode, qualificationId=0, page=0, pageSize=5) {
-                if (postcode === "") {
-                    event.stopPropagation();
-                    showPostcodeError("Enter a postcode");
-                    return false;
-                }
+		function populateProviderSearchResults(data) {
+			if (data.length === 0) {
+				$('.tl-fap--noresult').removeClass("tl-hidden");
+				return;
+			}
 
-                clearProviderSearchResults();
+			$.each(data,
+				function(_, providerLocation) {
+					console.log(providerLocation);
 
-                console.log(`Searching for postcode = '${postcode}', qualificationId = ${qualificationId}`);
+					let searchResult =
+						`<div class="tl-fap--result"> \
+					 <h3 class="govuk-heading-m">${providerLocation.providerName} <span class="tl-fap--distance">${providerLocation.distance.toFixed(0)} miles</span></h3> \
+					 <p class="govuk-body">${providerLocation.locationName} | ${providerLocation.postcode} `;
 
-                const searchParams = new URLSearchParams({
-                    postcode: postcode,
-                    qualificationId: qualificationId,
-                    page: page,
-                    pageSize: pageSize
-                }).toString();
+					if (providerLocation.website) searchResult += `<a target="_blank" href="${providerLocation.website}" class="govuk-link govuk-!-margin-left-4">Visit website</a>`
+					
+					const locationDeliveryYears = [];
+					let availableNow = null;
+                    $.each(providerLocation.deliveryYears,
+						function(_, deliveryYear) {
+							if (deliveryYear.isAvailableNow) {
+								if(availableNow) {
+                                    for(let i=0; i<deliveryYear.qualifications.length; i++) {
+                                        if (availableNow.qualifications.filter(function(q) { return q.name === deliveryYear.qualifications[i].name; }).length === 0)
+                                            availableNow.qualifications.push(deliveryYear.qualifications[i]);
+                                    }
+                            } else {
+                                    availableNow = deliveryYear;
+									locationDeliveryYears.push(availableNow);
+                            }
+							} else {
+								locationDeliveryYears.push(deliveryYear);
+							}
+                        });
 
-                const requestUri = `${findProvidersApiUrl}providers?${searchParams}`;
-                console.log(`requestUri = '${requestUri}`);
-
-                $.getJSON(requestUri)
-                    .then(function(data) {
-                        console.log('Provider request succeeded with JSON response:', data);
-                        populateProviderSearchResults(data);
-                    })
-                    .fail(function(jqxhr, textStatus, error) {
-                        if (jqxhr.status === 404) {
-                            showPostcodeError("Enter a valid postcode");
-                        }
-                    });
-
-                return true;
-            }
-
-            function clearProviderSearchResults() {
-                $('#tl-postcode-error').addClass("tl-hidden");
-                $('.tl-fap--noresult').addClass("tl-hidden");
-                $("#tl-fap--results").find(".tl-fap--result").remove();
-            }
-
-            function populateProviderSearchResults(data) {
-                if (data.length === 0) {
-                    $('.tl-fap--noresult').removeClass("tl-hidden");
-                    return;
-                }
-
-                $.each(data,
-                    function(_, providerLocation) {
-                        console.log(providerLocation);
-
-                        let searchResult =
-                            `<div class="tl-fap--result"> \
-						 <h3 class="govuk-heading-m">${providerLocation.providerName} <span class="tl-fap--distance">${providerLocation.distance.toFixed(0)} miles</span></h3> \
-						 <p class="govuk-body">${providerLocation.locationName} | ${providerLocation.postcode} `;
-
-                        if (providerLocation.website) searchResult += `<a target="_blank" href="${providerLocation.website}" class="govuk-link govuk-!-margin-left-4">Visit website</a>`
-
-                        searchResult += `</p><div class="tl-fap--courses">`;
-
-                        $.each(providerLocation.deliveryYears,
-                            function(_, deliveryYear) {
-                                const availability = deliveryYear.isAvailableNow
-                                    ? 'Available now'
-                                    : `From September ${deliveryYear.year} onwards`;
-
-                                searchResult += `<p class="govuk-body govuk-!-font-weight-bold">${availability}:</p> \
-								<ul class="govuk-list govuk-list--bullet">`;
-
-                                $.each(deliveryYear.qualifications,
-                                    function(_, qualification) {
-                                        searchResult += `<li>${qualification.name}</li>`;
-                                    });
-
-                                searchResult += `</ul>`;
-                            });
-
-                        searchResult += `</div>`;
-
-                        if (providerLocation.email || providerLocation.telephone) {
-                            searchResult += `<p class="govuk-body">`;
-
-                            if (providerLocation.email) searchResult += `<a href="mailto:${providerLocation.email}" class="govuk-link govuk-!-margin-right-4">${providerLocation.email}</a>`;
-                            if (providerLocation.telephone) searchResult += ` Call on: ${providerLocation.telephone}`;
-
-                            searchResult += `</p>`;
-                        }
-
-                        searchResult += `<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible"> \
-					      </div>`;
-
-                        $("#tl-fap--results").append(searchResult);
-                    });
-
-                //If we want 5 more, add the link here
-                //TODO: Can include page number as query on the link
-                //$("#tl-fap--results").append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="#">Show 5 more results</a></p>`);
-            }
-
-            function populateQualifications(data) {
-                const select = $("#tl-qualifications");
-                select.find("option:not(:first)").remove();
-                $.each(data,
-                    function(_, item) {
-                        select.append(new Option(item.name, item.id));
-                    });
-            }
-
-            function showPostcodeError(message) {
-                $("#tl-postcode-error").text(message);
-                $('#tl-postcode-error').removeClass("tl-hidden");
-            }
-
-            function urlDecode(str) {
-                return decodeURIComponent((str + '').replace(/\+/g, '%20'));
-            }
-
-            function getUrlParameter(key) {
-                const pageUrl = window.location.search.substring(1);
-                const urlVars = pageUrl.split('&');
-
-                for (let i = 0; i < urlVars.length; i++) {
-                    const parameter = urlVars[i].split('=');
-                    if (parameter[0] === key) {
-                        return parameter[1];
+                    if(availableNow) {
+                        availableNow.qualifications.sort(function(x, y) {return (x.name < y.name) ? -1 : ((x.name > y.name) ? 1 : 0)});
                     }
-                }
 
-                return null;
-            }
-        });
-    </script>
+                    searchResult += `</p><div class="tl-fap--courses">`;
+
+					$.each(locationDeliveryYears,
+						function(_, deliveryYear) {
+							const availability = deliveryYear.isAvailableNow
+								? 'Available now'
+								: `From September ${deliveryYear.year} onwards`;
+
+							searchResult += `<p class="govuk-body govuk-!-font-weight-bold">${availability}:</p> \
+							<ul class="govuk-list govuk-list--bullet">`;
+
+							$.each(deliveryYear.qualifications,
+								function(_, qualification) {
+									searchResult += `<li>${qualification.name}</li>`;
+								});
+
+							searchResult += `</ul>`;
+						});
+
+					searchResult += `</div>`;
+
+					if (providerLocation.email || providerLocation.telephone) {
+						searchResult += `<p class="govuk-body">`;
+
+						if (providerLocation.email) searchResult += `<a href="mailto:${providerLocation.email}" class="govuk-link govuk-!-margin-right-4">${providerLocation.email}</a>`;
+						if (providerLocation.telephone) searchResult += ` Call on: ${providerLocation.telephone}`;
+
+						searchResult += `</p>`;
+					}
+
+					searchResult += `<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible"> \
+					  </div>`;
+
+					$("#tl-fap--results").append(searchResult);
+				});
+
+			//If we want 5 more, add the link here
+			//TODO: Can include page number as query on the link
+			//$("#tl-fap--results").append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="#">Show 5 more results</a></p>`);
+		}
+
+		function writeDeliveryYear(deliveryYear) {
+			const availability = deliveryYear.isAvailableNow
+				? 'Available now'
+				: `From September ${deliveryYear.year} onwards`;
+
+			let searchResult = `<p class="govuk-body govuk-!-font-weight-bold">${availability}:</p> \
+							<ul class="govuk-list govuk-list--bullet">`;
+
+			$.each(deliveryYear.qualifications,
+				function(_, qualification) {
+					searchResult += `<li>${qualification.name}</li>`;
+				});
+
+			searchResult += `</ul>`;
+
+			return searchResult;
+		}
+
+		function populateQualifications(data) {
+			const select = $("#tl-qualifications");
+			select.find("option:not(:first)").remove();
+			$.each(data,
+				function(_, item) {
+					select.append(new Option(item.name, item.id));
+				});
+		}
+
+		function showPostcodeError(message) {
+			$("#tl-postcode-error").text(message);
+			$('#tl-postcode-error').removeClass("tl-hidden");
+		}
+
+		function urlDecode(str) {
+			return decodeURIComponent((str + '').replace(/\+/g, '%20'));
+		}
+
+		function getUrlParameter(key) {
+			const pageUrl = window.location.search.substring(1);
+			const urlVars = pageUrl.split('&');
+
+			for (let i = 0; i < urlVars.length; i++) {
+				const parameter = urlVars[i].split('=');
+				if (parameter[0] === key) {
+					return parameter[1];
+				}
+			}
+
+			return null;
+		}
+	});
+</script>
 }
