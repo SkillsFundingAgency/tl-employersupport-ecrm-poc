@@ -52,8 +52,9 @@
                     return false;
                 }
             }); 
+
             $("#tl-search-providers").click(function() {
-                const postcode = $("#tl-postcode").val().trim();
+                const postcode = $("#tl-postcode").val().trim().toUpperCase();
 
                 if (postcode === "") {
                     event.stopPropagation();
