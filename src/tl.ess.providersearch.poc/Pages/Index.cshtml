@@ -56,7 +56,6 @@
 	$(document).ready(function() {
 		let findProvidersApiUrl = $('#searchApiUrlValue').val();
 		if (findProvidersApiUrl.substr(-1) !== '/') findProvidersApiUrl += '/';
-		//xhr.setRequestHeader("Authorization", `Bearer ${ $('#find_provider_auth_token').val() }`);
 
 		let currentPage = 0;
 		let currentPostcode = 0;
@@ -127,7 +126,6 @@
 				url: `${findProvidersApiUrl}providers?${searchParams}`,
 				contentType: "application/json",
 				beforeSend: function(xhr) {
-                    //xhr.setRequestHeader("Authorization", `Bearer ${$('#find_provider_auth_token').val()}`);
 					xhr.setRequestHeader("Ocp-Apim-Subscription-Key", `${$('#find_provider_api_key').val()}`);
 				}
 			}).done(function(response) {
