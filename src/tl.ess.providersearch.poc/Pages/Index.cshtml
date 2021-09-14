@@ -11,6 +11,7 @@
         <!-- Search Box -->
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
+				<form>
                 <div class="tl-card">
                     <h1 class="govuk-heading-xl govuk-!-margin-top-2 govuk-!-margin-bottom-7">{{article.title}}</h1>
                     <p class="govuk-body">Search for schools and colleges delivering T Levels near you.</p>
@@ -22,6 +23,7 @@
                     </button>
                     <span class="govuk-error-message" id="tl-error"></span>
                 </div>
+				</form>
             </div>
         </div>
 
@@ -44,7 +46,6 @@
 <!-- Required when running in asp.net core -->
 <div>
 	<input type="hidden" id="searchApiUrlValue" value=@Model.SearchApiUrl>
-	@*<input type="hidden" id="find_provider_auth_token" value=@Model.BearerToken>*@
 	<input type="hidden" id="find_provider_api_key" value=@Model.ApiKey>
 </div>
 
@@ -105,7 +106,7 @@
 				showPostcodeError("Enter a postcode");
 				return false;
 			}
-
+						
 			clearProviderSearchResults();
 
             callProviderSearchApi(postcode, page);
@@ -114,12 +115,13 @@
 		}
 
 		function callProviderSearchApi(postcode, page=0, pageSize=5) {
+			
 			const searchParams = new URLSearchParams({
 				postcode: postcode,
 				page: page,
 				pageSize: pageSize
 			}).toString();
-
+						
 			$.ajax({
 				type: "GET",
 				url: `${findProvidersApiUrl}providers?${searchParams}`,
@@ -129,12 +131,14 @@
 					xhr.setRequestHeader("Ocp-Apim-Subscription-Key", `${$('#find_provider_api_key').val()}`);
 				}
 			}).done(function(response) {
+				alert('done');
 				console.log('Provider request succeeded with JSON response:', response);
 				currentPage = page;
 				currentPostcode = postcode;
 				console.log(`currentPage is now ${currentPage}`);
 				populateProviderSearchResults(response);
 			}).fail(function(jqxhr) {
+				alert('fail');
 				console.log(`Error ${jqxhr.status} - ${jqxhr.responseText}`);
 				if (jqxhr.status === 404) {
                     showPostcodeError("Enter a valid postcode");
@@ -143,6 +147,7 @@
                 }
 			});
 
+			alert('returning');
 			return true;
 		}
 
