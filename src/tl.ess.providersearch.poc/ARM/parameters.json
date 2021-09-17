@@ -1,0 +1,135 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apis_twitter_api_v2_path": {
+            "value": null
+        },
+        "operations_hideReplyById_type": {
+            "value": null
+        },
+        "operations_tweetCountsFullArchiveSearch_type": {
+            "value": null
+        },
+        "operations_tweetCountsFullArchiveSearch_type_1": {
+            "value": null
+        },
+        "operations_tweetCountsFullArchiveSearch_type_2": {
+            "value": null
+        },
+        "operations_tweetCountsRecentSearch_type": {
+            "value": null
+        },
+        "operations_tweetCountsRecentSearch_type_1": {
+            "value": null
+        },
+        "operations_tweetsFullarchiveSearch_type": {
+            "value": null
+        },
+        "operations_tweetsFullarchiveSearch_type_1": {
+            "value": null
+        },
+        "operations_tweetsIdLikingUsers_type": {
+            "value": null
+        },
+        "operations_tweetsIdRetweetingUsers_type": {
+            "value": null
+        },
+        "operations_tweetsRecentSearch_type": {
+            "value": null
+        },
+        "operations_tweetsRecentSearch_type_1": {
+            "value": null
+        },
+        "operations_usersIdBlock_type": {
+            "value": null
+        },
+        "operations_usersIdBlocking_type": {
+            "value": null
+        },
+        "operations_usersIdFollow_type": {
+            "value": null
+        },
+        "operations_usersIdFollowers_type": {
+            "value": null
+        },
+        "operations_usersIdFollowing_type": {
+            "value": null
+        },
+        "operations_usersIdLike_type": {
+            "value": null
+        },
+        "operations_usersIdLikedTweets_type": {
+            "value": null
+        },
+        "operations_usersIdMentions_type": {
+            "value": null
+        },
+        "operations_usersIdMentions_type_1": {
+            "value": null
+        },
+        "operations_usersIdMentions_type_2": {
+            "value": null
+        },
+        "operations_usersIdMute_type": {
+            "value": null
+        },
+        "operations_usersIdRetweets_type": {
+            "value": null
+        },
+        "operations_usersIdTweets_type": {
+            "value": null
+        },
+        "operations_usersIdTweets_type_1": {
+            "value": null
+        },
+        "operations_usersIdTweets_type_2": {
+            "value": null
+        },
+        "operations_usersIdUnblock_type": {
+            "value": null
+        },
+        "operations_usersIdUnblock_type_1": {
+            "value": null
+        },
+        "operations_usersIdUnfollow_type": {
+            "value": null
+        },
+        "operations_usersIdUnfollow_type_1": {
+            "value": null
+        },
+        "operations_usersIdUnlike_type": {
+            "value": null
+        },
+        "operations_usersIdUnlike_type_1": {
+            "value": null
+        },
+        "operations_usersIdUnmute_type": {
+            "value": null
+        },
+        "operations_usersIdUnmute_type_1": {
+            "value": null
+        },
+        "operations_usersIdUnretweets_type": {
+            "value": null
+        },
+        "operations_usersIdUnretweets_type_1": {
+            "value": null
+        },
+        "subscriptions_6140846ca5996c0075070001_displayName": {
+            "value": null
+        },
+        "subscriptions_6140846ca5996c0075070002_displayName": {
+            "value": null
+        },
+        "subscriptions_61430fbf4634610f20f4e970_displayName": {
+            "value": null
+        },
+        "users_1_lastName": {
+            "value": null
+        },
+        "service_mw_apim_test_name": {
+            "value": null
+        }
+    }
+}

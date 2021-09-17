@@ -53,9 +53,69 @@ app.UseCsp(options => options.
 If this work is taken forwards, the custom sources for frames or sites CORS should be read from configuration.
 
 
-## TODO
+## Twitter
 
-- Get postcode from form
-- Get remote url from config via injected model
-- fill in this readme
+We want to be able to call the twitter search API from a Zendesk page. 
+The target API call is https://api.twitter.com/2/tweets/search/recent?query=from:TLevels_govuk
 
+A bearer token is required and can be generated in the twitter developer account, or in code using the API Key and API Secret. 
+The bearer token shouldn't expire, so it should be safe to store it as an application secret.
+
+Problems with calling twitter from a web page are
+ - the bearer token needs to be sent to twitter, so it would need to be exposed on the page for use in javascript
+ - twitter will reject cross-origin calls and give a CORS error
+
+A possible approach is to use APIM to proxy the call. 
+ - create an APIM resource
+ - added an API using OpenAPI - the spec is at https://api.twitter.com/2/openapi.json
+ - (Note - this might give an error that NonCompliantRulesProblem couldn't be processed. If so, download and edit the file to remove all references, then create an API from the edited file)
+ - add an inbound CORS policy to allow 
+ - add a set-header policy that creates an authorization header and passes it to twitter
+ - add a product to APIM and include the API
+ - create a subscription and note the key for use in the web page
+
+Set header policy can be set on the operation or for all APIs and should be (with the actual token instead of XXX)
+```
+<set-header name="Authorization" exists-action="override">
+    <value>Bearer XXX</value>
+</set-header>
+```
+
+TODO: Consider deleting the Ocp-Apim-Subscription-Key header since twitter won't use it
+
+CORS policy can be set on the `Recent search` operation should be similar to (with more clearly defined origins)
+```
+<cors>
+    <allowed-origins>
+        <origin>*</origin>
+    </allowed-origins>
+    <allowed-methods preflight-result-max-age="300">
+        <method>GET</method>
+    </allowed-methods>
+    <allowed-headers>
+        <header>*</header>
+    </allowed-headers>
+</cors>
+```
+
+On the Zendesk page, the subscription key from APIM needs to be added in the `Ocp-Apim-Subscription-Key` header.
+```
+ xhr.setRequestHeader("Ocp-Apim-Subscription-Key", `${$('#twitter_apim_api_key').val()}`);
+```
+
+The APIM url should be used as the base for calling, e.g.
+```
+https://your-apim-name-apim-test.azure-api.net/2/tweets/search/recent?query=from:TLevels_govuk&max_results=10
+```
+
+It should be possible to cache calls to twitter - this will help avoid hitting rate limits. 
+See https://github.com/toddkitta/azure-content/blob/master/articles/api-management/api-management-howto-cache.md
+
+Additional query parameters still need to be explored including
+- `max_results=20` - to show more results
+- `expansions` and `media.fields` - these should allow us to pull down images from twitter
+
+An more expanded url is
+https://your-apim-name-apim-test.azure-api.net/2/tweets/search/recent?query=from:TLevels_govuk&max_results=10&expansions=attachments.media_keys&media.fields=preview_image_url
+
+A working APIM instance template can be seen in the `ARM` folder.

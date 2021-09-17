@@ -1,0 +1,92 @@
+﻿@page
+@model tl.ess.providersearch.poc.Pages.TwitterFeedModel
+@{
+	ViewData["Title"] = "Twitter feed";
+}
+
+<main id="main-content" role="main">
+
+    <div class="govuk-width-container govuk-main-wrapper govuk-!-padding-top-0">
+        <div class="govuk-grid-row govuk-!-margin-top-7">
+            <div class="govuk-grid-column-one-third tl-padding-0" id="tl-tweets">
+                <h1 class="govuk-heading-l govuk-!-margin-top-2 govuk-!-margin-bottom-7">Tweets</h1>
+                <div class="tl-tweets--result">
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Required when running in asp.net core -->
+<div>
+    <input type="hidden" id="twitter_account_name" value=@Model.TwitterAccountName>
+    <input type="hidden" id="twitter_apim_api_key" value=@Model.TwitterApimApiKey>
+    <input type="hidden" id="twitter_api_key" value=@Model.TwitterApiKey>
+    <input type="hidden" id="twitter_api_secret" value=@Model.TwitterApiSecret>
+    <input type="hidden" id="twitter_api_bearer_token" value=@Model.TwitterBearerToken>
+    <input type="hidden" id="twitter_apim_base_uri" value=@Model.TwitterApimBaseUri>
+</div>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            console.log(`Twitter account: ${$('#twitter_account_name').val()}`);
+            console.log(`Twitter API key: ${$('#twitter_api_key').val()}`);
+            console.log(`Twitter APIM API key: ${$('twitter_apim_api_key').val()}`);
+            console.log(`Twitter API secret: ${$('#twitter_api_secret').val()}`);
+            console.log(`Twitter API bearer token: ${$('#twitter_apim_api_key').val()}`);
+            console.log(`Twitter APIM base url: ${$('#twitter_apim_base_uri').val()}`);
+
+            @* https://api.twitter.com/2/tweets/search/recent?query=from:TLevels_govuk *@
+            let apimBaseUri = $('#twitter_apim_base_uri').val();
+            if (apimBaseUri.substr(-1) !== '/') apimBaseUri += '/';
+            const url = `${apimBaseUri}2/tweets/search/recent?query=from:${$('#twitter_account_name').val()}&max_results=10`;
+
+            console.log(`url: ${url}`);
+            console.log(`Authorization: Bearer ${$('#twitter_api_bearer_token').val()}`);
+
+            //https://gist.github.com/jesperorb/6ca596217c8dfba237744966c2b5ab1e
+
+            $.ajax({
+                method: "GET",
+                url: url,
+                contentType: "application/json",
+                beforeSend: function(xhr) {
+                    //xhr.setRequestHeader("Authorization", `Bearer ${$('#twitter_api_bearer_token').val()}`);
+                    xhr.setRequestHeader("Ocp-Apim-Subscription-Key", `${$('#twitter_apim_api_key').val()}`);
+                }
+            }).done(function(response) {
+                console.log('Provider request succeeded with JSON response:', response);
+                clearTweets();
+                populateTweets(response);
+            }).fail(function(jqxhr) {
+                console.log(`Error ${jqxhr.status} - ${jqxhr.responseText}`);
+            });
+
+            function clearTweets() {
+                console.log('clearing');
+                $("#tl-tweets").find(".tl-tweets--result").remove();
+            }
+
+            function populateTweets(data) {
+                console.log('populating');
+                $.each(data.data,
+                    function(_, tweet) {
+                        console.log('preparing');
+                        let tweetResult = `<div class="tl-tweets--result">`;
+                        tweetResult += `<p class="govuk-body"> \
+                          id = ${tweet.id} <br/>
+                          ${tweet.text} <br/>
+                        </p>`;
+                        tweetResult += `</div>`;
+
+                        console.log('adding');
+                        $("#tl-tweets").append(tweetResult);
+                    });
+            }
+        });
+
+    </script>
+}
