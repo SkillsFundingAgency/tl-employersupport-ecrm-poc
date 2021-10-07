@@ -188,6 +188,7 @@
                         beforeSend: function(xhr) {
                             console.log("Before send");
                             //https://stackoverflow.com/questions/51005488/how-to-use-cryptojs-in-javascript
+                            //https://jsfiddle.net/jStefano/gm7boy2p/
                             const hash = CryptoJS.HmacSHA256("message", "secret");
                             const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
                             console.log("hashed: " +hashInBase64);
