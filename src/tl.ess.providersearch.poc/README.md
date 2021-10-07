@@ -117,5 +117,7 @@ Additional query parameters still need to be explored including
 
 An more expanded url is
 https://your-apim-name-apim-test.azure-api.net/2/tweets/search/recent?query=from:TLevels_govuk&max_results=10&expansions=attachments.media_keys&media.fields=preview_image_url
+or, using the API directly and adding the full url:
+https://api.twitter.com/2/tweets/search/recent?query=from:TLevels_govuk&expansions=attachments.media_keys&media.fields=duration_ms,height,media_key,preview_image_url,public_metrics,type,url,width,alt_text
 
 A working APIM instance template can be seen in the `ARM` folder.
