@@ -16,7 +16,7 @@ public class IndexModel : PageModel
     public string ApiKey { get; }
     public string QualificationArticleMap { get; }
     public string ArticleBaseUrl { get; }
-    public string SearchApiUrl { get; init; }
+    public string SearchApiUrl { get; }
     
     public IndexModel(ILogger<IndexModel> logger, IConfiguration config)
     {
@@ -30,6 +30,10 @@ public class IndexModel : PageModel
             .GetSection("QualificationArticleMap").GetChildren()
             .ToDictionary(x => x.Key, x => x.Value);
        QualificationArticleMap = JsonSerializer.Serialize(map);
+
+       var q2 = config["QualificationArticleMap_Test_String"];
+       var jdoc = JsonDocument.Parse(q2);
+       
     }
 
     public void OnGet()
