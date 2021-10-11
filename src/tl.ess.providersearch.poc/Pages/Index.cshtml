@@ -96,10 +96,10 @@
         //loadRoutes();
 
         //Load qualifications map
-        const articleMap = JSON.parse($('#qualification_article_map').val());
+        const qualificationArticleMap = JSON.parse($('#qualification_article_map').val());
         //lookup check
-        //console.log(`Lookup 46 = ${articleMap[46]}`);
-        //console.log(`Lookup 99 = ${articleMap[99]}`);
+        //console.log(`Lookup 46 = ${qualificationArticleMap[46]}`);
+        //console.log(`Lookup 99 = ${qualificationArticleMap[99]}`);
 
         //Check for search query param with postcode
         let postcode = getUrlParameter("search");
@@ -197,44 +197,9 @@
                 url: uri,
                 contentType: "application/json",
                 beforeSend: function(xhr) {
-                    console.log("Before send");
                     addHmacAuthHeader(xhr, uri);
-                    //const appId = $('#find_provider_api_app_id').val();
-                    //const apiKey = $('#find_provider_api_key').val();
-                    ////const ts = Math.round((new Date()).getTime() / 1000);
-                    ////temp code
-                    //var dt = new Date();
-                    //dt.setDate(dt.getDate() + 365);
-                    //const ts = Math.round(dt.getTime() / 1000);
-                    //console.log("warning! setting long timestamp");
-
-                    //console.log(`app id ${appId}\napp key ${apiKey}`);
-                    //console.log(`timestamp ${ts}`);
-
-                    ////https://stackoverflow.com/questions/29424027/using-the-nonce-and-counter-correctly-for-aes-ctr-mode
-                    //const uuid = createUUID();
-                    ////console.log(`uuid ${uuid}`);
-
-                    //const nonce = CryptoJS.enc.Hex.parse(uuid); // 12 Bytes
-                    //console.log(`nonce ${nonce}`);
-                    //console.log(`url ${uri}`);
-
-                    //var data = `${appId}GET${uri.toLowerCase()}${ts}${nonce}`;
-                    //console.log(`hashing: ${data}`);
-                    ////const utf8Data = CryptoJS.enc.UTF8.byt(data);
-                    ////console.log(`hashing: ${utf8Data}`);
-
-                    //const hash = CryptoJS.HmacSHA256(data, apiKey);
-                    //const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-                    //console.log(`hashed: ${hash}`);
-                    //console.log(`hashed base 64: ${hashInBase64}`);
-
-                    //const authHeader = `amx ${appId}:${hashInBase64}:${nonce}:${ts}`;
-                    //console.log(`authHeader: ${authHeader}`);
-                    //xhr.setRequestHeader("Authorization", authHeader);
                 }
             }).done(function(response) {
-                //console.log('Provider request succeeded with JSON response:', response);
                 currentPage = page;
                 currentPostcode = postcode;
                 console.log(`currentPage is now ${currentPage}`);
@@ -351,7 +316,7 @@
 
                             $.each(deliveryYear.qualifications,
                                 function(_, qualification) {
-                                    const artLink = articleMap[qualification.id];
+                                    const artLink = qualificationArticleMap[qualification.id];
                                     if (artLink) {
                                         searchResult += `<li><a target="_blank" class="govuk-link" href="${articleBaseUrl}${artLink}">${qualification.name}</a></li>`;
                                     } else {
