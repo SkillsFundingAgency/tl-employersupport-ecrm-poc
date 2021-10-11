@@ -3,7 +3,6 @@
 @{
 	ViewData["Title"] = "Home page";
 }
-
 <main id="main-content" role="main">
 
     <div class="govuk-width-container govuk-main-wrapper govuk-!-padding-top-0">
@@ -36,8 +35,19 @@
 							Search
 						</button>
 					</form>
-                    <span class="govuk-error-message" id="tl-error"></span>
                 </div>
+            </div>
+        </div>
+        
+        @*        <div class="govuk-grid-row tl-hidden" id="tl-error">
+            <h1 class="govuk-heading-l" id="tl-error-header"></h1>
+            <p class="govuk-body" id="tl-error-detail"></p>
+        </div>
+*@
+        <div class="govuk-grid-row tl-hidden" id="tl-error">
+            <div class="govuk-grid-column-two-thirds govuk-!-margin-top-7" id="tl-error">
+                <h1 class="govuk-heading-l" id="tl-error-header"></h1>
+                <p class="govuk-body" id="tl-error-detail"></p>
             </div>
         </div>
 
@@ -70,299 +80,338 @@
 
     <script type="text/javascript">
 
-        //TODO: Install https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
-        //https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/hmac-sha256.min.js
-        //https://cdnjs.com/libraries/crypto-js
-        //https://stackoverflow.com/questions/51005488/how-to-use-cryptojs-in-javascript
+    //TODO: Install https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
+    //https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/hmac-sha256.min.js
+    //https://cdnjs.com/libraries/crypto-js
+    //https://stackoverflow.com/questions/51005488/how-to-use-cryptojs-in-javascript
 
-        $(document).ready(function() {
-            let findProvidersApiUrl = $('#searchApiUrlValue').val();
-            if (findProvidersApiUrl.substr(-1) !== '/') findProvidersApiUrl += '/';
-            var articleBaseUrl = $('#article_base_url').val();
+    $(document).ready(function() {
+        let findProvidersApiUrl = $('#searchApiUrlValue').val();
+        if (findProvidersApiUrl.substr(-1) !== '/') findProvidersApiUrl += '/';
+        var articleBaseUrl = $('#article_base_url').val();
 
-            let currentPage = 0;
-            let currentPostcode = 0;
+        let currentPage = 0;
+        let currentPostcode = 0;
 
-            //loadRoutes();
-            
-            //Load qualifications map
-            const articleMap = JSON.parse($('#qualification_article_map').val());
-            //lookup check
-            //console.log(`Lookup 46 = ${articleMap[46]}`);
-            //console.log(`Lookup 99 = ${articleMap[99]}`);
-            
-            //Check for search query param with postcode
-            let postcode = getUrlParameter("search");
-            if (postcode) {
-                postcode = urlDecode(postcode).toUpperCase();
-                //console.log(`Found search query with postcode to search for '${postcode}'`);
-                $("#tl-postcode").val(postcode);
-                providerSearch(postcode);
+        //loadRoutes();
 
-                //Remove query string from url
-                const urlSplit = (window.location.href).split("?");
-                const obj = { Title: document.title, Url: urlSplit[0] };
-                history.pushState(obj, obj.Title, obj.Url);
-            } else {
-                $('.tl-fap--noresult').removeClass("tl-hidden");
+        //Load qualifications map
+        const articleMap = JSON.parse($('#qualification_article_map').val());
+        //lookup check
+        //console.log(`Lookup 46 = ${articleMap[46]}`);
+        //console.log(`Lookup 99 = ${articleMap[99]}`);
+
+        //Check for search query param with postcode
+        let postcode = getUrlParameter("search");
+        if (postcode) {
+            postcode = urlDecode(postcode).toUpperCase();
+            //console.log(`Found search query with postcode to search for '${postcode}'`);
+            $("#tl-postcode").val(postcode);
+            providerSearch(postcode);
+
+            //Remove query string from url
+            const urlSplit = (window.location.href).split("?");
+            const obj = { Title: document.title, Url: urlSplit[0] };
+            history.pushState(obj, obj.Title, obj.Url);
+        } else {
+            $('.tl-fap--noresult').removeClass("tl-hidden");
+        }
+
+        $('#tl-postcode').keypress(function(e) {
+            if (e.which === 13) {
+                $("#tl-search-providers").click();
+                return false;
             }
+        });
 
-            $('#tl-postcode').keypress(function(e) {
-                if (e.which === 13) {
-                    $("#tl-search-providers").click();
-                    return false;
-                }
-            });
+        $("#tl-search-providers").click(function() {
+            return providerSearch($("#tl-postcode").val().trim(), 0, 5);
+        });
 
-            $("#tl-search-providers").click(function() {
-                return providerSearch($("#tl-postcode").val().trim(), 0, 5);
-            });
+        $(".tl-search-providers-form").submit(function() {
+            event.preventDefault();
+        });
 
-            $(".tl-search-providers-form").submit(function() {
+        $(document).on('click',
+            "#next-results-link",
+            function() {
+                event.stopPropagation();
                 event.preventDefault();
+                this.remove();
+
+                callProviderSearchApi(currentPostcode, currentPage + 1);
+
+                return false;
             });
 
-            $(document).on('click',
-                "#next-results-link",
-                function() {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    this.remove();
+        function loadRoutes() {
+            $.ajax({
+                type: "GET",
+                url: `${findProvidersApiUrl}routes`,
+                contentType: "application/json",
+                beforeSend: function(xhr) {
+                    //xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
+                }
+            }).done(function(response) {
+                //console.log('Routes request succeeded with JSON response:', response);
+                populateRoutes(response);
+            }).fail(function(error) {
+                console.log(`Call to get routes failed. ${error}`);
+            });
+        }
 
-                    callProviderSearchApi(currentPostcode, currentPage + 1);
-
-                    return false;
+        function populateRoutes(data) {
+            const select = $("#tl-routes");
+            select.find("option:not(:first)").remove();
+            $.each(data,
+                function(_, item) {
+                    select.append(new Option(item.name, item.id));
                 });
+        }
 
-            function loadRoutes() {
-                $.ajax({
-                    type: "GET",
-                    url: `${findProvidersApiUrl}routes`,
-                    contentType: "application/json",
-                    beforeSend: function(xhr) {
-                        //xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
-                    }
-                }).done(function(response) {
-                    //console.log('Routes request succeeded with JSON response:', response);
-                    populateRoutes(response);
-                }).fail(function(error) {
-                    console.log(`Call to get routes failed. ${error}`);
-                });
-            }
-            
-            function populateRoutes(data) {
-                const select = $("#tl-routes");
-                select.find("option:not(:first)").remove();
-                $.each(data,
-                    function(_, item) {
-                        select.append(new Option(item.name, item.id));
-                    });
+        function providerSearch(postcode, page=0) {
+            if (postcode === "") {
+                event.stopPropagation();
+                showPostcodeError("Enter a postcode");
+                return false;
             }
 
-            function providerSearch(postcode, page=0) {
-                    if (postcode === "") {
-                        event.stopPropagation();
-                        showPostcodeError("Enter a postcode");
-                        return false;
-                    }
+            clearProviderSearchResults();
 
-                    clearProviderSearchResults();
+            callProviderSearchApi(postcode, page);
 
-                    callProviderSearchApi(postcode, page);
+            return true;
+        }
 
-                    return true;
+        function callProviderSearchApi(postcode, page=0, pageSize=5) {
+
+            const searchParams = new URLSearchParams({
+                postcode: postcode,
+                page: page,
+                pageSize: pageSize
+            }).toString();
+
+            const uri = `${findProvidersApiUrl}providers?${searchParams}`;
+            $.ajax({
+                type: "GET",
+                url: uri,
+                contentType: "application/json",
+                beforeSend: function(xhr) {
+                    console.log("Before send");
+                    addHmacAuthHeader(xhr, uri);
+                    //const appId = $('#find_provider_api_app_id').val();
+                    //const apiKey = $('#find_provider_api_key').val();
+                    ////const ts = Math.round((new Date()).getTime() / 1000);
+                    ////temp code
+                    //var dt = new Date();
+                    //dt.setDate(dt.getDate() + 365);
+                    //const ts = Math.round(dt.getTime() / 1000);
+                    //console.log("warning! setting long timestamp");
+
+                    //console.log(`app id ${appId}\napp key ${apiKey}`);
+                    //console.log(`timestamp ${ts}`);
+
+                    ////https://stackoverflow.com/questions/29424027/using-the-nonce-and-counter-correctly-for-aes-ctr-mode
+                    //const uuid = createUUID();
+                    ////console.log(`uuid ${uuid}`);
+
+                    //const nonce = CryptoJS.enc.Hex.parse(uuid); // 12 Bytes
+                    //console.log(`nonce ${nonce}`);
+                    //console.log(`url ${uri}`);
+
+                    //var data = `${appId}GET${uri.toLowerCase()}${ts}${nonce}`;
+                    //console.log(`hashing: ${data}`);
+                    ////const utf8Data = CryptoJS.enc.UTF8.byt(data);
+                    ////console.log(`hashing: ${utf8Data}`);
+
+                    //const hash = CryptoJS.HmacSHA256(data, apiKey);
+                    //const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+                    //console.log(`hashed: ${hash}`);
+                    //console.log(`hashed base 64: ${hashInBase64}`);
+
+                    //const authHeader = `amx ${appId}:${hashInBase64}:${nonce}:${ts}`;
+                    //console.log(`authHeader: ${authHeader}`);
+                    //xhr.setRequestHeader("Authorization", authHeader);
                 }
-
-                function callProviderSearchApi(postcode, page=0, pageSize=5) {
-
-                    const searchParams = new URLSearchParams({
-                        postcode: postcode,
-                        page: page,
-                        pageSize: pageSize
-                    }).toString();
-
-                    const uri = `${findProvidersApiUrl}providers?${searchParams}`;
-                    $.ajax({
-                        type: "GET",
-                        url: uri,
-                        contentType: "application/json",
-                        beforeSend: function(xhr) {
-                            console.log("Before send");
-                            //https://stackoverflow.com/questions/51005488/how-to-use-cryptojs-in-javascript
-                            //https://jsfiddle.net/jStefano/gm7boy2p/
-
-                            const appId = $('#find_provider_api_app_id').val();
-                            const apiKey = $('#find_provider_api_key').val();
-                            const ts = Math.round((new Date()).getTime() / 1000);
-                            console.log(`app id ${appId}\napp key ${apiKey}`);
-                            console.log(`timestamp ${ts}`);
-
-                            //https://stackoverflow.com/questions/29424027/using-the-nonce-and-counter-correctly-for-aes-ctr-mode
-                            const uuid = createUUID();
-                            console.log(`uuid ${uuid}`);
-
-                            const nonce = CryptoJS.enc.Hex.parse(uuid); // 12 Bytes
-                            console.log(`nonce ${nonce}`);
-                            console.log(`url ${uri}`);
-
-                            var data = `${appId}GET${uri.toLowerCase()}${ts}${nonce}`;
-                            console.log(`hashing: ${data}`);
-                            //const utf8Data = CryptoJS.enc.UTF8.byt(data);
-                            //console.log(`hashing: ${utf8Data}`);
-
-                            const hash = CryptoJS.HmacSHA256(data, apiKey);
-                            const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-                            console.log(`hashed: ${hash}`);
-                            console.log(`hashed base 64: ${hashInBase64}`);
-
-                            const authHeader = `amx ${appId}:${hashInBase64}:${nonce}:${ts}`;
-                            console.log(`authHeader: ${authHeader}`);
-
-                            //xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
-                            xhr.setRequestHeader("Authorization", authHeader);
-                        }
-                    }).done(function(response) {
-                        //console.log('Provider request succeeded with JSON response:', response);
-                        currentPage = page;
-                        currentPostcode = postcode;
-                        console.log(`currentPage is now ${currentPage}`);
-                        populateProviderSearchResults(response);
-                    }).fail(function(jqxhr) {
-                        console.log(`Error ${jqxhr.status} - ${jqxhr.responseText}`);
-                        if (jqxhr.status === 404) {
-                            showPostcodeError("Enter a valid postcode");
-                        } else if (jqxhr.status === 429) {
-                            showError(jqxhr.status, "Too many requests - try again later");
-                        } else {
-                            showError(jqxhr.status, jqxhr.responseText);
-                        }
-                    });
-
-                    return true;
+            }).done(function(response) {
+                //console.log('Provider request succeeded with JSON response:', response);
+                currentPage = page;
+                currentPostcode = postcode;
+                console.log(`currentPage is now ${currentPage}`);
+                populateProviderSearchResults(response);
+            }).fail(function(jqxhr) {
+                console.log(`Error ${jqxhr.status} - ${jqxhr.responseText}`);
+                if (jqxhr.status === 404 && jqxhr.responseText.startsWith('Postcode')) {
+                    showPostcodeError("Enter a valid postcode");
+                } else {
+                    showError(jqxhr.status, jqxhr.responseText);
                 }
+            });
 
-            function createUUID() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            return true;
+        }
+
+        function addHmacAuthHeader(xhr, uri) {
+            const appId = $('#find_provider_api_app_id').val();
+            const apiKey = $('#find_provider_api_key').val();
+            const ts = Math.round((new Date()).getTime() / 1000);
+            //temp code
+            //var dt = new Date();
+            //dt.setDate(dt.getDate() + 365);
+            //const ts = Math.round(dt.getTime() / 1000);
+            //console.log("warning! setting long timestamp");
+
+            const uuid = createUniqueId();
+            const nonce = CryptoJS.enc.Hex.parse(uuid); // 12 Bytes
+
+            const data = `${appId}GET${uri.toLowerCase()}${ts}${nonce}`;
+            console.log(`hashing: ${data}`);
+
+            const hash = CryptoJS.HmacSHA256(data, apiKey);
+            const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+            //console.log(`hashed: ${hash}`);
+            //console.log(`hashed base 64: ${hashInBase64}`);
+
+            const authHeader = `amx ${appId}:${hashInBase64}:${nonce}:${ts}`;
+            console.log(`authHeader: ${authHeader}`);
+            xhr.setRequestHeader("Authorization", authHeader);
+        }
+
+        function createUniqueId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+                function(c) {
                     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
+        }
+
+        function clearProviderSearchResults() {
+            $('#tl-error').addClass("tl-hidden");
+            $('#tl-postcode-error').addClass("tl-hidden");
+            $('.tl-fap--noresult').addClass("tl-hidden");
+            $("#tl-fap--results").find(".tl-fap--result").remove();
+            $("#tl-fap--results").find("#next-results-link").remove();
+
+            currentPage = 0;
+        }
+
+        function populateProviderSearchResults(data) {
+            if (data.postcode) {
+                $("#tl-postcode").val(data.postcode);
             }
-                function clearProviderSearchResults() {
-                    $('#tl-error').addClass("tl-hidden");
-                    $('#tl-postcode-error').addClass("tl-hidden");
-                    $('.tl-fap--noresult').addClass("tl-hidden");
-                    $("#tl-fap--results").find(".tl-fap--result").remove();
-                    $("#tl-fap--results").find("#next-results-link").remove();
 
-                    currentPage = 0;
-                }
+            if (data.searchResults.length === 0) {
+                $('.tl-fap--noresult').removeClass("tl-hidden");
+                return;
+            }
 
-                function populateProviderSearchResults(data) {
-                    if (data.postcode) {
-                        $("#tl-postcode").val(data.postcode);
-                    }
-
-                    if (data.searchResults.length === 0) {
-                        $('.tl-fap--noresult').removeClass("tl-hidden");
-                        return;
-                    }
-
-                    $.each(data.searchResults,
-                        function(_, providerLocation) {
-                            let searchResult =
-                                `<div class="tl-fap--result"> \
+            $.each(data.searchResults,
+                function(_, providerLocation) {
+                    let searchResult =
+                        `<div class="tl-fap--result"> \
                                 <h3 class="govuk-heading-m">${providerLocation.providerName} <span class="tl-fap--distance">${providerLocation.distance.toFixed(0)} miles</span></h3> \
                                 <p class="govuk-body">${providerLocation.town} | ${providerLocation.postcode}`;
-                            if (providerLocation.telephone) searchResult += ` | ${providerLocation.telephone}`;
-                            if (providerLocation.website) searchResult += ` | <a target="_blank" href="${providerLocation.website}" class="govuk-link tl-fap--result-website">Visit <span class="govuk-visually-hidden">${providerLocation.providerName}</span> website</a>`;
-                            if (providerLocation.email) searchResult += ` | <a href="mailto:${providerLocation.email}" class="govuk-link govuk-!-margin-right-4 tl-fap--result-email">${providerLocation.email}</a>`;
+                    if (providerLocation.telephone) searchResult += ` | ${providerLocation.telephone}`;
+                    if (providerLocation.website) searchResult += ` | <a target="_blank" href="${providerLocation.website}" class="govuk-link tl-fap--result-website">Visit <span class="govuk-visually-hidden">${providerLocation.providerName}</span> website</a>`;
+                    if (providerLocation.email) searchResult += ` | <a href="mailto:${providerLocation.email}" class="govuk-link govuk-!-margin-right-4 tl-fap--result-email">${providerLocation.email}</a>`;
 
-                            const locationDeliveryYears = [];
-                            let availableNow = null;
-                            $.each(providerLocation.deliveryYears,
-                                function(_, deliveryYear) {
-                                    if (deliveryYear.isAvailableNow) {
-                                        if (availableNow) {
-                                            for (let i = 0; i < deliveryYear.qualifications.length; i++) {
-                                                if (availableNow.qualifications.filter(function(q) { return q.name === deliveryYear.qualifications[i].name; }).length === 0)
-                                                    availableNow.qualifications.push(deliveryYear.qualifications[i]);
-                                            }
-                                        } else {
-                                            availableNow = deliveryYear;
-                                            locationDeliveryYears.push(availableNow);
-                                        }
+                    const locationDeliveryYears = [];
+                    let availableNow = null;
+                    $.each(providerLocation.deliveryYears,
+                        function(_, deliveryYear) {
+                            if (deliveryYear.isAvailableNow) {
+                                if (availableNow) {
+                                    for (let i = 0; i < deliveryYear.qualifications.length; i++) {
+                                        if (availableNow.qualifications.filter(function(q) { return q.name === deliveryYear.qualifications[i].name; }).length === 0)
+                                            availableNow.qualifications.push(deliveryYear.qualifications[i]);
+                                    }
+                                } else {
+                                    availableNow = deliveryYear;
+                                    locationDeliveryYears.push(availableNow);
+                                }
+                            } else {
+                                locationDeliveryYears.push(deliveryYear);
+                            }
+                        });
+
+                    if (availableNow) {
+                        availableNow.qualifications.sort(function(x, y) { return (x.name < y.name) ? -1 : ((x.name > y.name) ? 1 : 0) });
+                    }
+
+                    searchResult += `</p><div class="tl-fap--courses">`;
+
+                    $.each(locationDeliveryYears,
+                        function(_, deliveryYear) {
+                            const availability = deliveryYear.isAvailableNow
+                                ? 'Available now'
+                                : `From September ${deliveryYear.year} onwards`;
+
+                            searchResult += `<p class="govuk-body govuk-!-font-weight-bold">${availability}:</p> \
+							    <ul class="govuk-list govuk-list--bullet">`;
+
+                            $.each(deliveryYear.qualifications,
+                                function(_, qualification) {
+                                    const artLink = articleMap[qualification.id];
+                                    if (artLink) {
+                                        searchResult += `<li><a target="_blank" class="govuk-link" href="${articleBaseUrl}${artLink}">${qualification.name}</a></li>`;
                                     } else {
-                                        locationDeliveryYears.push(deliveryYear);
+                                        searchResult += `<li>${qualification.name}</li>`;
                                     }
                                 });
 
-                            if (availableNow) {
-                                availableNow.qualifications.sort(function(x, y) { return (x.name < y.name) ? -1 : ((x.name > y.name) ? 1 : 0) });
-                            }
+                            searchResult += `</ul>`;
+                        });
 
-                            searchResult += `</p><div class="tl-fap--courses">`;
-
-                            $.each(locationDeliveryYears,
-                                function(_, deliveryYear) {
-                                    const availability = deliveryYear.isAvailableNow
-                                        ? 'Available now'
-                                        : `From September ${deliveryYear.year} onwards`;
-
-                                    searchResult += `<p class="govuk-body govuk-!-font-weight-bold">${availability}:</p> \
-							    <ul class="govuk-list govuk-list--bullet">`;
-
-                                    $.each(deliveryYear.qualifications,
-                                        function(_, qualification) {
-                                            const artLink = articleMap[qualification.id];
-                                            if (artLink) {
-                                                searchResult += `<li><a target="_blank" class="govuk-link" href="${articleBaseUrl}${artLink}">${qualification.name}</a></li>`;
-                                            } else {
-                                                searchResult += `<li>${qualification.name}</li>`;
-                                            }
-                                        });
-
-                                    searchResult += `</ul>`;
-                                });
-
-                            searchResult += `</div> \
+                    searchResult += `</div> \
                                 <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible"> \
                               </div>`;
 
-                            $("#tl-fap--results").append(searchResult);
-                        });
+                    $("#tl-fap--results").append(searchResult);
+                });
 
-                    $("#tl-fap--results").append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="more-results">Show 5 more results</a></p>`);
+            $("#tl-fap--results").append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="more-results">Show 5 more results</a></p>`);
+        }
+
+        function showError(status, errorText) {
+            console.log(`Error status ${status} was encountered. ${errorText}`);
+
+            switch (status) {
+            case 0:
+                $("#tl-error-header").text('There is a problem with your network connection.');
+                $("#tl-error-detail").html('There is a problem with your network connection. Check you’re connected to the internet and try again.');
+                break;
+            default:
+                $("#tl-error-header").text('Sorry, there is a problem with the service.');
+                //message = `Try again later or {{#link 'new_request' class='govuk-link tl-error--contact'}}contact us{{/link}} quoting error code.`;
+                $("#tl-error-detail").html(`Try again later or <a class="govuk-link tl-error--contact" href="https://test.employers.tlevels.gov.uk/hc/en-gb/requests/new">contact us</a> quoting error code ${status}.`);
+            }
+        }
+
+        function showPostcodeError(message) {
+            $("#tl-postcode-error").text(message);
+            $('#tl-postcode-error').removeClass("tl-hidden");
+            $('#tl-error').addClass("tl-hidden");
+        }
+
+        function urlDecode(str) {
+            return decodeURIComponent((str + '').replace(/\+/g, '%20'));
+        }
+
+        function getUrlParameter(key, url) {
+            if (!url) {
+                url = window.location.search.substring(1);
+            }
+
+            const urlVars = url.split('&');
+            for (let i = 0; i < urlVars.length; i++) {
+                const parameter = urlVars[i].split('=');
+                if (parameter[0] === key) {
+                    return parameter[1];
                 }
+            }
 
-                function showPostcodeError(message) {
-                    $("#tl-postcode-error").text(message);
-                    $('#tl-postcode-error').removeClass("tl-hidden");
-                }
-
-                function showError(status, errorText) {
-                    $("#tl-error").text(`Oops, something went wrong. Error status ${status}. ${errorText ? errorText : ""}`);
-                    $('#tl-error').removeClass("tl-hidden");
-                }
-
-                function urlDecode(str) {
-                    return decodeURIComponent((str + '').replace(/\+/g, '%20'));
-                }
-
-                function getUrlParameter(key, url) {
-                    if (!url) {
-                        url = window.location.search.substring(1);
-                    }
-
-                    const urlVars = url.split('&');
-                    for (let i = 0; i < urlVars.length; i++) {
-                        const parameter = urlVars[i].split('=');
-                        if (parameter[0] === key) {
-                            return parameter[1];
-                        }
-                    }
-
-                    return null;
-                }
-            });
+            return null;
+        }
+        });
     </script>
     }
