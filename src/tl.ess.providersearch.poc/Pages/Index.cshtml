@@ -97,8 +97,10 @@
 
         //Load qualifications map
         const qualificationArticleMap = JSON.parse($('#qualification_article_map').val());
+
         //lookup check
         //console.log(`Lookup 46 = ${qualificationArticleMap[46]}`);
+        //console.log(`Lookup 51 = ${qualificationArticleMap[51]}`);
         //console.log(`Lookup 99 = ${qualificationArticleMap[99]}`);
 
         //Check for search query param with postcode
@@ -145,11 +147,14 @@
             });
 
         function loadRoutes() {
+            const uri = `${findProvidersApiUrl}routes`;
+
             $.ajax({
                 type: "GET",
-                url: `${findProvidersApiUrl}routes`,
+                url: uri,
                 contentType: "application/json",
                 beforeSend: function(xhr) {
+                    addHmacAuthHeader(xhr, uri);
                     //xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
                 }
             }).done(function(response) {
@@ -176,6 +181,13 @@
                 return false;
             }
 
+            if (!postcode.match(/^[0-9a-zA-Z\s]+$/)) {
+                console.log(`${postcode} must be letters, numbers, and spaces only`);
+                event.stopPropagation();
+                showPostcodeError("Enter a valid postcode");
+                return false;
+            }
+
             clearProviderSearchResults();
 
             callProviderSearchApi(postcode, page);
@@ -184,6 +196,7 @@
         }
 
         function callProviderSearchApi(postcode, page=0, pageSize=5) {
+            console.log(`searching for postcode ${postcode}`);
 
             const searchParams = new URLSearchParams({
                 postcode: postcode,
@@ -200,10 +213,17 @@
                     addHmacAuthHeader(xhr, uri);
                 }
             }).done(function(response) {
-                currentPage = page;
-                currentPostcode = postcode;
-                console.log(`currentPage is now ${currentPage}`);
-                populateProviderSearchResults(response);
+                console.log(`${response}`);
+                console.log(`JSON.stringify(${response})`);
+                if (response.error) {
+                    console.log(`Invalid postcode response received - ${response.error}`);
+                    showPostcodeError("Enter a valid postcode");
+                } else {
+                    currentPage = page;
+                    currentPostcode = postcode;
+                    console.log(`currentPage is now ${currentPage}`);
+                    populateProviderSearchResults(response);
+                }
             }).fail(function(jqxhr) {
                 console.log(`Error ${jqxhr.status} - ${jqxhr.responseText}`);
                 if (jqxhr.status === 404 && jqxhr.responseText.startsWith('Postcode')) {
@@ -265,7 +285,7 @@
                 $("#tl-postcode").val(data.postcode);
             }
 
-            if (data.searchResults.length === 0) {
+            if (!data.searchResults || data.searchResults.length === 0) {
                 $('.tl-fap--noresult').removeClass("tl-hidden");
                 return;
             }
@@ -350,6 +370,8 @@
                 //message = `Try again later or {{#link 'new_request' class='govuk-link tl-error--contact'}}contact us{{/link}} quoting error code.`;
                 $("#tl-error-detail").html(`Try again later or <a class="govuk-link tl-error--contact" href="https://test.employers.tlevels.gov.uk/hc/en-gb/requests/new">contact us</a> quoting error code ${status}.`);
             }
+
+            $('#tl-error').removeClass("tl-hidden");
         }
 
         function showPostcodeError(message) {
