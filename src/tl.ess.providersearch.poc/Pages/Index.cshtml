@@ -53,16 +53,18 @@
 
         <!-- Search Results -->
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds govuk-!-margin-top-7" id="tl-fap--results">
+	        <div class="govuk-grid-column-two-thirds govuk-!-margin-top-7">
+		        <div id="tl-fap--results">
+			        <div class="tl-fap--noresult tl-hidden">
+				        <h2 class="govuk-heading-l">0 results</h2>
+				        <p class="govuk-body">Enter a postcode to search for providers offering T Levels.</p>
+			        </div>
 
-                <div class="tl-fap--noresult tl-hidden">
-                    <h2 class="govuk-heading-l">0 results</h2>
-                    <p class="govuk-body">Enter a postcode to search for providers offering T Levels.</p>
-                </div>
-
-                <div class="tl-fap--result">
-                </div>
-            </div>
+			        <div class="tl-fap--result">
+			        </div>
+		        </div>
+		        <p class="govuk-body"><a class="govuk-link tl-hidden" id="tl-next-results-link" href="more-results">Show 5 more results</a></p>
+	        </div>
         </div>
     </div>
 </main>
@@ -92,22 +94,17 @@
 
         let currentPage = 0;
         let currentPostcode = 0;
+        let isSearchInProgress = false;
 
         //loadRoutes();
 
         //Load qualifications map
         const qualificationArticleMap = JSON.parse($('#qualification_article_map').val());
 
-        //lookup check
-        //console.log(`Lookup 46 = ${qualificationArticleMap[46]}`);
-        //console.log(`Lookup 51 = ${qualificationArticleMap[51]}`);
-        //console.log(`Lookup 99 = ${qualificationArticleMap[99]}`);
-
         //Check for search query param with postcode
         let postcode = getUrlParameter("search");
         if (postcode) {
             postcode = urlDecode(postcode).toUpperCase();
-            //console.log(`Found search query with postcode to search for '${postcode}'`);
             $("#tl-postcode").val(postcode);
             providerSearch(postcode);
 
@@ -127,6 +124,7 @@
         });
 
         $("#tl-search-providers").click(function() {
+	        console.log(`click search - ${event.detail}`);
             return providerSearch($("#tl-postcode").val().trim(), 0, 5);
         });
 
@@ -134,16 +132,23 @@
             event.preventDefault();
         });
 
-        $(document).on('click',
-            "#next-results-link",
-            function() {
-                event.stopPropagation();
-                event.preventDefault();
-                this.remove();
+        //$("#tl-search-providers").dblclick(function() {
+	       // console.log("dblclick search");
+	       // event.preventDefault();
+	       // return false;
+        //});
+        //$("#tl-next-results-link").dblclick(function() {
+	       // console.log("dblclick next");
+	       // event.preventDefault();
+	       // return false;
+        //});
 
-                callProviderSearchApi(currentPostcode, currentPage + 1);
-
-                return false;
+	    $("#tl-next-results-link").click(function() {
+		    console.log(`click next - ${event.detail}`);
+		    event.stopPropagation();
+            event.preventDefault();
+		    callProviderSearchApi(currentPostcode, currentPage + 1);
+            return false;
             });
 
         function loadRoutes() {
@@ -155,7 +160,6 @@
                 contentType: "application/json",
                 beforeSend: function(xhr) {
                     addHmacAuthHeader(xhr, uri);
-                    //xhr.setRequestHeader("Authorization", "Bearer {{ settings.find_provider_auth_token }}");
                 }
             }).done(function(response) {
                 //console.log('Routes request succeeded with JSON response:', response);
@@ -175,18 +179,30 @@
         }
 
         function providerSearch(postcode, page=0) {
+	        //$("#tl-search-providers").disabled = true;
+	        //$("#tl-next-results-link").disabled = true;
+	        let error = null;
             if (postcode === "") {
-                event.stopPropagation();
-                showPostcodeError("Enter a postcode");
-                return false;
+	            error = "Enter a postcode";
+	            //event.stopPropagation();
+	            //showPostcodeError("Enter a postcode");
+	            //$("#tl-search-providers").disabled = false;
+	            //return false;
+            } else if (!postcode.match(/^[0-9a-zA-Z\s]+$/)) {
+                console.log(`${postcode} must be letters, numbers, and spaces only`);
+                error = "Enter a valid postcode";
+                //event.stopPropagation();
+                //showPostcodeError("Enter a valid postcode");
+                //$("#tl-search-providers").disabled = false;
+                //return false;
             }
 
-            if (!postcode.match(/^[0-9a-zA-Z\s]+$/)) {
-                console.log(`${postcode} must be letters, numbers, and spaces only`);
-                event.stopPropagation();
-                showPostcodeError("Enter a valid postcode");
-                return false;
-            }
+	        if (!postcode.match(/^[0-9a-zA-Z\s]+$/)) {
+		        event.stopPropagation();
+		        showPostcodeError(error);
+		        $("#tl-search-providers").disabled = false;
+		        return false;
+	        }
 
             clearProviderSearchResults();
 
@@ -197,6 +213,15 @@
 
         function callProviderSearchApi(postcode, page=0, pageSize=5) {
             console.log(`searching for postcode ${postcode}`);
+
+            //$("#tl-search-providers").disabled = true;
+            //$("#tl-next-results-link").disabled = true;
+            console.log(`isCallingApi=${isSearchInProgress}`);
+            if (isSearchInProgress) {
+	            console.log("Already calling api");
+	            return false;
+            }
+            isSearchInProgress = true;
 
             const searchParams = new URLSearchParams({
                 postcode: postcode,
@@ -224,13 +249,14 @@
                     console.log(`currentPage is now ${currentPage}`);
                     populateProviderSearchResults(response);
                 }
+                $("#tl-search-providers").disabled = false;
+                $("#tl-next-results-link").disabled = false;
+                isSearchInProgress = false;
             }).fail(function(jqxhr) {
-                console.log(`Error ${jqxhr.status} - ${jqxhr.responseText}`);
-                if (jqxhr.status === 404 && jqxhr.responseText.startsWith('Postcode')) {
-                    showPostcodeError("Enter a valid postcode");
-                } else {
-                    showError(jqxhr.status, jqxhr.responseText);
-                }
+                showError(jqxhr.status, jqxhr.responseText);
+                $("#tl-search-providers").disabled = false;
+                $("#tl-next-results-link").disabled = false;
+                isSearchInProgress = false;
             });
 
             return true;
@@ -240,13 +266,14 @@
             const appId = $('#find_provider_api_app_id').val();
             const apiKey = $('#find_provider_api_key').val();
             const ts = Math.round((new Date()).getTime() / 1000);
-            //temp code
-            //var dt = new Date();
-            //dt.setDate(dt.getDate() + 365);
-            //const ts = Math.round(dt.getTime() / 1000);
-            //console.log("warning! setting long timestamp");
 
-            const uuid = createUniqueId();
+            const uuid = //createUniqueId();
+			             'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+				             function(c) {
+					             const r = Math.random() * 16 | 0;
+					             const v = c === 'x' ? r : (r & 0x3 | 0x8);
+					             return v.toString(16);
+				             });
             const nonce = CryptoJS.enc.Hex.parse(uuid); // 12 Bytes
 
             const data = `${appId}GET${uri.toLowerCase()}${ts}${nonce}`;
@@ -254,29 +281,19 @@
 
             const hash = CryptoJS.HmacSHA256(data, apiKey);
             const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-            //console.log(`hashed: ${hash}`);
-            //console.log(`hashed base 64: ${hashInBase64}`);
 
-            const authHeader = `amx ${appId}:${hashInBase64}:${nonce}:${ts}`;
-            console.log(`authHeader: ${authHeader}`);
-            xhr.setRequestHeader("Authorization", authHeader);
+            //console.log(`authHeader: amx ${appId}:${hashInBase64}:${nonce}:${ts}`);
+            xhr.setRequestHeader("Authorization", `amx ${appId}:${hashInBase64}:${nonce}:${ts}`);
         }
-
-        function createUniqueId() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
-                function(c) {
-                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
-        }
-
+        
         function clearProviderSearchResults() {
+	        console.log('clearing...');
             $('#tl-error').addClass("tl-hidden");
             $('#tl-postcode-error').addClass("tl-hidden");
             $('.tl-fap--noresult').addClass("tl-hidden");
+            console.log('hiding next');
+            $("#tl-next-results-link").addClass("tl-hidden");
             $("#tl-fap--results").find(".tl-fap--result").remove();
-            $("#tl-fap--results").find("#next-results-link").remove();
-
             currentPage = 0;
         }
 
@@ -354,7 +371,7 @@
                     $("#tl-fap--results").append(searchResult);
                 });
 
-            $("#tl-fap--results").append(`<p class="govuk-body"><a class="govuk-link" id="next-results-link" href="more-results">Show 5 more results</a></p>`);
+            $('#tl-next-results-link').removeClass("tl-hidden");
         }
 
         function showError(status, errorText) {
