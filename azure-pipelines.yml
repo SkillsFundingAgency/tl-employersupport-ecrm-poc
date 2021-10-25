@@ -87,6 +87,7 @@ stages:
 - stage: Deploy
   jobs:
   - deployment: Deploy
+    enabled: true
     pool:
       vmImage: 'ubuntu-latest'
     environment: 'tl-poc-env'
