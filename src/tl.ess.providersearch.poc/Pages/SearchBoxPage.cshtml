@@ -32,42 +32,39 @@
 
 @section Scripts {
 
-    <script type="text/javascript">
+	<script type="text/javascript">
 
-        $(document).ready(function() {
-            $('#tl-postcode').keypress(function (e) {
-                if (e.which === 13) {
-                    $("#tl-search-providers").click();
-                    return false;
-                }
-            }); 
+	$(document).ready(function() {
+		$('#tl-postcode').keypress(function(e) {
+			if (e.which === 13) {
+				$("#tl-search-providers").click();
+				return false;
+			}
+		});
 
-            $("#tl-search-providers").click(function() {
-                const postcode = $("#tl-postcode").val().trim().toUpperCase();
+		$("#tl-search-providers").click(function() {
+			const postcode = $("#tl-postcode").val().trim().toUpperCase();
 
-                if (postcode === "") {
-                    event.stopPropagation();
-                    showPostcodeError("You must enter a postcode");
-                    return false;
-                }
+			if (postcode === "") {
+				event.stopPropagation();
+				showPostcodeError("You must enter a postcode");
+				return false;
+			}
 
-                const searchParams = new URLSearchParams({
-                    search: postcode
-                }).toString();
-                $(location).attr('href', `/Index?${searchParams}`);
+			$(location).attr('href', '/Index?search=' + encodeURIComponent(postcode));
 
-                return true;
-            });
+			return true;
+		});
 
-           	$(".tl-search-providers-form").submit(function() {
-			    event.preventDefault();
-		    });
+		$(".tl-search-providers-form").submit(function() {
+			event.preventDefault();
+		});
 
-            function showPostcodeError(message) {
-                $("#tl-postcode-error").text(message);
-                $('#tl-postcode-error').removeClass("tl-hidden");
-            }
-        });
+		function showPostcodeError(message) {
+			$("#tl-postcode-error").text(message);
+			$('#tl-postcode-error').removeClass("tl-hidden");
+		}
+		});
 
     </script>
 }
