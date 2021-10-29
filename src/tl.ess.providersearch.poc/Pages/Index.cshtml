@@ -39,13 +39,8 @@
             </div>
         </div>
         
-        @*        <div class="govuk-grid-row tl-hidden" id="tl-error">
-            <h1 class="govuk-heading-l" id="tl-error-header"></h1>
-            <p class="govuk-body" id="tl-error-detail"></p>
-        </div>
-*@
         <div class="govuk-grid-row tl-hidden" id="tl-error">
-            <div class="govuk-grid-column-two-thirds govuk-!-margin-top-7" id="tl-error">
+            <div class="govuk-grid-column-two-thirds govuk-!-margin-top-7">
                 <h1 class="govuk-heading-l" id="tl-error-header"></h1>
                 <p class="govuk-body" id="tl-error-detail"></p>
             </div>
@@ -121,27 +116,14 @@
         });
 
         $("#tl-search-providers").click(function() {
-	        console.log("click search - " + event.detail);
-            return providerSearch($("#tl-postcode").val().trim(), 0, 5);
+	        return providerSearch($("#tl-postcode").val().trim(), 0, 5);
         });
 
         $(".tl-search-providers-form").submit(function() {
             event.preventDefault();
         });
 
-        //$("#tl-search-providers").dblclick(function() {
-	       // console.log("dblclick search");
-	       // event.preventDefault();
-	       // return false;
-        //});
-        //$("#tl-next-results-link").dblclick(function() {
-	       // console.log("dblclick next");
-	       // event.preventDefault();
-	       // return false;
-        //});
-
 	    $("#tl-next-results-link").click(function() {
-		    console.log("click next - " + event.detail);
 		    event.stopPropagation();
             event.preventDefault();
 		    callProviderSearchApi(currentPostcode, currentPage + 1);
@@ -215,7 +197,6 @@
 
 	        //$("#tl-search-providers").disabled = true;
             //$("#tl-next-results-link").disabled = true;
-            console.log("isCallingApi=" + isSearchInProgress);
             if (isSearchInProgress) {
 	            console.log("Already calling api");
 	            return false;
@@ -243,8 +224,7 @@
                     addHmacAuthHeader(xhr, uri);
                 }
             }).done(function(response) {
-                console.log(response);
-                console.log(JSON.stringify(response));
+                //console.log(JSON.stringify(response));
                 if (response.error) {
                     console.log("Invalid postcode response received - " + response.error);
                     showPostcodeError("Enter a valid postcode");
@@ -282,14 +262,11 @@
             const nonce = CryptoJS.enc.Hex.parse(uuid); // 12 Bytes
 
             const data = appId + "GET" + uri.toLowerCase() + ts + nonce;
-            console.log("hashing: " + data);
-
+            
             const hash = CryptoJS.HmacSHA256(data, apiKey);
             const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-            console.log(hashInBase64);
             const hashInBase64_2 = atob(hash);
-            console.log(hashInBase64_2);
-
+            
             xhr.setRequestHeader("Authorization", "amx " + appId + ":" + hashInBase64 + ":" + nonce + ":" + ts);
         }
         
@@ -298,7 +275,6 @@
             $('#tl-error').addClass("tl-hidden");
             $('#tl-postcode-error').addClass("tl-hidden");
             $('.tl-fap--noresult').addClass("tl-hidden");
-            console.log('hiding next');
             $("#tl-next-results-link").addClass("tl-hidden");
             $("#tl-fap--results").find(".tl-fap--result").remove();
             currentPage = 0;
@@ -387,15 +363,19 @@
 
             switch (status) {
             case 0:
+	            console.log("case 0");
                 $("#tl-error-header").text('There is a problem with your network connection.');
                 $("#tl-error-detail").html('There is a problem with your network connection. Check you’re connected to the internet and try again.');
                 break;
             default:
-                $("#tl-error-header").text('Sorry, there is a problem with the service.');
+	            console.log("case default");
+	            $("#tl-error-header").text('Sorry, there is a problem with the service.');
                 $("#tl-error-detail").html('Try again later or <a class="govuk-link tl-error--contact" href="https://test.employers.tlevels.gov.uk/hc/en-gb/requests/new">contact us</a> quoting error code ' + status);
             }
-
-            $('#tl-error').removeClass("tl-hidden");
+            
+            console.log("unhiding");
+            clearProviderSearchResults();
+	        $('#tl-error').removeClass("tl-hidden");
         }
 
         function showPostcodeError(message) {
