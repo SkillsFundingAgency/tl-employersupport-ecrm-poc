@@ -109,7 +109,8 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to retrieve pick list for {entityName}, {attributeName}");
+                _logger.LogError(ex, "Failed to retrieve pick list for {entityName}, {attributeName}", 
+                    entityName, attributeName);
             }
 
             return (null, null);
@@ -145,7 +146,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to read and update account {accountId:D}");
+                _logger.LogError(ex, "Failed to read and update account {accountId:D}", accountId);
                 throw;
             }
         }
@@ -172,7 +173,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
             if (response.DuplicateCollection.Entities.Count >= 1)
             {
-                _logger.LogInformation("{0} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
+                _logger.LogInformation("{entityCount} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
                 return response.DuplicateCollection.Entities.Select(EntityToAccount);
             }
             else
@@ -249,7 +250,7 @@ namespace tl.employersupport.ecrm.poc.application.ApiClients
 
             if (response.DuplicateCollection.Entities.Count >= 1)
             {
-                _logger.LogInformation("{0} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
+                _logger.LogInformation("{entityCount} Duplicate rows found.", response.DuplicateCollection.Entities.Count);
                 return response.DuplicateCollection.Entities.Select(EntityToContact);
             }
 

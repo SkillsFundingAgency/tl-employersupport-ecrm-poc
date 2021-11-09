@@ -17,31 +17,24 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
 
-    steps:    
-    - task: UseDotNet@2 
-      displayName: 'Install .NET Core 3.1.x SDK'
-      enabled: true
-      inputs:
-        version: '3.1.x'
-        packageType: sdk
-
+    steps:
     - task: UseDotNet@2
       displayName: 'Install .Net SDK'
       inputs:
         packageType: 'sdk'
-        version: '5.0.x'
+        version: '6.0.x'
 
     - task: DotNetCoreCLI@2
       displayName: Restore
       inputs:
         command: restore
-        projects: '**/tl.employersupport.ecrm.poc.*.csproj'
+        projects: '**/*.csproj'
         noCache: true
 
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
-        projects: '**/tl.employersupport.ecrm.poc.*.csproj'
+        projects: '**/*.csproj'
         arguments: '--configuration $(buildConfiguration)  --no-restore'        
 
     - task: DotNetCoreCLI@2

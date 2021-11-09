@@ -11,8 +11,9 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="tl-card">
-                    <h1 class="govuk-heading-xl govuk-!-margin-top-2 govuk-!-margin-bottom-7">{{article.title}}</h1>
-                    <p class="govuk-body">Search for schools and colleges delivering T Levels near you.</p>
+	                <h1 class="govuk-heading-xl govuk-!-margin-top-2 govuk-!-margin-bottom-7">{{article.title}}</h1>
+                    <p class="govuk-body" id="tl-version"></p>
+	                <p class="govuk-body">Search for schools and colleges delivering T Levels near you.</p>
                     <p class="govuk-body">You can contact them directly to find the right industry placement student for your business.</p>
 					<form class="tl-search-providers-form">
 						<span class="govuk-error-message tl-hidden" id="tl-postcode-error">Enter a postcode</span>
@@ -90,6 +91,8 @@
         let isSearchInProgress = false;
 
         //loadRoutes();
+        getVersion();
+
         //Load qualifications map
         const qualificationArticleMap = JSON.parse($('#qualification_article_map').val());
 
@@ -128,11 +131,27 @@
             event.preventDefault();
 		    callProviderSearchApi(currentPostcode, currentPage + 1);
             return false;
-            });
+	    });
+
+        function getVersion() {
+	        const uri = findProvidersApiUrl + "version";
+	        $.ajax({
+		        type: "GET",
+		        url: uri,
+		        contentType: "application/json",
+		        beforeSend: function(xhr) {
+			        addHmacAuthHeader(xhr, uri);
+		        }
+	        }).done(function(response) {
+		        console.log('Version request succeeded with JSON response:', response);
+		        $("#tl-version").html('<strong>API Version:</strong> ' + response.aspDotnetVersion + ' on runtime ' + response.runtimeVersion);
+	        }).fail(function(error) {
+		        console.log('Call to get version failed. ' + error);
+	        });
+        }
 
         function loadRoutes() {
-            const uri = findProvidersApiUrl + routes;
-
+            const uri = findProvidersApiUrl + "routes";
             $.ajax({
                 type: "GET",
                 url: uri,

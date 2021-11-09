@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 // ReSharper disable UnusedMember.Global
 
 namespace tl.employersupport.ecrm.poc.application.Extensions
@@ -21,7 +22,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
         public static JsonSerializerOptions IgnoreNullJsonSerializerOptions =>
             new()
             {
-                IgnoreNullValues = true
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             };
 
         public static string PrettifyJsonString(this string json)
@@ -57,8 +58,7 @@ namespace tl.employersupport.ecrm.poc.application.Extensions
         {
             return element.TryGetProperty(propertyName, out var property)
                    && (property.ValueKind is JsonValueKind.True or JsonValueKind.False)
-                ? property.GetBoolean()
-                : default;
+                    && property.GetBoolean();
         }
 
         public static int SafeGetInt32(this JsonElement element, string propertyName)
