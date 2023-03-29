@@ -345,7 +345,7 @@ namespace tl.employersupport.ecrm.poc.functions
         }
 
         [Function("QueueTicketRequest")]
-        [ServiceBusOutput("ticket-queue", Connection = "ServiceBusConnectionString", EntityType = EntityType.Queue)]
+        [ServiceBusOutput("ticket-queue", Connection = "ServiceBusConnectionString", EntityType = ServiceBusEntityType.Queue)]
         public async Task<string> QueueTicketRequest(
             [HttpTrigger(AuthorizationLevel.Function, "post")]
             HttpRequestData request,

@@ -22,7 +22,7 @@ stages:
       displayName: 'Install .Net SDK'
       inputs:
         packageType: 'sdk'
-        version: '6.0.x'
+        version: '7.0.x'
 
     - task: DotNetCoreCLI@2
       displayName: Restore
@@ -80,7 +80,7 @@ stages:
 - stage: Deploy
   jobs:
   - deployment: Deploy
-    #enabled: true
+    enabled: true
     pool:
       vmImage: 'ubuntu-latest'
     environment: 'tl-poc-env'
